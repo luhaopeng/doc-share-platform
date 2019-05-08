@@ -9,12 +9,7 @@
         <!-- core -->
         <link
             rel="stylesheet"
-            type="text/css"
-            href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round|Material+Icons+Sharp"
-        />
-        <link
-            rel="stylesheet"
-            href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css"
+            href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.min.css"
         />
         <!-- chartist -->
         <link rel="stylesheet" href="../lib/chartist.min.css" />
@@ -132,7 +127,7 @@
                                 class="card-header card-header-success card-header-icon"
                             >
                                 <div class="card-icon">
-                                    <i class="material-icons">save_alt</i>
+                                    <i class="material-icons">get_app</i>
                                 </div>
                                 <p class="card-category">下载总数</p>
                                 <h3 class="card-title">
@@ -207,7 +202,7 @@
                                 <div class="card-actions">
                                     <button
                                         type="button"
-                                        id="reportrange"
+                                        id="range_line"
                                         class="btn btn-lg btn-info btn-link"
                                     >
                                         <i class="material-icons">date_range</i>
@@ -219,10 +214,7 @@
                                 </div>
                                 <h4 class="card-title">
                                     每日
-                                    <input
-                                        type="checkbox"
-                                        data-toggle="switch"
-                                    />
+                                    <input type="checkbox" id="switch_line" />
                                     量（次）
                                 </h4>
                             </div>
@@ -320,87 +312,61 @@
                 </div>
                 <!-- bar -->
                 <div class="row">
-                        <div class="col-md-6 col-sm-12">
-                            <div class="card card-chart">
-                                <div class="card-header card-header-dim">
-                                    <div class="ct-chart" id="chart_bar_1"></div>
-                                </div>
-                                <div class="card-body">
-                                    <h4 class="card-title">文件数据纵比</h4>
-                                    <p class="card-category">
-                                        一类
-                                        <span class="text-success">
-                                            30%
-                                        </span>
-                                        二类
-                                        <span class="text-success">
-                                            15%
-                                        </span>
-                                        三类
-                                        <span class="text-success">
-                                            20%
-                                        </span>
-                                        四类
-                                        <span class="text-success">
-                                            10%
-                                        </span>
-                                        五类
-                                        <span class="text-success">
-                                            25%
-                                        </span>
-                                    </p>
-                                </div>
-                                <div class="card-footer">
-                                    <div class="stats">
-                                        <i class="material-icons">access_time</i>
-                                        统计时间：2019-05-06 10:47:44
-                                    </div>
-                                </div>
+                    <div class="col-md-6 col-sm-12">
+                        <div class="card card-chart">
+                            <div class="card-header card-header-dim">
+                                <div class="ct-chart" id="chart_bar_1"></div>
                             </div>
-                        </div>
-                        <div class="col-md-6 col-sm-12">
-                            <div class="card card-chart">
-                                <div class="card-header card-header-dim">
-                                    <div class="ct-chart" id="chart_bar_2"></div>
-                                </div>
-                                <div class="card-body">
-                                    <h4 class="card-title">文件数据横比</h4>
-                                    <p class="card-category">
-                                        松下
-                                        <span class="text-warning">
-                                            30%
-                                        </span>
-                                        格力
-                                        <span class="text-warning">
-                                            15%
-                                        </span>
-                                        三星
-                                        <span class="text-warning">
-                                            20%
-                                        </span>
-                                        美的
-                                        <span class="text-warning">
-                                            10%
-                                        </span>
-                                        西门子
-                                        <span class="text-warning">
-                                            15%
-                                        </span>
-                                        海尔
-                                        <span class="text-warning">
-                                            10%
-                                        </span>
-                                    </p>
-                                </div>
-                                <div class="card-footer">
-                                    <div class="stats">
-                                        <i class="material-icons">access_time</i>
-                                        统计时间：2019-05-06 10:47:44
-                                    </div>
+                            <div class="card-body">
+                                <h4 class="card-title">
+                                    文件数据纵比&nbsp;
+                                    <input type="checkbox" id="switch_bar_1" />
+                                </h4>
+                            </div>
+                            <div class="card-footer">
+                                <div class="stats">
+                                    <i class="material-icons">access_time</i>
+                                    统计时间：2019-05-06 10:47:44
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-6 col-sm-12">
+                        <div class="card card-chart">
+                            <div
+                                class="card-header card-header-dim"
+                                data-header-animation="true"
+                            >
+                                <div class="ct-chart" id="chart_bar_2"></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-actions">
+                                    <button
+                                        type="button"
+                                        id="range_bar"
+                                        class="btn btn-lg btn-info btn-link"
+                                    >
+                                        <i class="material-icons">date_range</i>
+                                        <span></span>
+                                        <i class="material-icons">
+                                            arrow_drop_down
+                                        </i>
+                                    </button>
+                                </div>
+                                <h4 class="card-title">
+                                    文件数据横比&nbsp;
+                                    <input type="checkbox" id="switch_bar_2" />
+                                </h4>
+                            </div>
+                            <div class="card-footer">
+                                <div class="stats">
+                                    <i class="material-icons">access_time</i>
+                                    统计时间：2019-05-06 10:47:44
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!-- rank -->
                 <div class="row">
                     <div class="col-sm-12">
