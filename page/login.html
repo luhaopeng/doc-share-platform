@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>登录</title>
+        <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+        <!-- core -->
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round|Material+Icons+Sharp"
+        />
+        <link
+            rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css"
+        />
+        <!-- dashboard -->
+        <link rel="stylesheet" href="../lib/material-dashboard.min.css" />
+        <!-- page -->
+        <link rel="stylesheet/less" type="text/css" href="../css/login.less" />
+    </head>
+    <body>
+        <main>
+            <!-- nav start -->
+            <nav class="navbar navbar-expand-lg navbar-transparent">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="../index.html">
+                        负荷感知共享平台
+                    </a>
+                </div>
+            </nav>
+            <!-- nav end -->
+
+            <div class="content">
+                <ul class="nav" role="tablist">
+                    <li class="nav-item sign-in">
+                        <a
+                            class="nav-link active"
+                            id="tab_sign_in"
+                            data-toggle="tab"
+                            href="#sign_in"
+                            role="tab"
+                            aria-controls="sign_in"
+                            aria-selected="true"
+                        >
+                            <span>登&nbsp;录</span>
+                        </a>
+                    </li>
+                    <li class="nav-item sign-up">
+                        <a
+                            class="nav-link"
+                            id="tab_sign_up"
+                            data-toggle="tab"
+                            href="#sign_up"
+                            role="tab"
+                            aria-controls="tab_sign_in"
+                            aria-selected="false"
+                        >
+                            <span>注&nbsp;册</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div
+                        class="tab-pane fade show active"
+                        id="sign_in"
+                        role="tabpanel"
+                        aria-labelledby="home-tab"
+                    >
+                        <div class="form-wrapper">
+                            <form>
+                                <div class="form-group">
+                                    <label for="in_username">用户名</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="in_username"
+                                        placeholder="用户名"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="in_password">密码</label>
+                                    <input
+                                        type="password"
+                                        maxlength="16"
+                                        class="form-control"
+                                        id="in_password"
+                                        placeholder="密码"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="in_code">
+                                        验证码
+                                    </label>
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="in_code"
+                                            placeholder="验证码"
+                                        />
+                                        <div class="input-group-append">
+                                            <img
+                                                title="点击图片刷新验证码"
+                                                class="val-code"
+                                                src="../img/validation.png"
+                                                alt="bzan"
+                                                width="80"
+                                                height="40"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary btn-block"
+                                >
+                                    登录
+                                </button>
+                                <div class="form-group">
+                                    <a class="forgot" href="./password.html"
+                                        >忘记密码？</a
+                                    >
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div
+                        class="tab-pane fade"
+                        id="sign_up"
+                        role="tabpanel"
+                        aria-labelledby="tab_sign_up"
+                    >
+                        <div class="form-wrapper">
+                            <form>
+                                <div class="form-group">
+                                    <label for="up_username">用户名</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        maxlength="10"
+                                        id="up_username"
+                                        placeholder="用户名，最长10个字符"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="up_password">密码</label>
+                                    <input
+                                        type="password"
+                                        maxlength="16"
+                                        class="form-control"
+                                        id="up_password"
+                                        placeholder="设置密码"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="up_confirm">
+                                        确认密码
+                                    </label>
+                                    <input
+                                        type="password"
+                                        maxlength="16"
+                                        class="form-control"
+                                        id="up_confirm"
+                                        placeholder="再次输入密码"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="up_coop_name">企业名称</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="up_coop_name"
+                                        placeholder="完整的企业名称"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="up_coop_code">企业验证码</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="up_coop_code"
+                                        placeholder="电科院提供的验证编码"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary btn-block"
+                                >
+                                    注册
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- core -->
+        <script src="../lib/jquery.min.js"></script>
+        <script src="../lib/popper.min.js"></script>
+        <script src="../lib/bootstrap-material-design.min.js"></script>
+        <script src="../lib/perfect-scrollbar.jquery.min.js"></script>
+        <!-- less -->
+        <script src="../lib/less.min.js"></script>
+        <!-- dashboard -->
+        <script src="../lib/material-dashboard.min.js"></script>
+    </body>
+</html>

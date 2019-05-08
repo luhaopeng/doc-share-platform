@@ -1,0 +1,15 @@
+{
+  "trailingComma": "none",
+  "tabWidth": 4,
+  "semi": false,
+  "singleQuote": true,
+  "jsxSingleQuote": true,
+  "overrides": [
+    {
+      "files": [".*", "*.config.js", "*.json"],
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
+}
