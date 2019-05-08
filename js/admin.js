@@ -1,11 +1,47 @@
 ;(function() {
+    const PICKER_LOCALE = {
+        format: 'YYYY/MM/DD',
+        separator: ' - ',
+        applyLabel: '应用',
+        cancelLabel: '取消',
+        fromLabel: '从',
+        toLabel: '至',
+        customRangeLabel: '自定义',
+        weekLabel: '星期',
+        daysOfWeek: ['日', '一', '二', '三', '四', '五', '六'],
+        // prettier-ignore
+        monthNames: [
+            '一月', '二月', '三月', '四月',
+            '五月', '六月', '七月', '八月',
+            '九月', '十月', '十一月', '十二月'
+        ],
+        firstDay: 1
+    }
+
     $(function() {
-        $('[data-toggle="switch"]').bootstrapSwitch({
+        $('#switch_line').bootstrapSwitch({
             onText: '下载',
             offText: '上传',
             onColor: 'info',
             offColor: 'info',
-            state: true
+            state: true,
+            size: 'small'
+        })
+        $('#switch_bar_1').bootstrapSwitch({
+            onText: '下载量',
+            offText: '上传量',
+            onColor: 'info',
+            offColor: 'info',
+            state: true,
+            size: 'mini'
+        })
+        $('#switch_bar_2').bootstrapSwitch({
+            onText: '下载量',
+            offText: '上传量',
+            onColor: 'info',
+            offColor: 'info',
+            state: true,
+            size: 'mini'
         })
 
         initLine()
@@ -39,7 +75,7 @@
 
         function cb(start, end) {
             let format = 'YYYY/MM/DD'
-            $('#reportrange span').html(
+            $('#range_line span').html(
                 start.format(format) + ' - ' + end.format(format)
             )
             if (iStart.isSame(start)) {
@@ -49,7 +85,7 @@
             }
         }
 
-        $('#reportrange').daterangepicker(
+        $('#range_line').daterangepicker(
             {
                 startDate: iStart,
                 endDate: iEnd,
@@ -57,24 +93,7 @@
                 maxSpan: {
                     days: 31
                 },
-                locale: {
-                    format: 'YYYY/MM/DD',
-                    separator: ' - ',
-                    applyLabel: '应用',
-                    cancelLabel: '取消',
-                    fromLabel: '从',
-                    toLabel: '至',
-                    customRangeLabel: '自定义',
-                    weekLabel: '星期',
-                    daysOfWeek: ['日', '一', '二', '三', '四', '五', '六'],
-                    // prettier-ignore
-                    monthNames: [
-                        '一月', '二月', '三月', '四月',
-                        '五月', '六月', '七月', '八月',
-                        '九月', '十月', '十一月', '十二月'
-                    ],
-                    firstDay: 1
-                },
+                locale: PICKER_LOCALE,
                 // prettier-ignore
                 ranges: {
                     '最近7天': [moment().subtract(6, 'days'), moment()],
@@ -95,47 +114,48 @@
 
     function initPie1() {
         let data = {
-            labels: ['一类', '二类', '三类', '四类', '五类'],
             series: genRandInt(5)
         }
         new Chartist.Pie('#chart_pie_1', data, {
             height: '200px',
             labelOffset: 15,
-            plugins: [Chartist.plugins.legend()]
+            showLabel: false,
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: ['一类', '二类', '三类', '四类', '五类']
+                })
+            ]
         })
     }
 
     function initPie2() {
         let data = {
-            labels: ['松下', '格力', '三星', '美的', '西门子', '海尔'],
             series: genRandInt(6)
         }
         new Chartist.Pie('#chart_pie_2', data, {
             height: '200px',
             labelOffset: 15,
-            plugins: [Chartist.plugins.legend()]
+            showLabel: false,
+            plugins: [
+                Chartist.plugins.legend({
+                    // prettier-ignore
+                    legendNames: ['松下', '格力', '三星', '美的', '西门子', '海尔']
+                })
+            ]
         })
     }
 
     function initBar1() {
-        var data = {
+        let data = {
+            // prettier-ignore
             labels: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
-                'Aug',
-                'Sep',
-                'Oct',
-                'Nov',
-                'Dec'
+                '01', '02', '03', '04',
+                '05', '06', '07', '08',
+                '09', '10', '11', '12'
             ],
             series: [
-                [5, 4, 3, 7, 5, 10, 3, 4, 8, 10, 6, 8],
-                [3, 2, 9, 5, 4, 6, 4, 6, 7, 8, 7, 4]
+                genRandInt(12),
+                genRandInt(5).concat([0, 0, 0, 0, 0, 0, 0])
             ]
         }
 
@@ -150,35 +170,74 @@
     }
 
     function initBar2() {
-        var data = {
+        let data = {
+            // prettier-ignore
             labels: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
-                'Aug',
-                'Sep',
-                'Oct',
-                'Nov',
-                'Dec'
+                'Jan', 'Feb', 'Mar', 'Apr',
+                'May', 'Jun', 'Jul', 'Aug',
+                'Sep', 'Oct', 'Nov', 'Dec'
             ],
             series: [
-                [5, 4, 3, 7, 5, 10, 3, 4, 8, 10, 6, 8],
-                [3, 2, 9, 5, 4, 6, 4, 6, 7, 8, 7, 4]
+                genRandInt(5).concat([0, 0, 0, 0, 0, 0, 0]),
+                genRandInt(5).concat([0, 0, 0, 0, 0, 0, 0])
             ]
         }
 
-        new Chartist.Bar('#chart_bar_2', data, {
+        let dataPrev = {
+            // prettier-ignore
+            labels: [
+                'Jan', 'Feb', 'Mar', 'Apr',
+                'May', 'Jun', 'Jul', 'Aug',
+                'Sep', 'Oct', 'Nov', 'Dec'
+            ],
+            series: [genRandInt(12), genRandInt(12)]
+        }
+
+        let chartBar = new Chartist.Bar('#chart_bar_2', data, {
             seriesBarDistance: 10,
             plugins: [
                 Chartist.plugins.legend({
-                    legendNames: ['2018', '2019']
+                    legendNames: ['华立科技', '威盛电子']
                 })
             ]
         })
+
+        let iStart = moment().startOf('year')
+        let iEnd = moment().endOf('year')
+
+        function cb(start, end) {
+            let format = 'YYYY/MM'
+            $('#range_bar span').html(
+                start.format(format) + ' - ' + end.format(format)
+            )
+            if (iStart.startOf('year').isSame(start)) {
+                chartBar.update(data)
+            } else {
+                chartBar.update(dataPrev)
+            }
+        }
+
+        $('#range_bar').daterangepicker(
+            {
+                startDate: iStart,
+                endDate: iEnd,
+                opens: 'center',
+                linkedCalendars: false,
+                showDropdowns: true,
+                locale: PICKER_LOCALE,
+                // prettier-ignore
+                ranges: {
+                    '今年': [iStart, iEnd],
+                    '去年': [
+                        moment().subtract(1, 'year').startOf('year'),
+                        moment().subtract(1, 'year').endOf('year')
+                    ]
+                }
+            },
+            cb
+        )
+
+        cb(iStart, iEnd)
     }
 
     function initRank() {
@@ -210,7 +269,7 @@
     function genRandInt(n) {
         let arr = []
         while (n-- > 0) {
-            arr.push(parseInt(Math.random() * 15))
+            arr.push(parseInt(Math.random() * 15 + 1))
         }
         return arr
     }
