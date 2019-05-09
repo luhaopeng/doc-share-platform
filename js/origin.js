@@ -1,8 +1,13 @@
 ;(function() {
   $(function() {
-    let $result = $('.filter .result')
+    initFilter()
+    initRank()
+  })
+
+  function initFilter() {
+    let $combine = $('.filter .combine')
     let $condition = $('.filter .condition')
-    $result
+    $combine
       .on('click', '.factor', function cancel() {
         let $target = $(this)
         let cat = $target.attr('data-cat')
@@ -11,7 +16,7 @@
       })
       .on('click', '.reset', function reset() {
         $condition.children('.row[data-cat]').show()
-        $result.children('.factor').remove()
+        $combine.children('.factor').remove()
       })
     $condition
       .on('click', '.row:not(.multi) .value a', function filter() {
@@ -19,7 +24,7 @@
         let $row = $target.closest('.row[data-cat]')
         let cat = $row.attr('data-cat')
         let val = $target.text()
-        $(buildFactor(cat, val)).insertBefore('.filter .result .reset')
+        $(buildFactor(cat, val)).insertBefore('.filter .combine .reset')
         $row.hide()
       })
       .on('click', '.row.multi .value li', function select() {
@@ -40,7 +45,7 @@
           comb += (idx ? ',' : '') + val
         })
         if (comb) {
-          $(buildFactor(cat, comb)).insertBefore('.filter .result .reset')
+          $(buildFactor(cat, comb)).insertBefore('.filter .combine .reset')
           $row.hide()
         }
         $row.removeClass('multi')
@@ -53,7 +58,33 @@
         $row.removeClass('multi')
         $active.removeClass('active')
       })
-  })
+  }
+
+  function initRank() {
+    let $rank_a = $('#table_origin a[data-rank]')
+    $rank_a.on('click', function() {
+      let $cur_a = $(this)
+      let rank = $cur_a.attr('data-rank')
+      if (rank === 'none') {
+        $rank_a
+          .attr('data-rank', 'none')
+          .children('i')
+          .removeClass('rank-desc')
+          .removeClass('rank-asc')
+        $cur_a
+          .attr('data-rank', 'desc')
+          .children('i')
+          .addClass('rank-desc')
+      } else {
+        let to = rank === 'desc' ? 'asc' : 'desc'
+        $cur_a
+          .attr('data-rank', to)
+          .children('i')
+          .removeClass('rank-' + rank)
+          .addClass('rank-' + to)
+      }
+    })
+  }
 
   function buildFactor(cat, value) {
     let translate
