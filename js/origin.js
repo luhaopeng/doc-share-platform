@@ -112,6 +112,38 @@
         window.location.href = `file.html?file=${id}`
       }
     })
+    $tbody.on('click', 'button[data-action=star]', function star() {
+      let $target = $(this)
+      let action = $target.attr('data-toggle')
+      const TOAST_OPTION = {
+        icon: 'success',
+        position: 'bottom-right',
+        allowToastClose: false,
+        stack: false,
+        loader: false,
+        hideAfter: 2000,
+        textAlign: 'center'
+      }
+      if (action === 'star') {
+        $target
+          .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
+          .children('.material-icons')
+          .text('star')
+        $.toast({
+          heading: '收藏成功',
+          ...TOAST_OPTION
+        })
+      } else if (action === 'unstar') {
+        $target
+          .attr({ 'data-toggle': 'star', title: '收藏' })
+          .children('.material-icons')
+          .text('star_border')
+        $.toast({
+          heading: '已取消收藏',
+          ...TOAST_OPTION
+        })
+      }
+    })
   }
 
   function buildFactor(cat, value) {
@@ -162,13 +194,20 @@
         <td class="text-right">${obj.download}</td>
         <td class="td-actions text-right">
           <button
+            data-action="star"
+            data-toggle="${obj.fav ? 'unstar' : 'star'}"
             type="button"
             class="btn btn-warning"
             title="${obj.fav ? '取消' : ''}收藏"
           >
             <i class="material-icons">star${obj.fav ? '' : '_border'}</i>
           </button>
-          <button type="button" class="btn btn-success" title="下载">
+          <button
+            data-action="download"
+            type="button"
+            class="btn btn-success"
+            title="下载"
+          >
             <i class="material-icons">get_app</i>
           </button>
         </td>
