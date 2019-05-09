@@ -6,140 +6,140 @@
 @color-series-6: #dfc1f9;
 
 .ct-chart-custom {
-    .ct-series-a .ct-slice-pie {
-        fill: @color-series-1;
-        stroke: @color-series-1;
+  .ct-series-a .ct-slice-pie {
+    fill: @color-series-1;
+    stroke: @color-series-1;
+  }
+
+  .ct-series-b .ct-slice-pie {
+    fill: @color-series-2;
+    stroke: @color-series-2;
+  }
+
+  .ct-series-c .ct-slice-pie {
+    fill: @color-series-3;
+    stroke: @color-series-3;
+  }
+
+  .ct-series-d .ct-slice-pie {
+    fill: @color-series-4;
+    stroke: @color-series-4;
+  }
+
+  .ct-series-e .ct-slice-pie {
+    fill: @color-series-5;
+    stroke: @color-series-5;
+  }
+
+  .ct-series-f .ct-slice-pie {
+    fill: @color-series-6;
+    stroke: @color-series-6;
+  }
+
+  .ct-legend {
+    .ct-series-0:before {
+      background-color: @color-series-1;
+      border-color: @color-series-1;
     }
 
-    .ct-series-b .ct-slice-pie {
-        fill: @color-series-2;
-        stroke: @color-series-2;
+    .ct-series-1:before {
+      background-color: @color-series-2;
+      border-color: @color-series-2;
     }
 
-    .ct-series-c .ct-slice-pie {
-        fill: @color-series-3;
-        stroke: @color-series-3;
+    .ct-series-2:before {
+      background-color: @color-series-3;
+      border-color: @color-series-3;
     }
 
-    .ct-series-d .ct-slice-pie {
-        fill: @color-series-4;
-        stroke: @color-series-4;
+    .ct-series-3:before {
+      background-color: @color-series-4;
+      border-color: @color-series-4;
     }
 
-    .ct-series-e .ct-slice-pie {
-        fill: @color-series-5;
-        stroke: @color-series-5;
+    .ct-series-4:before {
+      background-color: @color-series-5;
+      border-color: @color-series-5;
     }
 
-    .ct-series-f .ct-slice-pie {
-        fill: @color-series-6;
-        stroke: @color-series-6;
+    .ct-series-5:before {
+      background-color: @color-series-6;
+      border-color: @color-series-6;
     }
+  }
 
-    .ct-legend {
-        .ct-series-0:before {
-            background-color: @color-series-1;
-            border-color: @color-series-1;
-        }
-
-        .ct-series-1:before {
-            background-color: @color-series-2;
-            border-color: @color-series-2;
-        }
-
-        .ct-series-2:before {
-            background-color: @color-series-3;
-            border-color: @color-series-3;
-        }
-
-        .ct-series-3:before {
-            background-color: @color-series-4;
-            border-color: @color-series-4;
-        }
-
-        .ct-series-4:before {
-            background-color: @color-series-5;
-            border-color: @color-series-5;
-        }
-
-        .ct-series-5:before {
-            background-color: @color-series-6;
-            border-color: @color-series-6;
-        }
-    }
-
-    .ct-label {
-        fill: rgba(0, 0, 0, 0.7);
-        font-size: 14px;
-        font-weight: normal;
-    }
+  .ct-label {
+    fill: rgba(0, 0, 0, 0.7);
+    font-size: 14px;
+    font-weight: normal;
+  }
 }
 
 // legend
 .ct-legend {
-    position: relative;
-    z-index: 10;
-    list-style: none;
-    text-align: center;
+  position: relative;
+  z-index: 10;
+  list-style: none;
+  text-align: center;
 
-    &.ct-legend-inside {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-
-        li {
-            display: block;
-            margin: 0;
-            text-align: left;
-        }
-    }
+  &.ct-legend-inside {
+    position: absolute;
+    top: 15px;
+    right: 15px;
 
     li {
-        position: relative;
-        padding-left: 23px;
-        margin-right: 10px;
-        margin-bottom: 3px;
-        cursor: pointer;
-        display: inline-block;
+      display: block;
+      margin: 0;
+      text-align: left;
+    }
+  }
 
-        &:before {
-            width: 16px;
-            height: 16px;
-            position: absolute;
-            left: 0;
-            top: 4px;
-            content: '';
-            border: 3px solid transparent;
-            border-radius: 2px;
-        }
+  li {
+    position: relative;
+    padding-left: 23px;
+    margin-right: 10px;
+    margin-bottom: 3px;
+    cursor: pointer;
+    display: inline-block;
 
-        &.inactive:before {
-            background: transparent;
-        }
+    &:before {
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      left: 0;
+      top: 4px;
+      content: '';
+      border: 3px solid transparent;
+      border-radius: 2px;
     }
 
-    .ct-series-0:before {
-        background-color: #fff;
-        border-color: #fff;
+    &.inactive:before {
+      background: transparent;
     }
+  }
 
-    .ct-series-1:before {
-        background-color: #f44336;
-        border-color: #f44336;
-    }
+  .ct-series-0:before {
+    background-color: #fff;
+    border-color: #fff;
+  }
 
-    .ct-series-2:before {
-        background-color: #ff9800;
-        border-color: #ff9800;
-    }
+  .ct-series-1:before {
+    background-color: #f44336;
+    border-color: #f44336;
+  }
 
-    .ct-series-3:before {
-        background-color: #d17905;
-        border-color: #d17905;
-    }
+  .ct-series-2:before {
+    background-color: #ff9800;
+    border-color: #ff9800;
+  }
 
-    .ct-series-4:before {
-        background-color: #453d3f;
-        border-color: #453d3f;
-    }
+  .ct-series-3:before {
+    background-color: #d17905;
+    border-color: #d17905;
+  }
+
+  .ct-series-4:before {
+    background-color: #453d3f;
+    border-color: #453d3f;
+  }
 }

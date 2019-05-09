@@ -2,247 +2,247 @@
 @color-danger: #e4393c;
 
 .search {
-    display: flex;
-    margin-bottom: 16px;
+  display: flex;
+  margin-bottom: 16px;
 
-    .search-box {
-        flex: 1 0;
-        height: 24px;
-        line-height: 24px;
-        padding: 4px;
-        box-sizing: content-box;
-        border-radius: 3px 0 0 3px;
-        border: solid 2px @color-primary;
-        text-indent: 1em;
-        color: #666;
+  .search-box {
+    flex: 1 0;
+    height: 24px;
+    line-height: 24px;
+    padding: 4px;
+    box-sizing: content-box;
+    border-radius: 3px 0 0 3px;
+    border: solid 2px @color-primary;
+    text-indent: 1em;
+    color: #666;
+  }
+
+  .search-btn {
+    width: 100px;
+    background-color: @color-primary;
+    color: #fff;
+    border: solid 2px @color-primary;
+    border-left-width: 0;
+    border-radius: 0 3px 3px 0;
+    cursor: pointer;
+    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
+      background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+
+    &:focus,
+    &:hover {
+      box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.12);
+      outline: none;
     }
 
-    .search-btn {
-        width: 100px;
-        background-color: @color-primary;
-        color: #fff;
-        border: solid 2px @color-primary;
-        border-left-width: 0;
-        border-radius: 0 3px 3px 0;
-        cursor: pointer;
-        transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
-            background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        outline: none;
-
-        &:focus,
-        &:hover {
-            box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.12);
-            outline: none;
-        }
-
-        &:focus:active {
-            box-shadow: none;
-            background-color: lighten(@color-primary, 10%);
-            border-color: lighten(@color-primary, 10%);
-        }
+    &:focus:active {
+      box-shadow: none;
+      background-color: lighten(@color-primary, 10%);
+      border-color: lighten(@color-primary, 10%);
     }
+  }
 }
 
 .filter {
-    .result {
-        display: flex;
-        align-items: center;
+  .result {
+    display: flex;
+    align-items: center;
 
-        .all {
-            font-size: 24px;
-            font-weight: bold;
+    .all {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .factor {
+      position: relative;
+      font-size: 14px;
+      border: solid 1px #aaa;
+      background-color: #fff;
+      box-sizing: border-box;
+      margin-right: 6px;
+      padding: 0 26px 0 4px;
+      cursor: pointer;
+
+      &:hover,
+      &:focus {
+        border-color: @color-danger;
+
+        .material-icons {
+          color: #fff;
+          background-color: @color-danger;
+        }
+      }
+
+      b {
+        font-weight: normal;
+        color: @color-secondary;
+      }
+
+      em {
+        font-style: normal;
+        font-weight: normal;
+        color: @color-danger;
+      }
+
+      .material-icons {
+        font-size: 16px;
+        color: @color-danger;
+        display: block;
+        position: absolute;
+        width: 25px;
+        height: 25px;
+        line-height: 25px;
+        text-align: center;
+        right: 0;
+        top: 0;
+      }
+    }
+
+    .reset {
+      cursor: pointer;
+      font-size: 14px;
+      color: @color-secondary;
+      display: none;
+      font-weight: normal;
+
+      &:hover,
+      &:focus {
+        color: @color-danger;
+      }
+    }
+
+    .factor + .reset {
+      display: block;
+    }
+  }
+
+  .condition {
+    margin-top: 20px;
+    background-color: #fff;
+
+    .row {
+      align-items: center;
+      font-size: 14px;
+
+      &:not(:last-child) {
+        border-bottom: dashed 1px #ccc;
+      }
+
+      &.multi {
+        border: solid 2px @color-danger;
+
+        ul.value li {
+          position: relative;
+          border: solid 2px transparent;
+          padding: 0 10px;
+
+          &:hover,
+          &:focus,
+          &.active {
+            border: solid 2px @color-danger;
+          }
+
+          // check mark
+          &.active::before {
+            content: '\2714';
+            color: #fff;
+            position: absolute;
+            z-index: 1;
+            right: 0;
+            bottom: 0;
+            width: 10px;
+            height: 12px;
+            line-height: 1;
+            transform: scale(0.7);
+            transform-origin: right bottom;
+          }
+
+          // triangle
+          &.active::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 0;
+            border-bottom: 12px solid @color-danger;
+            border-left: 12px solid transparent;
+          }
         }
 
-        .factor {
-            position: relative;
-            font-size: 14px;
-            border: solid 1px #aaa;
-            background-color: #fff;
-            box-sizing: border-box;
-            margin-right: 6px;
-            padding: 0 26px 0 4px;
-            cursor: pointer;
-
-            &:hover,
-            &:focus {
-                border-color: @color-danger;
-
-                .material-icons {
-                    color: #fff;
-                    background-color: @color-danger;
-                }
-            }
-
-            b {
-                font-weight: normal;
-                color: @color-secondary;
-            }
-
-            em {
-                font-style: normal;
-                font-weight: normal;
-                color: @color-danger;
-            }
-
-            .material-icons {
-                font-size: 16px;
-                color: @color-danger;
-                display: block;
-                position: absolute;
-                width: 25px;
-                height: 25px;
-                line-height: 25px;
-                text-align: center;
-                right: 0;
-                top: 0;
-            }
-        }
-
-        .reset {
-            cursor: pointer;
-            font-size: 14px;
-            color: @color-secondary;
+        .extra {
+          .multi {
             display: none;
-            font-weight: normal;
+          }
 
-            &:hover,
-            &:focus {
-                color: @color-danger;
-            }
+          .submit,
+          .cancel {
+            display: inline;
+          }
+        }
+      }
+
+      .key {
+        color: @color-secondary;
+      }
+
+      ul.value {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 10px 0;
+        color: @color-text;
+        font-weight: normal;
+        list-style: none;
+
+        li {
+          margin: 5px 20px 5px 0;
+          cursor: pointer;
+
+          &:hover,
+          &:focus {
+            color: @color-danger;
+          }
+        }
+      }
+
+      .extra {
+        text-align: right;
+
+        a {
+          border: solid 1px #ddd;
+          padding: 4px;
+          background-color: #f8f8f8;
+          cursor: pointer;
+          color: @color-secondary;
+
+          &:hover,
+          &:focus,
+          &.active {
+            color: @color-danger;
+            border-color: @color-danger;
+          }
+
+          &.submit,
+          &.cancel {
+            display: none;
+            padding: 4px 10px;
+            border-radius: 2px;
+          }
+
+          &.submit {
+            color: #fff;
+            border-color: @color-danger;
+            background-color: @color-danger;
+          }
+
+          &.cancel {
+            background-color: #fff;
+          }
         }
 
-        .factor + .reset {
-            display: block;
+        .material-icons {
+          font-size: 20px;
         }
+      }
     }
-
-    .condition {
-        margin-top: 20px;
-        background-color: #fff;
-
-        .row {
-            align-items: center;
-            font-size: 14px;
-
-            &:not(:last-child) {
-                border-bottom: dashed 1px #ccc;
-            }
-
-            &.multi {
-                border: solid 2px @color-danger;
-
-                ul.value li {
-                    position: relative;
-                    border: solid 2px transparent;
-                    padding: 0 10px;
-
-                    &:hover,
-                    &:focus,
-                    &.active {
-                        border: solid 2px @color-danger;
-                    }
-
-                    // check mark
-                    &.active::before {
-                        content: '\2714';
-                        color: #fff;
-                        position: absolute;
-                        z-index: 1;
-                        right: 0;
-                        bottom: 0;
-                        width: 10px;
-                        height: 12px;
-                        line-height: 1;
-                        transform: scale(0.7);
-                        transform-origin: right bottom;
-                    }
-
-                    // triangle
-                    &.active::after {
-                        content: '';
-                        position: absolute;
-                        right: 0;
-                        bottom: 0;
-                        width: 0;
-                        border-bottom: 12px solid @color-danger;
-                        border-left: 12px solid transparent;
-                    }
-                }
-
-                .extra {
-                    .multi {
-                        display: none;
-                    }
-
-                    .submit,
-                    .cancel {
-                        display: inline;
-                    }
-                }
-            }
-
-            .key {
-                color: @color-secondary;
-            }
-
-            ul.value {
-                display: flex;
-                flex-wrap: wrap;
-                margin: 10px 0;
-                color: @color-text;
-                font-weight: normal;
-                list-style: none;
-
-                li {
-                    margin: 5px 20px 5px 0;
-                    cursor: pointer;
-
-                    &:hover,
-                    &:focus {
-                        color: @color-danger;
-                    }
-                }
-            }
-
-            .extra {
-                text-align: right;
-
-                a {
-                    border: solid 1px #ddd;
-                    padding: 4px;
-                    background-color: #f8f8f8;
-                    cursor: pointer;
-                    color: @color-secondary;
-
-                    &:hover,
-                    &:focus,
-                    &.active {
-                        color: @color-danger;
-                        border-color: @color-danger;
-                    }
-
-                    &.submit,
-                    &.cancel {
-                        display: none;
-                        padding: 4px 10px;
-                        border-radius: 2px;
-                    }
-
-                    &.submit {
-                        color: #fff;
-                        border-color: @color-danger;
-                        background-color: @color-danger;
-                    }
-
-                    &.cancel {
-                        background-color: #fff;
-                    }
-                }
-
-                .material-icons {
-                    font-size: 20px;
-                }
-            }
-        }
-    }
+  }
 }
