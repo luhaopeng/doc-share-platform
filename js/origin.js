@@ -134,17 +134,13 @@
   }
 
   function buildRankRow(obj) {
-    let sTitle = obj.title
-    if (sTitle.length > 9) {
-      sTitle = sTitle.substr(0, 9) + '...'
-    }
     return `
       <tr>
         <td
           class="text-left"
           title="${obj.title}"
         >
-          ${sTitle}
+          <div class="text-ellipsis">${obj.title}</div>
         </td>
         <td>${obj.date}</td>
         <td>${obj.size}</td>
