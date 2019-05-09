@@ -102,6 +102,16 @@
         $tbody.append(buildRankRow(randFile()))
       }
     })
+
+    // click
+    $tbody.on('click', 'tr', function detail(e) {
+      let tag = e.target.tagName
+      if (/tr|td/i.test(tag)) {
+        // prettier-ignore
+        let id = $(this).closest('tr').attr('data-id')
+        window.location.href = `file.html?file=${id}`
+      }
+    })
   }
 
   function buildFactor(cat, value) {
@@ -135,7 +145,7 @@
 
   function buildRankRow(obj) {
     return `
-      <tr>
+      <tr data-id="${obj.id}">
         <td
           class="text-left"
           title="${obj.title}"
@@ -185,6 +195,7 @@
     const states = ['已解析', '未解析']
     const favs = [true, false]
     return {
+      id: parseInt(Math.random() * 100),
       title: rand(titles),
       date: rand(dates),
       size: (Math.random() * 100).toFixed(2) + 'MB',
