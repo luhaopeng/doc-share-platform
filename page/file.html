@@ -11,6 +11,8 @@
       rel="stylesheet"
       href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.min.css"
     />
+    <!-- jquery toast -->
+    <link rel="stylesheet" href="../lib/jquery.toast.min.css" />
     <!-- dashboard -->
     <link rel="stylesheet" href="../lib/material-dashboard.min.css" />
     <!-- page -->
@@ -94,7 +96,7 @@
           </ol>
         </nav>
         <div class="card">
-          <div title="取消收藏" class="star">
+          <div title="取消收藏" data-toggle="unstar" class="star">
             <i class="material-icons">star</i>
           </div>
           <div class="card-body">
@@ -234,11 +236,11 @@
                   placeholder="注意言辞，做个好人 (｡･ω･｡)"
                 ></textarea>
                 <div class="d-flex align-items-center">
-                <button type="button" class="btn btn-info send">
-                  <i class="material-icons">add</i>
-                  发表评论
-                </button>
-              </div>
+                  <button type="button" class="btn btn-info send">
+                    <i class="material-icons">add</i>
+                    发表评论
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -253,6 +255,7 @@
                 </div>
                 <div class="col">
                   <h4>张腾</h4>
+                  <span>2019-05-10 16:05:10</span>
                   <p>
                     为了解决跨浏览器兼容性问题，您的 React
                     中的事件处理程序将传递 SyntheticEvent 的实例，它是 React
@@ -266,6 +269,7 @@
                 </div>
                 <div class="col">
                   <h4>张腾</h4>
+                  <span>2019-05-10 13:44:01</span>
                   <p>
                     为了解决跨浏览器兼容性问题，您的 React
                     中的事件处理程序将传递 SyntheticEvent 的实例，它是 React
@@ -279,6 +283,7 @@
                 </div>
                 <div class="col">
                   <h4>张腾</h4>
+                  <span>2019-05-10 09:30:21</span>
                   <p>
                     为了解决跨浏览器兼容性问题，您的 React
                     中的事件处理程序将传递 SyntheticEvent 的实例，它是 React
@@ -294,11 +299,16 @@
     <!-- core -->
     <script src="../lib/jquery.min.js"></script>
     <script src="../lib/popper.min.js"></script>
+    <script src="../lib/moment.min.js"></script>
     <script src="../lib/bootstrap-material-design.min.js"></script>
     <script src="../lib/perfect-scrollbar.jquery.min.js"></script>
     <!-- less -->
     <script src="../lib/less.min.js"></script>
+    <!-- jquery toast -->
+    <script src="../lib/jquery.toast.min.js"></script>
     <!-- dashboard -->
     <script src="../lib/material-dashboard.min.js"></script>
+    <!-- file -->
+    <script src="../js/file.js"></script>
   </body>
 </html>
