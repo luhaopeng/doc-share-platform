@@ -32,22 +32,8 @@
     border: solid 2px @color-primary;
     border-left-width: 0;
     border-radius: 0 3px 3px 0;
-    cursor: pointer;
-    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
-      background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     outline: none;
-
-    &:focus,
-    &:hover {
-      box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.12);
-      outline: none;
-    }
-
-    &:focus:active {
-      box-shadow: none;
-      background-color: lighten(@color-primary, 10%);
-      border-color: lighten(@color-primary, 10%);
-    }
+    .clickable(@color-primary);
   }
 }
 
@@ -61,6 +47,10 @@
       font-size: 24px;
       font-weight: bold;
       line-height: 1.5;
+
+      .material-icons {
+        vertical-align: -0.15em;
+      }
     }
 
     .factor {

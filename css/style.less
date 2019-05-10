@@ -2,15 +2,17 @@
 @color-primary: #616161;
 @color-text: #262626;
 @color-secondary: #6c757d;
+@color-success: #4caf50;
 @color-danger: #f44336;
+@color-warning: #ff9800;
 
-.material-icons {
-  vertical-align: -0.15em;
-}
+// form label
 
 .bmd-form-group label {
   color: #666;
 }
+
+// fix nav-item hover bg-color
 
 .navbar .navbar-nav .nav-item {
   .nav-link:hover,
@@ -20,9 +22,13 @@
   }
 }
 
+// custom container-fluid
+
 .container-custom {
   width: 90%;
 }
+
+// btn-ghost
 
 .btn-ghost {
   color: #fff;
@@ -44,6 +50,8 @@
   }
 }
 
+// card pale & dim
+
 .card {
   .card-header-pale:not(.card-header-icon):not(.card-header-text) {
     box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14),
@@ -58,6 +66,8 @@
   }
 }
 
+// table-border
+
 table.table {
   text-align: center;
 
@@ -70,6 +80,8 @@ table.table {
     border-top: solid 1px #ddd;
   }
 }
+
+// rank-mark-start
 
 a[data-rank]:hover,
 a[data-rank]:focus {
@@ -121,5 +133,28 @@ a[data-rank] {
     &.rank-desc::after {
       border-top-color: #fb8c00;
     }
+  }
+}
+
+// rank-mark-end
+
+// clickable hover
+
+.clickable(@color) {
+  cursor: pointer;
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
+    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover,
+  &:focus {
+    color: #fff;
+    background-color: darken(@color, 5%);
+    box-shadow: 0 14px 26px -12px fade(@color, 0.42),
+      0 4px 23px 0 rgba(0, 0, 0, 0.12), 0 8px 10px -5px fade(@color, 0.2);
+  }
+
+  &:active {
+    background-color: @color;
+    box-shadow: none;
   }
 }
