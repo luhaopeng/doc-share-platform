@@ -1,8 +1,18 @@
 ;(function() {
+  let parsed = false
+
   $(function() {
+    initType()
     initDetail()
     initComment()
   })
+
+  function initType() {
+    let qsObj = qs(window.location.search)
+    parsed = !!qsObj.type && qsObj.type === 'parsed'
+
+    // TODO parsed page
+  }
 
   function initDetail() {
     $('.card .star').on('click', function star() {
