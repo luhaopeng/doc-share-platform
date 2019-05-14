@@ -1,6 +1,4 @@
 ;(function() {
-  let parsed = false
-
   $(function() {
     initType()
     initDetail()
@@ -9,9 +7,27 @@
 
   function initType() {
     let qsObj = qs(window.location.search)
-    parsed = !!qsObj.type && qsObj.type === 'parsed'
+    let parsed = !!qsObj.type && qsObj.type === 'parsed'
 
-    // TODO parsed page
+    if (parsed) {
+      // navbar
+      $('nav.navbar .navbar-nav li.nav-item')
+        .eq(2)
+        .addClass('active')
+        .siblings()
+        .removeClass('active')
+      // breadcrumb
+      $('nav ol.breadcrumb li.breadcrumb-item')
+        .eq(0)
+        .html('<a href="./parsed.html">解析文件库</a>')
+      // file info
+      $('.card .card-body ul.author li')
+        .eq(3)
+        .text('解析文件')
+      $('<li>需 5 积分</li>').insertBefore(
+        '.card .card-body ul.author li.download'
+      )
+    }
   }
 
   function initDetail() {
@@ -46,6 +62,15 @@
           ...TOAST_OPTION
         })
       }
+    })
+
+    $('.card ul.author .download').on('click', function showModal() {
+      $('#downloadModal').modal()
+    })
+
+    $('#downloadModal #downloadBtn').on('click', function download() {
+      console.log('download')
+      $('#downloadModal').modal('hide')
     })
   }
 

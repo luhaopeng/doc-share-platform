@@ -237,7 +237,7 @@
       title: rand(titles),
       date: rand(dates),
       size: (Math.random() * 100).toFixed(2) + 'MB',
-      type: '原始文件',
+      type: '解析文件',
       cate: rand(cates),
       brand: rand(brands),
       company: rand(companys),
