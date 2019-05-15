@@ -39,8 +39,9 @@
   function initNav() {
     $('#navPrev').on('click', prev)
     $('#navNext').on('click', function() {
+      next()
       if (uploader && uploader.getFiles().length > 0) {
-        next()
+        // next()
       }
     })
   }
