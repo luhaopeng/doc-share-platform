@@ -1,205 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>原始文件库</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+    <!-- core -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.min.css"
+    />
+    <!-- jquery toast -->
+    <link rel="stylesheet" href="../lib/jquery.toast.min.css" />
+    <!-- dashboard -->
+    <link rel="stylesheet" href="../lib/material-dashboard.min.css" />
+    <!-- page -->
+    <link rel="stylesheet/less" type="text/css" href="../css/origin.less" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>原始文件库</title>
-  <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
-  <!-- core -->
-  <link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.min.css" />
-  <!-- jquery toast -->
-  <link rel="stylesheet" href="../lib/jquery.toast.min.css">
-  <!-- dashboard -->
-  <link rel="stylesheet" href="../lib/material-dashboard.min.css" />
-  <!-- page -->
-  <link rel="stylesheet/less" type="text/css" href="../css/origin.less" />
-</head>
-
-<body>
-  <main>
-    <!-- nav start -->
-    <nav class="navbar navbar-expand-lg bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
-          负荷感知共享平台
-        </a>
-        <div class="collapse navbar-collapse">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-              <a href="./admin.html" class="nav-link">
-                首页
-              </a>
-            </li>
-            <li class="nav-item active">
-              <a href="./origin.html" class="nav-link">
-                原始文件库
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="./parsed.html" class="nav-link">
-                解析文件库
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="javascript:;" class="nav-link">
-                账号管理
-              </a>
-            </li>
-          </ul>
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-              <a href='./upload.html' class="btn btn-ghost btn-sm">
-                <i class="material-icons">publish</i>
-                上传文档
-              </a>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link" href="javascript:;" id="nav_user" data-toggle="dropdown" aria-haspopup="true"
-                aria-expanded="true">
-                <i class="material-icons">person</i>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="nav_user">
-                <a class="dropdown-item" href="javascript:;">
-                  个人中心
+  <body>
+    <main>
+      <!-- nav start -->
+      <nav class="navbar navbar-expand-lg bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="../index.html">
+            负荷感知共享平台
+          </a>
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item">
+                <a href="./admin.html" class="nav-link">
+                  首页
                 </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:;">
-                  退出
+              </li>
+              <li class="nav-item active">
+                <a href="./origin.html" class="nav-link">
+                  原始文件库
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="./parsed.html" class="nav-link">
+                  解析文件库
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="javascript:;" class="nav-link">
+                  账号管理
+                </a>
+              </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item">
+                <a href="./upload.html" class="btn btn-ghost btn-sm">
+                  <i class="material-icons">publish</i>
+                  上传文档
+                </a>
+              </li>
+              <li class="nav-item dropdown">
+                <a
+                  class="nav-link"
+                  href="javascript:;"
+                  id="nav_user"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="true"
+                >
+                  <i class="material-icons">person</i>
+                </a>
+                <div
+                  class="dropdown-menu dropdown-menu-right"
+                  aria-labelledby="nav_user"
+                >
+                  <a class="dropdown-item" href="javascript:;">
+                    个人中心
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="javascript:;">
+                    退出
+                  </a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <!-- nav end -->
+
+      <!-- content -->
+      <div class="container-fluid container-custom">
+        <div class="search">
+          <input
+            type="text"
+            class="search-box"
+            placeholder="搜索 文件名|企业名"
+          />
+          <button type="button" class="search-btn">搜索</button>
+        </div>
+        <div class="filter">
+          <div class="combine">
+            <div class="all">
+              所有分类
+              <i class="material-icons">chevron_right</i>
+            </div>
+            <a class="reset">清空筛选</a>
+          </div>
+          <div class="container-fluid condition">
+            <div class="row" data-cat="brand">
+              <div class="col-sm-2 key">
+                品牌：
+              </div>
+              <ul class="col-sm-8 value">
+                <li><a>格力</a></li>
+                <li><a>美的</a></li>
+                <li><a>海尔</a></li>
+                <li><a>西门子</a></li>
+                <li><a>三星</a></li>
+                <li><a>松下</a></li>
+                <li><a>海信</a></li>
+                <li><a>TCL</a></li>
+                <li><a>格兰仕</a></li>
+                <li><a>志高</a></li>
+              </ul>
+              <div class="col-sm-2 extra">
+                <a class="submit">提交</a>
+                <a class="cancel">取消</a>
+                <a class="multi">
+                  <i class="material-icons">add</i>
+                  多选
                 </a>
               </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-    <!-- nav end -->
-
-    <!-- content -->
-    <div class="container-fluid container-custom">
-      <div class="search">
-        <input type="text" class="search-box" placeholder="搜索 文件名|企业名" />
-        <button type="button" class="search-btn">搜索</button>
-      </div>
-      <div class="filter">
-        <div class="combine">
-          <div class="all">
-            所有分类
-            <i class="material-icons">chevron_right</i>
-          </div>
-          <a class="reset">清空筛选</a>
-        </div>
-        <div class="container-fluid condition">
-          <div class="row" data-cat="brand">
-            <div class="col-sm-2 key">
-              品牌：
             </div>
-            <ul class="col-sm-8 value">
-              <li><a>格力</a></li>
-              <li><a>美的</a></li>
-              <li><a>海尔</a></li>
-              <li><a>西门子</a></li>
-              <li><a>三星</a></li>
-              <li><a>松下</a></li>
-              <li><a>海信</a></li>
-              <li><a>TCL</a></li>
-              <li><a>格兰仕</a></li>
-              <li><a>志高</a></li>
-            </ul>
-            <div class="col-sm-2 extra">
-              <a class="submit">提交</a>
-              <a class="cancel">取消</a>
-              <a class="multi">
-                <i class="material-icons">add</i>
-                多选
-              </a>
+            <div class="row" data-cat="type">
+              <div class="col-sm-2 key">
+                设备类型：
+              </div>
+              <ul class="col-sm-8 value">
+                <li><a>压缩机</a></li>
+                <li><a>照明</a></li>
+                <li><a>空调</a></li>
+                <li><a>冰箱</a></li>
+                <li><a>净化器</a></li>
+              </ul>
             </div>
           </div>
-          <div class="row" data-cat="type">
-            <div class="col-sm-2 key">
-              设备类型：
-            </div>
-            <ul class="col-sm-8 value">
-              <li><a>压缩机</a></li>
-              <li><a>照明</a></li>
-              <li><a>空调</a></li>
-              <li><a>冰箱</a></li>
-              <li><a>净化器</a></li>
-            </ul>
+        </div>
+        <div class="card result">
+          <div class="card-body table-responsive">
+            <table id="table_origin" class="table table-hover">
+              <thead class="text-info">
+                <tr>
+                  <th class="text-left">文件名</th>
+                  <th>
+                    <a data-rank="desc" href="javascript:;">
+                      上传时间
+                      <i class="rank rank-desc"></i>
+                    </a>
+                  </th>
+                  <th>文件大小</th>
+                  <th>文件性质</th>
+                  <th>设备类别</th>
+                  <th>品牌</th>
+                  <th>来源企业</th>
+                  <th>文件状态</th>
+                  <th class="text-right">
+                    <a data-rank="none" href="javascript:;">
+                      下载量
+                      <i class="rank"></i>
+                    </a>
+                  </th>
+                  <th class="text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <nav>
+              <div class="limit">
+                每页显示
+                <select class="custom-select custom-select-sm">
+                  <option value="5">5</option>
+                  <option value="15">15</option>
+                  <option value="30">30</option>
+                </select>
+                条
+              </div>
+              <ul class="pagination">
+                <li class="page-item">
+                  <a class="page-link">上一页</a>
+                </li>
+                <li class="page-item active"><a class="page-link">1</a></li>
+                <li class="page-item">
+                  <a class="page-link">2</a>
+                </li>
+                <li class="page-item"><a class="page-link">3</a></li>
+                <li class="page-item">
+                  <a class="page-link">下一页</a>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
-      <div class="card result">
-        <div class="card-body table-responsive">
-          <table id="table_origin" class="table table-hover">
-            <thead class="text-info">
-              <tr>
-                <th class="text-left">文件名</th>
-                <th>
-                  <a data-rank="desc" href="javascript:;">
-                    上传时间
-                    <i class="rank rank-desc"></i>
-                  </a>
-                </th>
-                <th>文件大小</th>
-                <th>文件性质</th>
-                <th>设备类别</th>
-                <th>品牌</th>
-                <th>来源企业</th>
-                <th>文件状态</th>
-                <th class="text-right">
-                  <a data-rank="none" href="javascript:;">
-                    下载量
-                    <i class="rank"></i>
-                  </a>
-                </th>
-                <th class="text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-          <nav>
-            <div class="limit">
-              每页显示
-              <select class="custom-select custom-select-sm">
-                <option value="5">5</option>
-                <option value="15">15</option>
-                <option value="30">30</option>
-              </select>
-              条
-            </div>
-            <ul class="pagination">
-              <li class="page-item">
-                <a class="page-link">上一页</a>
-              </li>
-              <li class="page-item active"><a class="page-link">1</a></li>
-              <li class="page-item">
-                <a class="page-link">2</a>
-              </li>
-              <li class="page-item"><a class="page-link">3</a></li>
-              <li class="page-item">
-                <a class="page-link">下一页</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </div>
-  </main>
-  <!-- core -->
-  <script src="../lib/jquery.min.js"></script>
-  <script src="../lib/popper.min.js"></script>
-  <script src="../lib/bootstrap-material-design.min.js"></script>
-  <script src="../lib/perfect-scrollbar.jquery.min.js"></script>
-  <!-- less -->
-  <script src="../lib/less.min.js"></script>
-  <!-- jquery toast -->
-  <script src="../lib/jquery.toast.min.js"></script>
-  <!-- dashboard -->
-  <script src="../lib/material-dashboard.min.js"></script>
-  <!-- origin -->
-  <script src="../js/origin.js"></script>
-</body>
-
+    </main>
+    <!-- core -->
+    <script src="../lib/jquery.min.js"></script>
+    <script src="../lib/popper.min.js"></script>
+    <script src="../lib/bootstrap-material-design.min.js"></script>
+    <script src="../lib/perfect-scrollbar.jquery.min.js"></script>
+    <!-- less -->
+    <script src="../lib/less.min.js"></script>
+    <!-- jquery toast -->
+    <script src="../lib/jquery.toast.min.js"></script>
+    <!-- dashboard -->
+    <script src="../lib/material-dashboard.min.js"></script>
+    <!-- origin -->
+    <script src="../js/origin.js"></script>
+  </body>
 </html>

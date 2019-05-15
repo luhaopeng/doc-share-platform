@@ -1,457 +1,481 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>首页</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
+    <!-- core -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.min.css"
+    />
+    <!-- chartist -->
+    <link rel="stylesheet" href="../lib/chartist.min.css" />
+    <!-- bootstrap switch -->
+    <link rel="stylesheet" href="../lib/bootstrap-switch.min.css" />
+    <!-- date range picker -->
+    <link rel="stylesheet" href="../lib/daterangepicker.css" />
+    <!-- dashboard -->
+    <link rel="stylesheet" href="../lib/material-dashboard.min.css" />
+    <!-- page -->
+    <link rel="stylesheet/less" type="text/css" href="../css/admin.less" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>首页</title>
-  <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
-  <!-- core -->
-  <link rel="stylesheet" href="https://cdn.bootcss.com/material-design-icons/3.0.1/iconfont/material-icons.min.css" />
-  <!-- chartist -->
-  <link rel="stylesheet" href="../lib/chartist.min.css" />
-  <!-- bootstrap switch -->
-  <link rel="stylesheet" href="../lib/bootstrap-switch.min.css" />
-  <!-- date range picker -->
-  <link rel="stylesheet" href="../lib/daterangepicker.css" />
-  <!-- dashboard -->
-  <link rel="stylesheet" href="../lib/material-dashboard.min.css" />
-  <!-- page -->
-  <link rel="stylesheet/less" type="text/css" href="../css/admin.less" />
-</head>
-
-<body>
-  <main>
-    <!-- nav start -->
-    <nav class="navbar navbar-expand-lg bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="../index.html">
-          负荷感知共享平台
-        </a>
-        <div class="collapse navbar-collapse">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a href="./admin.html" class="nav-link">
-                首页
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="./origin.html" class="nav-link">
-                原始文件库
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="./parsed.html" class="nav-link">
-                解析文件库
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="javascript:;" class="nav-link">
-                账号管理
-              </a>
-            </li>
-          </ul>
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-              <a href='./upload.html' class="btn btn-ghost btn-sm">
-                <i class="material-icons">publish</i>
-                上传文档
-              </a>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link" href="javascript:;" id="nav_user" data-toggle="dropdown" aria-haspopup="true"
-                aria-expanded="true">
-                <i class="material-icons">person</i>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="nav_user">
-                <a class="dropdown-item" href="javascript:;">
-                  个人中心
+  <body>
+    <main>
+      <!-- nav start -->
+      <nav class="navbar navbar-expand-lg bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="../index.html">
+            负荷感知共享平台
+          </a>
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item active">
+                <a href="./admin.html" class="nav-link">
+                  首页
                 </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="javascript:;">
-                  退出
+              </li>
+              <li class="nav-item">
+                <a href="./origin.html" class="nav-link">
+                  原始文件库
                 </a>
-              </div>
-            </li>
-          </ul>
+              </li>
+              <li class="nav-item">
+                <a href="./parsed.html" class="nav-link">
+                  解析文件库
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="javascript:;" class="nav-link">
+                  账号管理
+                </a>
+              </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item">
+                <a href="./upload.html" class="btn btn-ghost btn-sm">
+                  <i class="material-icons">publish</i>
+                  上传文档
+                </a>
+              </li>
+              <li class="nav-item dropdown">
+                <a
+                  class="nav-link"
+                  href="javascript:;"
+                  id="nav_user"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="true"
+                >
+                  <i class="material-icons">person</i>
+                </a>
+                <div
+                  class="dropdown-menu dropdown-menu-right"
+                  aria-labelledby="nav_user"
+                >
+                  <a class="dropdown-item" href="javascript:;">
+                    个人中心
+                  </a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="javascript:;">
+                    退出
+                  </a>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
-    </nav>
-    <!-- nav end -->
+      </nav>
+      <!-- nav end -->
 
-    <div class="container-fluid container-custom">
-      <!-- stats -->
-      <div class="row">
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="card card-stats">
-            <div class="card-header card-header-warning card-header-icon">
-              <div class="card-icon">
-                <i class="material-icons">filter_none</i>
+      <div class="container-fluid container-custom">
+        <!-- stats -->
+        <div class="row">
+          <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="card card-stats">
+              <div class="card-header card-header-warning card-header-icon">
+                <div class="card-icon">
+                  <i class="material-icons">filter_none</i>
+                </div>
+                <p class="card-category">文档总数</p>
+                <h3 class="card-title">
+                  15000
+                  <small>份</small>
+                </h3>
               </div>
-              <p class="card-category">文档总数</p>
-              <h3 class="card-title">
-                15000
-                <small>份</small>
-              </h3>
-            </div>
-            <div class="card-footer">
-              <div class="stats">
-                <i class="material-icons">access_time</i>
-                统计时间：2019-05-06 10:47:44
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="card card-stats">
-            <div class="card-header card-header-success card-header-icon">
-              <div class="card-icon">
-                <i class="material-icons">get_app</i>
-              </div>
-              <p class="card-category">下载总数</p>
-              <h3 class="card-title">
-                300000
-                <small>次</small>
-              </h3>
-            </div>
-            <div class="card-footer">
-              <div class="stats">
-                <i class="material-icons">access_time</i>
-                统计时间：2019-05-06 10:47:44
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="card card-stats">
-            <div class="card-header card-header-danger card-header-icon">
-              <div class="card-icon">
-                <i class="material-icons">domain</i>
-              </div>
-              <p class="card-category">平台企业数量</p>
-              <h3 class="card-title">
-                30
-                <small>家</small>
-              </h3>
-            </div>
-            <div class="card-footer">
-              <div class="stats">
-                <i class="material-icons">access_time</i>
-                统计时间：2019-05-06 10:47:44
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="card card-stats">
-            <div class="card-header card-header-rose card-header-icon">
-              <div class="card-icon">
-                <i class="material-icons">face</i>
-              </div>
-              <p class="card-category">平台用户数量</p>
-              <h3 class="card-title">
-                150
-                <small>人</small>
-              </h3>
-            </div>
-            <div class="card-footer">
-              <div class="stats">
-                <i class="material-icons">access_time</i>
-                统计时间：2019-05-06 10:47:44
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- line -->
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="card card-chart">
-            <div class="card-header card-header-dim" data-header-animation="true">
-              <div class="ct-chart" id="chart_line"></div>
-            </div>
-            <div class="card-body">
-              <div class="card-actions">
-                <button type="button" id="range_line" class="btn btn-lg btn-info btn-link">
-                  <i class="material-icons">date_range</i>
-                  <span></span>
-                  <i class="material-icons">
-                    arrow_drop_down
-                  </i>
-                </button>
-              </div>
-              <h4 class="card-title">
-                每日
-                <input type="checkbox" id="switch_line" />
-                量（次）
-              </h4>
-            </div>
-            <div class="card-footer">
-              <div class="stats">
-                <i class="material-icons">access_time</i>
-                统计时间：2019-05-06 10:47:44
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- pie -->
-      <div class="row">
-        <div class="col-md-6 col-sm-12">
-          <div class="card card-chart">
-            <div class="card-header card-header-pale">
-              <div class="ct-chart" id="chart_pie_1"></div>
-            </div>
-            <div class="card-body">
-              <h4 class="card-title">文件电器类型</h4>
-              <p class="card-category">
-                一类
-                <span class="text-success">
-                  30%
-                </span>
-                二类
-                <span class="text-success">
-                  15%
-                </span>
-                三类
-                <span class="text-success">
-                  20%
-                </span>
-                四类
-                <span class="text-success">
-                  10%
-                </span>
-                五类
-                <span class="text-success">
-                  25%
-                </span>
-              </p>
-            </div>
-            <div class="card-footer">
-              <div class="stats">
-                <i class="material-icons">access_time</i>
-                统计时间：2019-05-06 10:47:44
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-sm-12">
-          <div class="card card-chart">
-            <div class="card-header card-header-pale">
-              <div class="ct-chart" id="chart_pie_2"></div>
-            </div>
-            <div class="card-body">
-              <h4 class="card-title">文件品牌占比</h4>
-              <p class="card-category">
-                松下
-                <span class="text-warning">
-                  30%
-                </span>
-                格力
-                <span class="text-warning">
-                  15%
-                </span>
-                三星
-                <span class="text-warning">
-                  20%
-                </span>
-                美的
-                <span class="text-warning">
-                  10%
-                </span>
-                西门子
-                <span class="text-warning">
-                  15%
-                </span>
-                海尔
-                <span class="text-warning">
-                  10%
-                </span>
-              </p>
-            </div>
-            <div class="card-footer">
-              <div class="stats">
-                <i class="material-icons">access_time</i>
-                统计时间：2019-05-06 10:47:44
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- bar -->
-      <div class="row">
-        <div class="col-md-6 col-sm-12">
-          <div class="card card-chart">
-            <div class="card-header card-header-dim">
-              <div class="ct-chart" id="chart_bar_1"></div>
-            </div>
-            <div class="card-body">
-              <h4 class="card-title">
-                文件数据纵比&nbsp;
-                <input type="checkbox" id="switch_bar_1" />
-              </h4>
-            </div>
-            <div class="card-footer">
-              <div class="stats">
-                <i class="material-icons">access_time</i>
-                统计时间：2019-05-06 10:47:44
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-sm-12">
-          <div class="card card-chart">
-            <div class="card-header card-header-dim" data-header-animation="true">
-              <div class="ct-chart" id="chart_bar_2"></div>
-            </div>
-            <div class="card-body">
-              <div class="card-actions">
-                <button type="button" id="range_bar" class="btn btn-lg btn-info btn-link">
-                  <i class="material-icons">date_range</i>
-                  <span></span>
-                  <i class="material-icons">
-                    arrow_drop_down
-                  </i>
-                </button>
-              </div>
-              <h4 class="card-title">
-                文件数据横比&nbsp;
-                <input type="checkbox" id="switch_bar_2" />
-              </h4>
-            </div>
-            <div class="card-footer">
-              <div class="stats">
-                <i class="material-icons">access_time</i>
-                统计时间：2019-05-06 10:47:44
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- rank -->
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="card">
-            <div class="card-header card-header-tabs card-header-info">
-              <div class="nav-tabs-navigation">
-                <div class="nav-tabs-wrapper">
-                  <span class="nav-tabs-title">
-                    企业排行
-                  </span>
-                  <ul class="nav nav-tabs">
-                    <li class="nav-item">
-                      <a href="javascript:;" class="nav-link active show">
-                        总
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="javascript:;" class="nav-link">
-                        本月
-                      </a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="javascript:;" class="nav-link">
-                        上月
-                      </a>
-                    </li>
-                  </ul>
+              <div class="card-footer">
+                <div class="stats">
+                  <i class="material-icons">access_time</i>
+                  统计时间：2019-05-06 10:47:44
                 </div>
               </div>
             </div>
-            <div class="card-body table-responsive">
-              <table id="table_rank" class="table table-hover">
-                <thead class="text-info">
-                  <tr>
-                    <th>序号</th>
-                    <th>企业名称</th>
-                    <th>
-                      <a data-rank="desc" href="javascript:;">
-                        积分
-                        <i class="rank rank-desc"></i>
-                      </a>
-                    </th>
-                    <th>
-                      <a data-rank="none" href="javascript:;">
-                        上传量
-                        <i class="rank"></i>
-                      </a>
-                    </th>
-                    <th>
-                      <a data-rank="none" href="javascript:;">
-                        被下载量
-                        <i class="rank"></i>
-                      </a>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>华立科技股份有限公司</td>
-                    <td>60</td>
-                    <td>60</td>
-                    <td>60</td>
-                  </tr>
-                  <tr>
-                    <td>2</td>
-                    <td>威盛集团有限公司</td>
-                    <td>50</td>
-                    <td>50</td>
-                    <td>50</td>
-                  </tr>
-                  <tr>
-                    <td>3</td>
-                    <td>江苏林洋能源有限公司</td>
-                    <td>40</td>
-                    <td>40</td>
-                    <td>40</td>
-                  </tr>
-                  <tr>
-                    <td>4</td>
-                    <td>
-                      深圳市科陆电子科技股份有限公司
-                    </td>
-                    <td>20</td>
-                    <td>20</td>
-                    <td>20</td>
-                  </tr>
-                  <tr>
-                    <td>5</td>
-                    <td>
-                      宁波三星医疗电器股份有限公司
-                    </td>
-                    <td>10</td>
-                    <td>10</td>
-                    <td>10</td>
-                  </tr>
-                </tbody>
-              </table>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="card card-stats">
+              <div class="card-header card-header-success card-header-icon">
+                <div class="card-icon">
+                  <i class="material-icons">get_app</i>
+                </div>
+                <p class="card-category">下载总数</p>
+                <h3 class="card-title">
+                  300000
+                  <small>次</small>
+                </h3>
+              </div>
+              <div class="card-footer">
+                <div class="stats">
+                  <i class="material-icons">access_time</i>
+                  统计时间：2019-05-06 10:47:44
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="card card-stats">
+              <div class="card-header card-header-danger card-header-icon">
+                <div class="card-icon">
+                  <i class="material-icons">domain</i>
+                </div>
+                <p class="card-category">平台企业数量</p>
+                <h3 class="card-title">
+                  30
+                  <small>家</small>
+                </h3>
+              </div>
+              <div class="card-footer">
+                <div class="stats">
+                  <i class="material-icons">access_time</i>
+                  统计时间：2019-05-06 10:47:44
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="card card-stats">
+              <div class="card-header card-header-rose card-header-icon">
+                <div class="card-icon">
+                  <i class="material-icons">face</i>
+                </div>
+                <p class="card-category">平台用户数量</p>
+                <h3 class="card-title">
+                  150
+                  <small>人</small>
+                </h3>
+              </div>
+              <div class="card-footer">
+                <div class="stats">
+                  <i class="material-icons">access_time</i>
+                  统计时间：2019-05-06 10:47:44
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- line -->
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="card card-chart">
+              <div
+                class="card-header card-header-dim"
+                data-header-animation="true"
+              >
+                <div class="ct-chart" id="chart_line"></div>
+              </div>
+              <div class="card-body">
+                <div class="card-actions">
+                  <button
+                    type="button"
+                    id="range_line"
+                    class="btn btn-lg btn-info btn-link"
+                  >
+                    <i class="material-icons">date_range</i>
+                    <span></span>
+                    <i class="material-icons">
+                      arrow_drop_down
+                    </i>
+                  </button>
+                </div>
+                <h4 class="card-title">
+                  每日
+                  <input type="checkbox" id="switch_line" />
+                  量（次）
+                </h4>
+              </div>
+              <div class="card-footer">
+                <div class="stats">
+                  <i class="material-icons">access_time</i>
+                  统计时间：2019-05-06 10:47:44
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- pie -->
+        <div class="row">
+          <div class="col-md-6 col-sm-12">
+            <div class="card card-chart">
+              <div class="card-header card-header-pale">
+                <div class="ct-chart" id="chart_pie_1"></div>
+              </div>
+              <div class="card-body">
+                <h4 class="card-title">文件电器类型</h4>
+                <p class="card-category">
+                  一类
+                  <span class="text-success">
+                    30%
+                  </span>
+                  二类
+                  <span class="text-success">
+                    15%
+                  </span>
+                  三类
+                  <span class="text-success">
+                    20%
+                  </span>
+                  四类
+                  <span class="text-success">
+                    10%
+                  </span>
+                  五类
+                  <span class="text-success">
+                    25%
+                  </span>
+                </p>
+              </div>
+              <div class="card-footer">
+                <div class="stats">
+                  <i class="material-icons">access_time</i>
+                  统计时间：2019-05-06 10:47:44
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-12">
+            <div class="card card-chart">
+              <div class="card-header card-header-pale">
+                <div class="ct-chart" id="chart_pie_2"></div>
+              </div>
+              <div class="card-body">
+                <h4 class="card-title">文件品牌占比</h4>
+                <p class="card-category">
+                  松下
+                  <span class="text-warning">
+                    30%
+                  </span>
+                  格力
+                  <span class="text-warning">
+                    15%
+                  </span>
+                  三星
+                  <span class="text-warning">
+                    20%
+                  </span>
+                  美的
+                  <span class="text-warning">
+                    10%
+                  </span>
+                  西门子
+                  <span class="text-warning">
+                    15%
+                  </span>
+                  海尔
+                  <span class="text-warning">
+                    10%
+                  </span>
+                </p>
+              </div>
+              <div class="card-footer">
+                <div class="stats">
+                  <i class="material-icons">access_time</i>
+                  统计时间：2019-05-06 10:47:44
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- bar -->
+        <div class="row">
+          <div class="col-md-6 col-sm-12">
+            <div class="card card-chart">
+              <div class="card-header card-header-dim">
+                <div class="ct-chart" id="chart_bar_1"></div>
+              </div>
+              <div class="card-body">
+                <h4 class="card-title">
+                  文件数据纵比&nbsp;
+                  <input type="checkbox" id="switch_bar_1" />
+                </h4>
+              </div>
+              <div class="card-footer">
+                <div class="stats">
+                  <i class="material-icons">access_time</i>
+                  统计时间：2019-05-06 10:47:44
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-12">
+            <div class="card card-chart">
+              <div
+                class="card-header card-header-dim"
+                data-header-animation="true"
+              >
+                <div class="ct-chart" id="chart_bar_2"></div>
+              </div>
+              <div class="card-body">
+                <div class="card-actions">
+                  <button
+                    type="button"
+                    id="range_bar"
+                    class="btn btn-lg btn-info btn-link"
+                  >
+                    <i class="material-icons">date_range</i>
+                    <span></span>
+                    <i class="material-icons">
+                      arrow_drop_down
+                    </i>
+                  </button>
+                </div>
+                <h4 class="card-title">
+                  文件数据横比&nbsp;
+                  <input type="checkbox" id="switch_bar_2" />
+                </h4>
+              </div>
+              <div class="card-footer">
+                <div class="stats">
+                  <i class="material-icons">access_time</i>
+                  统计时间：2019-05-06 10:47:44
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- rank -->
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="card">
+              <div class="card-header card-header-tabs card-header-info">
+                <div class="nav-tabs-navigation">
+                  <div class="nav-tabs-wrapper">
+                    <span class="nav-tabs-title">
+                      企业排行
+                    </span>
+                    <ul class="nav nav-tabs">
+                      <li class="nav-item">
+                        <a href="javascript:;" class="nav-link active show">
+                          总
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="javascript:;" class="nav-link">
+                          本月
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="javascript:;" class="nav-link">
+                          上月
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body table-responsive">
+                <table id="table_rank" class="table table-hover">
+                  <thead class="text-info">
+                    <tr>
+                      <th>序号</th>
+                      <th>企业名称</th>
+                      <th>
+                        <a data-rank="desc" href="javascript:;">
+                          积分
+                          <i class="rank rank-desc"></i>
+                        </a>
+                      </th>
+                      <th>
+                        <a data-rank="none" href="javascript:;">
+                          上传量
+                          <i class="rank"></i>
+                        </a>
+                      </th>
+                      <th>
+                        <a data-rank="none" href="javascript:;">
+                          被下载量
+                          <i class="rank"></i>
+                        </a>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>华立科技股份有限公司</td>
+                      <td>60</td>
+                      <td>60</td>
+                      <td>60</td>
+                    </tr>
+                    <tr>
+                      <td>2</td>
+                      <td>威盛集团有限公司</td>
+                      <td>50</td>
+                      <td>50</td>
+                      <td>50</td>
+                    </tr>
+                    <tr>
+                      <td>3</td>
+                      <td>江苏林洋能源有限公司</td>
+                      <td>40</td>
+                      <td>40</td>
+                      <td>40</td>
+                    </tr>
+                    <tr>
+                      <td>4</td>
+                      <td>
+                        深圳市科陆电子科技股份有限公司
+                      </td>
+                      <td>20</td>
+                      <td>20</td>
+                      <td>20</td>
+                    </tr>
+                    <tr>
+                      <td>5</td>
+                      <td>
+                        宁波三星医疗电器股份有限公司
+                      </td>
+                      <td>10</td>
+                      <td>10</td>
+                      <td>10</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </main>
-  <!-- core -->
-  <script src="../lib/jquery.min.js"></script>
-  <script src="../lib/popper.min.js"></script>
-  <script src="../lib/moment.min.js"></script>
-  <script src="../lib/bootstrap-material-design.min.js"></script>
-  <script src="../lib/perfect-scrollbar.jquery.min.js"></script>
-  <!-- Chartist JS -->
-  <script src="../lib/chartist.min.js"></script>
-  <script src="../lib/chartist-plugin-legend.min.js"></script>
-  <!-- boostrap switch -->
-  <script src="../lib/bootstrap-switch.min.js"></script>
-  <!-- date range picker -->
-  <script src="../lib/daterangepicker.min.js"></script>
-  <!-- less -->
-  <script src="../lib/less.min.js"></script>
-  <!-- dashboard -->
-  <script src="../lib/material-dashboard.min.js"></script>
-  <!-- admin -->
-  <script src="../js/admin.js"></script>
-</body>
-
+    </main>
+    <!-- core -->
+    <script src="../lib/jquery.min.js"></script>
+    <script src="../lib/popper.min.js"></script>
+    <script src="../lib/moment.min.js"></script>
+    <script src="../lib/bootstrap-material-design.min.js"></script>
+    <script src="../lib/perfect-scrollbar.jquery.min.js"></script>
+    <!-- Chartist JS -->
+    <script src="../lib/chartist.min.js"></script>
+    <script src="../lib/chartist-plugin-legend.min.js"></script>
+    <!-- boostrap switch -->
+    <script src="../lib/bootstrap-switch.min.js"></script>
+    <!-- date range picker -->
+    <script src="../lib/daterangepicker.min.js"></script>
+    <!-- less -->
+    <script src="../lib/less.min.js"></script>
+    <!-- dashboard -->
+    <script src="../lib/material-dashboard.min.js"></script>
+    <!-- admin -->
+    <script src="../js/admin.js"></script>
+  </body>
 </html>
