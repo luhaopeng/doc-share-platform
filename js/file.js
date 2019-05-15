@@ -1,4 +1,6 @@
 ;(function() {
+  let parsed = false
+
   $(function() {
     initType()
     initDetail()
@@ -7,7 +9,7 @@
 
   function initType() {
     let qsObj = qs(window.location.search)
-    let parsed = !!qsObj.type && qsObj.type === 'parsed'
+    parsed = !!qsObj.type && qsObj.type === 'parsed'
 
     if (parsed) {
       // navbar
@@ -64,14 +66,15 @@
       }
     })
 
-    $('.card ul.author .download').on('click', function showModal() {
-      $('#downloadModal').modal()
-    })
+    if (parsed) {
+      $('.card ul.author .download').on('click', function showModal() {
+        $('#downloadModal').modal()
+      })
 
-    $('#downloadModal #downloadBtn').on('click', function download() {
-      console.log('download')
-      $('#downloadModal').modal('hide')
-    })
+      $('#downloadModal #downloadBtn').on('click', function download() {
+        $('#downloadModal').modal('hide')
+      })
+    }
   }
 
   function initComment() {
