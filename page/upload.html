@@ -142,9 +142,17 @@
                 <form>
                   <h4 class="form-title">文档信息</h4>
                   <div class="form-row">
-                    <div class="form-group col-md-5">
+                    <div class="form-group col-md-6">
                       <label for="docTitle">文档标题</label>
-                      <input type="text" class="form-control" id="docTitle" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="docTitle"
+                        maxlength="30"
+                        placeholder="30个字符以内，需包含汉字"
+                        autocomplete="off"
+                      />
+                      <span class="required">*</span>
                     </div>
                   </div>
                   <h4 class="form-title">电器参数</h4>
@@ -152,22 +160,21 @@
                     <div class="form-group col-md-4">
                       <label for="catLevel1">一级分类</label>
                       <select id="catLevel1" class="form-control">
-                        <option>压缩机</option>
-                        <option>照明</option>
+                        <option>请选择分类...</option>
+                        <option value="ysj">压缩机</option>
+                        <option value="zm">照明</option>
                       </select>
                     </div>
                     <div class="form-group col-md-4">
                       <label for="catLevel2">二级分类</label>
                       <select id="catLevel2" class="form-control">
                         <option>请选择一级分类...</option>
-                        <option>空调</option>
-                        <option>冰箱</option>
-                        <option>净化器</option>
                       </select>
                     </div>
                     <div class="form-group col-md-4">
                       <label for="brand">品牌</label>
                       <select id="brand" class="form-control">
+                        <option>请选择品牌...</option>
                         <option>海尔</option>
                         <option>格力</option>
                         <option>美的</option>
@@ -233,7 +240,7 @@
                         type="text"
                         class="form-control"
                         id="volUnit"
-                        placeholder="V"
+                        value="V"
                       />
                     </div>
                     <div class="form-group col-md-4">
@@ -242,7 +249,7 @@
                         type="text"
                         class="form-control"
                         id="curUnit"
-                        placeholder="A"
+                        value="A"
                       />
                     </div>
                   </div>
@@ -257,6 +264,7 @@
                   </div>
                 </form>
               </div>
+              <div class="step step-3"></div>
               <div class="nav-action step-1">
                 <button
                   id="navPrev"
@@ -270,6 +278,7 @@
                   type="button"
                   class="btn btn-sm btn-info"
                   title="请先选择文档"
+                  disabled
                 >
                   下一步
                 </button>

@@ -310,6 +310,20 @@ textarea.form-control {
         line-height: 1.5;
         margin: 0.5em 0;
       }
+
+      .required {
+        color: @color-danger;
+        position: absolute;
+        right: -14px;
+        font-weight: 600;
+        font-size: 20px;
+        bottom: 14px;
+      }
+
+      .form-control.error {
+        border-color: lighten(@color-danger, 15%);
+        box-shadow: 0 0 0 0.2rem fade(@color-danger, 25%);
+      }
     }
   }
 

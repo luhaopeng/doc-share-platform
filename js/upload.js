@@ -4,7 +4,8 @@
 
   $(function() {
     initUploader()
-    initNav()
+    initNavBtn()
+    initSelect()
   })
 
   function initUploader() {
@@ -36,12 +37,68 @@
       })
   }
 
-  function initNav() {
+  function initNavBtn() {
     $('#navPrev').on('click', prev)
     $('#navNext').on('click', function() {
-      next()
-      if (uploader && uploader.getFiles().length > 0) {
-        // next()
+      if (curStep === 1 && uploader && uploader.getFiles().length > 0) {
+        next()
+      }
+    })
+    $('#startUpload').on('click', function() {
+      // prettier-ignore
+      let $docTitle = $('#docTitle')
+      let title = $docTitle.val().trim()
+      let { length } = title
+      if (length > 0 && length < 31 && /[\u4e00-\u9fa5]/.test(title)) {
+        next()
+      } else {
+        $docTitle
+          .addClass('error')
+          .one('keydown', function() {
+            $docTitle.removeClass('error')
+          })
+          .get(0)
+          .scrollIntoView({ block: 'end', behavior: 'smooth' })
+      }
+    })
+  }
+
+  function initSelect() {
+    const cat2 = {
+      ysj: [
+        {
+          title: '空调',
+          value: 'kt'
+        },
+        {
+          title: '冰箱',
+          value: 'bx'
+        },
+        {
+          title: '净化器',
+          value: 'jhq'
+        }
+      ],
+      zm: [
+        {
+          title: '台灯',
+          value: 'td'
+        },
+        {
+          title: '显示器',
+          value: 'xsq'
+        }
+      ]
+    }
+    let $level2 = $('#catLevel2')
+    $('#catLevel1').on('change', function() {
+      $level2.html('')
+      let val = $(this).val()
+      let options = cat2[val]
+      if (options instanceof Array) {
+        options.map(function buildOption(v) {
+          $level2.append(`<option value="${v.value}">${v.title}</option>`)
+        })
       }
     })
   }
