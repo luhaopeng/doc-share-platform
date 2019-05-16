@@ -61,7 +61,7 @@
   }
 
   function initRank() {
-    let $table = $('#table_origin')
+    let $table = $('#table_parsed')
     // rank mark
     let $rank_a = $table.find('a[data-rank]')
     $rank_a.on('click', function() {
