@@ -16,7 +16,7 @@
     <!-- dashboard -->
     <link rel="stylesheet" href="../lib/material-dashboard.min.css" />
     <!-- page -->
-    <link rel="stylesheet" href="../css/origin.min.css">
+    <link rel="stylesheet" href="../css/origin.min.css" />
   </head>
 
   <body>
@@ -163,7 +163,7 @@
                   <th>设备类别</th>
                   <th>品牌</th>
                   <th>来源企业</th>
-                  <th>下载积分</th>
+                  <th>积分</th>
                   <th class="text-right">
                     <a data-rank="none" href="javascript:;">
                       下载量
@@ -199,6 +199,46 @@
                 </li>
               </ul>
             </nav>
+          </div>
+        </div>
+      </div>
+      <div
+        class="modal fade"
+        id="downloadModal"
+        tabindex="-1"
+        role="dialog"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">下载文件</h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <!-- prettier-ignore -->
+            <div class="modal-body">
+            使用<b class="cost"> 5 积分</b>下载此文件？
+            当前积分余额：<b class="remain">25 积分</b>。
+          </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                取消
+              </button>
+              <button type="button" class="btn btn-primary" id="downloadBtn">
+                使用积分下载
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -1,16 +1,22 @@
-@import '../style.less';
+@import "../style.less";
 
 .result {
   font-weight: normal;
 
-  table tbody tr {
+  table.table tbody tr {
     cursor: pointer;
 
-    td .text-ellipsis {
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    td {
+      &.td-actions {
+        display: table-cell;
+      }
+
+      .text-ellipsis {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
   }
 
