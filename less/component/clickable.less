@@ -1,0 +1,18 @@
+.clickable(@color) {
+  cursor: pointer;
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
+    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover,
+  &:focus {
+    color: #fff;
+    background-color: darken(@color, 5%);
+    box-shadow: 0 14px 26px -12px fade(@color, 42%),
+      0 4px 23px 0 rgba(0, 0, 0, 0.12), 0 8px 10px -5px fade(@color, 20%);
+  }
+
+  &:active {
+    background-color: @color;
+    box-shadow: none;
+  }
+}

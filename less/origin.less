@@ -1,4 +1,8 @@
+// out: ../css/origin.min.css, compress: true, sourceMap: false
+
 @import './style.less';
+@import './component/result_table.less';
+
 @color-danger: #e4393c;
 
 .jq-toast-wrap {
@@ -241,57 +245,6 @@
 
         .material-icons {
           font-size: 20px;
-        }
-      }
-    }
-  }
-}
-
-.result {
-  font-weight: normal;
-
-  table tbody tr {
-    cursor: pointer;
-
-    td .text-ellipsis {
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-
-  nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .limit {
-      color: @color-secondary;
-      margin-left: 8px;
-
-      .custom-select {
-        width: auto;
-        font-size: 100%;
-        background: #fff
-          url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E")
-          no-repeat right;
-      }
-    }
-
-    .pagination {
-      margin-right: 8px;
-      margin-bottom: 0;
-      color: @color-secondary;
-
-      .page-item {
-        &:first-child .page-link {
-          margin-left: 0;
-        }
-
-        .page-link {
-          border-width: 1px;
-          margin-left: -1px;
         }
       }
     }

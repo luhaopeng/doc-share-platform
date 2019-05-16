@@ -14,7 +14,7 @@
     <!-- dashboard -->
     <link rel="stylesheet" href="../lib/material-dashboard.min.css" />
     <!-- page -->
-    <link rel="stylesheet/less" type="text/css" href="../css/upload.less" />
+    <link rel="stylesheet" href="../css/upload.min.css">
   </head>
 
   <body>
@@ -298,7 +298,11 @@
                   </h3>
                   <p>文档通过审核入库后即可收到积分奖励，请于半小时后查看。</p>
                   <div class="btn-wrapper">
-                    <button type="button" class="btn btn-default">
+                    <button
+                      type="button"
+                      class="btn btn-default"
+                      onclick="window.location.href='./home.html'"
+                    >
                       查看已上传文档
                     </button>
                     <button
@@ -345,8 +349,6 @@
     <script src="../lib/jquery.min.js"></script>
     <script src="../lib/popper.min.js"></script>
     <script src="../lib/bootstrap.min.js"></script>
-    <!-- less -->
-    <script src="../lib/less.min.js"></script>
     <!-- webuploader -->
     <script src="../lib/webuploader.withoutimage.min.js"></script>
     <!-- origin -->

@@ -1,0 +1,24 @@
+.btn.disabled,
+.btn:disabled {
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  color: #fff;
+  background: transparent;
+  border: solid 1px #fff;
+
+  &:hover,
+  &:focus {
+    background-color: #fff;
+    color: @color-text;
+    border-color: #fff;
+  }
+
+  &:active,
+  &:active:focus {
+    background-color: darken(#fff, 10%);
+    color: @color-text;
+    border-color: #fff;
+  }
+}
