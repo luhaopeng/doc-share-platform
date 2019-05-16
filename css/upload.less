@@ -268,7 +268,13 @@ textarea.form-control {
 
   .step {
     display: none;
-    border: dashed 1px #e6e6e6;
+    border: dashed 1px #ddd;
+
+    .step-wrapper {
+      width: max-content;
+      margin: 50px auto;
+      text-align: center;
+    }
 
     &.current {
       display: block;
@@ -278,25 +284,19 @@ textarea.form-control {
       border-width: 3px;
       background-color: #fafafa;
 
-      .upload-wrap {
-        width: max-content;
-        margin: 50px auto;
-        text-align: center;
+      .cur-file {
+        margin-bottom: 1em;
+        display: none;
 
-        .cur-file {
-          margin-bottom: 1em;
-          display: none;
-
-          &.show {
-            display: block;
-          }
+        &.show {
+          display: block;
         }
+      }
 
-        p {
-          color: #aaa;
-          margin-top: 1em;
-          margin-bottom: 1em;
-        }
+      p {
+        color: #aaa;
+        margin-top: 1em;
+        margin-bottom: 1em;
       }
     }
 
@@ -323,6 +323,14 @@ textarea.form-control {
       .form-control.error {
         border-color: lighten(@color-danger, 15%);
         box-shadow: 0 0 0 0.2rem fade(@color-danger, 25%);
+      }
+    }
+
+    &.step-3 {
+      .icon {
+        width: 30px;
+        height: 30px;
+        vertical-align: -0.25em;
       }
     }
   }

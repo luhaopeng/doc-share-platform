@@ -18,6 +18,29 @@
   </head>
 
   <body>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      style="position: absolute; width: 0; height: 0"
+      id="__SVG_SPRITE_NODE__"
+    >
+      <symbol
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        id="success"
+      >
+        <defs>
+          <style type="text/css"></style>
+        </defs>
+        <path
+          d="M512 32C246.4 32 32 246.4 32 512s214.4 480 480 480 480-214.4 480-480S777.6 32 512 32z m268.8 371.2L480 707.2c-6.4 6.4-16 9.6-25.6 9.6s-19.2-3.2-25.6-9.6L262.4 544c-12.8-12.8-12.8-35.2 0-51.2s38.4-16 51.2 0l137.6 137.6L726.4 352c12.8-12.8 35.2-12.8 51.2 0s19.2 35.2 3.2 51.2z"
+          fill="#1F90E6"
+          p-id="1295"
+        ></path>
+      </symbol>
+    </svg>
     <main>
       <!-- nav start -->
       <nav class="navbar navbar-expand-lg bg-dark">
@@ -126,7 +149,7 @@
             </div>
             <div class="content">
               <div class="step step-1 current">
-                <div class="upload-wrap">
+                <div class="step-wrapper">
                   <div class="cur-file">
                     当前文档：
                     <code></code>
@@ -264,7 +287,29 @@
                   </div>
                 </form>
               </div>
-              <div class="step step-3"></div>
+              <div class="step step-3">
+                <div class="step-wrapper">
+                  <h3>
+                    <svg class="icon">
+                      <use xlink:href="#success"></use>
+                    </svg>
+                    上传成功
+                  </h3>
+                  <p>文档通过审核入库后即可收到积分奖励，请于半小时后查看。</p>
+                  <div class="btn-wrapper">
+                    <button type="button" class="btn btn-default">
+                      查看已上传文档
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-warning"
+                      onclick="window.location.href='./upload.html'"
+                    >
+                      继续上传
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div class="nav-action step-1">
                 <button
                   id="navPrev"
