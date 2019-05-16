@@ -1,16 +1,13 @@
 // out: ../css/origin.min.css, compress: true, sourceMap: false
 
-@import './style.less';
-@import './component/result_table.less';
+@import "./style.less";
+@import "./component/result_table.less";
+@import "./component/jquery_toast.less";
 
 @color-danger: #e4393c;
 
-.jq-toast-wrap {
-  width: 135px;
-
-  h2 {
-    margin-bottom: 0;
-  }
+.modal .modal-body b {
+  color: @color-warning;
 }
 
 .search {
@@ -148,7 +145,7 @@
 
           // check mark
           &.active::before {
-            content: '\2714';
+            content: "\2714";
             color: #fff;
             position: absolute;
             z-index: 1;
@@ -163,7 +160,7 @@
 
           // triangle
           &.active::after {
-            content: '';
+            content: "";
             position: absolute;
             right: 0;
             bottom: 0;
