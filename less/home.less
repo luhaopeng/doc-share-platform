@@ -1,9 +1,21 @@
 // out: ../css/home.min.css, compress: true, sourceMap: false
 
-@import './style.less';
-@import './component/result_table.less';
+@import "./style.less";
+@import "./component/result_table.less";
+@import "./component/jquery_toast.less";
+
+#table_star .text-ellipsis {
+  max-width: 140px;
+}
+
+.modal .modal-body b {
+  color: @color-warning;
+}
 
 .card.user {
+  position: sticky;
+  top: 50px;
+
   .card-header h3 {
     margin-top: 0;
   }
@@ -18,5 +30,3 @@
     }
   }
 }
-
-
