@@ -7,7 +7,7 @@
     <title>个人中心</title>
     <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
     <!-- core -->
-    <link rel="stylesheet" href="../lib/material-icons/material-icons.css">
+    <link rel="stylesheet" href="../lib/material-icons/material-icons.css" />
     <!-- jquery toast -->
     <link rel="stylesheet" href="../lib/jquery.toast.min.css" />
     <!-- dashboard -->
@@ -273,19 +273,51 @@
                                 class="dropdown-menu"
                                 aria-labelledby="operateTypeToggle"
                               >
-                                <a class="dropdown-item" href="#">全部类型</a>
+                                <a class="dropdown-item" href="javascript:;">
+                                  全部类型
+                                </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">文件上传</a>
-                                <a class="dropdown-item" href="#">文件被收藏</a>
-                                <a class="dropdown-item" href="#">下载文件</a>
-                                <a class="dropdown-item" href="#">文件入库</a>
-                                <a class="dropdown-item" href="#">评论文件</a>
-                                <a class="dropdown-item" href="#">注册成功</a>
+                                <a class="dropdown-item" href="javascript:;">
+                                  文件上传
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                  文件被收藏
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                  下载文件
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                  文件入库
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                  评论文件
+                                </a>
+                                <a class="dropdown-item" href="javascript:;">
+                                  注册成功
+                                </a>
                               </div>
                             </div>
                           </th>
                           <th>描述</th>
-                          <th>积分</th>
+                          <th>
+                            <a
+                              tabindex="0"
+                              title="积分规则说明"
+                              data-toggle="popover"
+                              data-html="true"
+                              data-trigger="focus"
+                              data-placement="bottom"
+                              data-content="注册成功 +5<br/>文件成功上传 +2<br/>文件成功入库 +1<br/>文件被下载 +1<br/>文件被收藏 +1<br/>评论他人文件 +1"
+                            >
+                              积分
+                              <i
+                                title="查看积分规则"
+                                class="material-icons text-primary"
+                              >
+                                help_outline
+                              </i>
+                            </a>
+                          </th>
                         </tr>
                       </thead>
                       <tbody></tbody>
