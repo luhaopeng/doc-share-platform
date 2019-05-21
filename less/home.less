@@ -8,6 +8,26 @@
   max-width: 140px;
 }
 
+#table_bonus tr {
+  cursor: default;
+
+  th:first-child,
+  td:first-child,
+  th:nth-child(3),
+  td:nth-child(3) {
+    text-align: left;
+  }
+
+  .dropdown-toggle {
+    color: inherit;
+
+    &:after {
+      top: 9px;
+      position: absolute;
+    }
+  }
+}
+
 .modal .modal-body b {
   color: @color-warning;
 }

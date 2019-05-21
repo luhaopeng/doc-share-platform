@@ -6,6 +6,7 @@
   function initRank() {
     initTable('#table_upload')
     initTable('#table_star', true)
+    initTableBonus()
   }
 
   function initTable(selector, isStar) {
@@ -42,7 +43,7 @@
     }
 
     // limit
-    let $limit = $('.result nav .limit select')
+    let $limit = $(`.result ${selector} + nav .limit select`)
     $limit.on('change', function limit(e) {
       let pageSize = parseInt(e.target.value)
       $tbody.html('')
@@ -106,6 +107,24 @@
           }
         })
     }
+  }
+
+  function initTableBonus() {
+    // data
+    let $tbody = $('#table_bonus tbody')
+    for (let i = 0; i < 5; i++) {
+      $tbody.append(buildBonusRow(randBonus()))
+    }
+
+    // limit
+    let $limit = $('.result #table_bonus + nav .limit select')
+    $limit.on('change', function limit(e) {
+      let pageSize = parseInt(e.target.value)
+      $tbody.html('')
+      for (let i = 0; i < pageSize; i++) {
+        $tbody.append(buildBonusRow(randBonus()))
+      }
+    })
   }
 
   function buildRankRow(obj, isStar) {
@@ -179,6 +198,43 @@
       bonus: obj.bonus,
       download: parseInt(Math.random() * 100),
       fav: true
+    }
+  }
+
+  function buildBonusRow(obj) {
+    return `
+      <tr>
+        <td>${obj.time}</td>
+        <td>${obj.type}</td>
+        <td>${obj.remark}</td>
+        <td>${obj.operand} ${obj.bonus}</td>
+      </tr>
+    `
+  }
+
+  function randBonus() {
+    const timeArr = [
+      '2019-05-21 15:47:12',
+      '2019-05-21 12:30:13',
+      '2019-05-21 08:19:53'
+    ]
+    const titles = [
+      '常见react面试题汇总（适合中级前端）',
+      'SSM主流框架入门与综合项目实战',
+      'Java开发企业级权限管理系统',
+      'Linux随机密码'
+    ]
+    // prettier-ignore
+    const types = [
+      { type: '文件上传', remark: `上传文件"${rand(titles)}"`, bonus: 2, operand: '+' },
+      { type: '文件被收藏', remark: `文件"${rand(titles)}"被用户收藏`, bonus: 1, operand: '+' },
+      { type: '下载文件', remark: `下载文件"${rand(titles)}"`, bonus: 5, operand: '-' },
+      { type: '文件入库', remark: `文件"${rand(titles)}"成功入库`, bonus: 1, operand: '+' },
+      { type: '评论文件', remark: `评论文件"${rand(titles)}"`, bonus: 1, operand: '+' }
+    ]
+    return {
+      time: rand(timeArr),
+      ...rand(types)
     }
   }
 

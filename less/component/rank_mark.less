@@ -15,19 +15,7 @@ a[data-rank] {
     font-size: 0;
     line-height: 0;
 
-    &::before {
-      content: "";
-      position: absolute;
-      width: 0;
-      height: 0;
-      left: 0;
-      right: 0;
-      bottom: 7px;
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-bottom: 5px solid #ccc;
-    }
-
+    &::before,
     &::after {
       content: "";
       position: absolute;
@@ -35,9 +23,19 @@ a[data-rank] {
       height: 0;
       left: 0;
       right: 0;
-      bottom: 0;
       border-left: 5px solid transparent;
       border-right: 5px solid transparent;
+      will-change: border-color;
+      transition: border-color 0.15s linear;
+    }
+
+    &::before {
+      bottom: 7px;
+      border-bottom: 5px solid #ccc;
+    }
+
+    &::after {
+      bottom: 0;
       border-top: 5px solid #ccc;
     }
 

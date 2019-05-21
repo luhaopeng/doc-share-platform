@@ -26,11 +26,11 @@ main {
       background-position: center;
 
       &.sign-up {
-        background-image: url(../img/bg_sign_up.jpg);
+        background-image: url(../../img/bg_sign_up.jpg);
       }
 
       &.sign-in {
-        background-image: url(../img/bg_sign_in.jpg);
+        background-image: url(../../img/bg_sign_in.jpg);
       }
     }
 
@@ -42,7 +42,8 @@ main {
       color: #888;
       display: flex;
       justify-content: center;
-      transition: all linear 0.3s;
+      will-change: background-color, color;
+      transition: background-color linear 0.3s, color linear 0.3s;
       align-items: center;
 
       &:hover,
