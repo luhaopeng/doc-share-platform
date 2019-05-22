@@ -11,6 +11,7 @@
 
   $(function() {
     initModalBtn()
+    initRoleModal()
     initTable('#table_user', {
       ban: function ban() {
         let $target = $(this)
@@ -46,11 +47,18 @@
     initTable('#table_role', {
       edit: function edit() {
         let $modal = $('#editRoleModal')
-        // title
+        // basic inputs
         $modal.find('.modal-title').text('修改角色')
         $modal.find('input#name').val('企业用户')
         $modal.find('select#rank').val('usr')
         $modal.find('input#desc').val('普通用户')
+        $modal.modal()
+        // auth checkboxes
+        $modal.find('.form-check-input').prop('checked', false)
+        $modal
+          .find('input[name=origin], input[name=parsed]')
+          .prop('checked', true)
+        // show
         $modal.modal()
       },
       delete: function del() {
@@ -78,13 +86,39 @@
     // add
     $('#roles .search .add').on('click', function add() {
       let $modal = $('#editRoleModal')
-      // title
+      // basic inputs
       $modal.find('.modal-title').text('新增角色')
       $modal.find('input#name').val('')
       $modal.find('select#rank').get(0).selectedIndex = 0
       $modal.find('input#desc').val('')
+      // auth checkboxes
+      $modal.find('.form-check-input').prop('checked', false)
+      // show
       $modal.modal()
     })
+  }
+
+  function initRoleModal() {
+    let $authority = $('#editRoleModal .authority')
+    const auths = [
+      {
+        name: 'admin',
+        label: '首页'
+      },
+      {
+        name: 'origin',
+        label: '原始文件库'
+      },
+      {
+        name: 'parsed',
+        label: '解析文件库'
+      },
+      {
+        name: 'account',
+        label: '账号管理'
+      }
+    ]
+    auths.map(obj => $authority.append(buildAuth(obj)))
   }
 
   function initTable(selector, actionCB = {}) {
@@ -204,6 +238,24 @@
         <td>${obj.time}</td>
         ${obj.sys ? '<td>---</td>' : action}
       </tr>
+    `
+  }
+
+  function buildAuth(obj) {
+    return `
+      <div class="form-check col-md-4">
+        <label class="form-check-label">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            name="${obj.name}"
+          />
+          ${obj.label}
+          <span class="form-check-sign">
+            <span class="check"></span>
+          </span>
+        </label>
+      </div>
     `
   }
 
