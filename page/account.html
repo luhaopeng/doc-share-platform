@@ -117,6 +117,14 @@
           <div class="card-body">
             <div class="tab-content">
               <div class="tab-pane active table-responsive" id="users">
+                <div class="search">
+                  <input
+                    type="text"
+                    class="search-box"
+                    placeholder="搜索 用户名|企业名"
+                  />
+                  <button type="button" class="search-btn">搜索</button>
+                </div>
                 <table id="table_user" class="table table-hover">
                   <thead class="text-info">
                     <tr>
@@ -159,7 +167,18 @@
                 </nav>
               </div>
               <div class="tab-pane table-responsive" id="roles">
-                <table id="table_star" class="table table-hover">
+                <div class="search">
+                  <input
+                    type="text"
+                    class="search-box"
+                    placeholder="搜索 角色名称"
+                  />
+                  <button type="button" class="search-btn">搜索</button>
+                  <button type="button" class="btn btn-sm btn-success add">
+                    新增
+                  </button>
+                </div>
+                <table id="table_role" class="table table-hover">
                   <thead class="text-info">
                     <tr>
                       <th>角色名称</th>
@@ -244,9 +263,10 @@
           </div>
         </div>
       </div>
+      <!-- change role modal -->
       <div
         class="modal fade"
-        id="modifyRoleModal"
+        id="changeRoleModal"
         tabindex="-1"
         role="dialog"
         aria-hidden="true"
@@ -307,8 +327,108 @@
               >
                 取消
               </button>
-              <button type="button" class="btn btn-primary" id="submitBtn">
+              <button type="button" class="btn btn-primary submit">
                 提交
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- edit role modal -->
+      <div
+        class="modal fade"
+        id="editRoleModal"
+        tabindex="-1"
+        role="dialog"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">新增角色</h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label for="name">角色名称</label>
+                    <input type="text" class="form-control" id="name" />
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="rank">角色等级</label>
+                    <select id="rank" class="form-control">
+                      <option>请选择...</option>
+                      <option value="sys">系统管理员</option>
+                      <option value="ent">企业管理员</option>
+                      <option value="usr">平台用户</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <label for="desc">角色描述</label>
+                    <input type="text" class="form-control" id="desc" />
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                取消
+              </button>
+              <button type="button" class="btn btn-primary submit">
+                提交
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- delete role modal -->
+      <div
+        class="modal fade"
+        id="deleteRoleModal"
+        tabindex="-1"
+        role="dialog"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">删除角色</h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              此操作无法撤销，确定删除？
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                取消
+              </button>
+              <button type="button" class="btn btn-danger submit">
+                删除
               </button>
             </div>
           </div>

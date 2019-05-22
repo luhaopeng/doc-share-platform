@@ -1,42 +1,20 @@
 ;(function() {
+  const TOAST_OPTION = {
+    icon: 'success',
+    position: 'bottom-right',
+    allowToastClose: false,
+    stack: false,
+    loader: false,
+    hideAfter: 2000,
+    textAlign: 'center'
+  }
+
   $(function() {
-    initUsers()
-  })
-
-  function initUsers() {
-    // data
-    let $tbody = $('#table_user tbody')
-    for (let i = 0; i < 5; i++) {
-      $tbody.append(buildUser(randUser()))
-    }
-
-    // limit
-    let $limit = $(`.result #table_user + nav .limit select`)
-    $limit.on('change', function limit(e) {
-      let pageSize = parseInt(e.target.value)
-      $tbody.html('')
-      for (let i = 0; i < pageSize; i++) {
-        $tbody.append(buildUser(randUser()))
-      }
-    })
-
-    // click
-    $('#modifyRoleModal #submitBtn').on('click', function download() {
-      $('#modifyRoleModal').modal('hide')
-    })
-    $tbody
-      .on('click', 'button[data-action=ban]', function star() {
+    initModalBtn()
+    initTable('#table_user', {
+      ban: function ban() {
         let $target = $(this)
         let action = $target.attr('data-toggle')
-        const TOAST_OPTION = {
-          icon: 'success',
-          position: 'bottom-right',
-          allowToastClose: false,
-          stack: false,
-          loader: false,
-          hideAfter: 2000,
-          textAlign: 'center'
-        }
         if (action === 'ban') {
           $target
             .attr({ 'data-toggle': 'recover', title: '恢复登录' })
@@ -60,10 +38,86 @@
             ...TOAST_OPTION
           })
         }
-      })
-      .on('click', 'button[data-action=edit]', function edit() {
-        $('#modifyRoleModal').modal()
-      })
+      },
+      edit: function edit() {
+        $('#changeRoleModal').modal()
+      }
+    })
+    initTable('#table_role', {
+      edit: function edit() {
+        let $modal = $('#editRoleModal')
+        // title
+        $modal.find('.modal-title').text('修改角色')
+        $modal.find('input#name').val('企业用户')
+        $modal.find('select#rank').val('usr')
+        $modal.find('input#desc').val('普通用户')
+        $modal.modal()
+      },
+      delete: function del() {
+        $('#deleteRoleModal').modal()
+      }
+    })
+  })
+
+  function initModalBtn() {
+    // user
+    $('#changeRoleModal .submit').on('click', function change() {
+      $('#changeRoleModal').modal('hide')
+    })
+
+    // role
+    $('#editRoleModal .submit').on('click', function edit() {
+      $('#editRoleModal').modal('hide')
+    })
+
+    // delete
+    $('#deleteRoleModal .submit').on('click', function del() {
+      $('#deleteRoleModal').modal('hide')
+    })
+
+    // add
+    $('#roles .search .add').on('click', function add() {
+      let $modal = $('#editRoleModal')
+      // title
+      $modal.find('.modal-title').text('新增角色')
+      $modal.find('input#name').val('')
+      $modal.find('select#rank').get(0).selectedIndex = 0
+      $modal.find('input#desc').val('')
+      $modal.modal()
+    })
+  }
+
+  function initTable(selector, actionCB = {}) {
+    // data
+    let $tbody = $(`${selector} tbody`)
+    for (let i = 0; i < 5; i++) {
+      $tbody.append(buildRow(selector))
+    }
+
+    // limit
+    let $limit = $(`.result ${selector} + nav .limit select`)
+    $limit.on('change', function limit(e) {
+      let pageSize = parseInt(e.target.value)
+      $tbody.html('')
+      for (let i = 0; i < pageSize; i++) {
+        $tbody.append(buildRow(selector))
+      }
+    })
+
+    // td-actions
+    for (let key in actionCB) {
+      if (typeof actionCB[key] === 'function') {
+        $tbody.on('click', `button[data-action=${key}]`, actionCB[key])
+      }
+    }
+  }
+
+  function buildRow(selector) {
+    if (/user/i.test(selector)) {
+      return buildUser(randUser())
+    } else if (/role/i.test(selector)) {
+      return buildRole(randRole())
+    }
   }
 
   function buildUser(obj) {
@@ -120,6 +174,39 @@
     `
   }
 
+  function buildRole(obj) {
+    let action = `
+      <td class="td-actions">
+        <button
+          data-action="edit"
+          type="button"
+          class="btn btn-info"
+          title="修改"
+        >
+          <i class="material-icons">edit</i>
+        </button>
+        <button
+          data-action="delete"
+          type="button"
+          class="btn btn-danger"
+          title="删除"
+        >
+          <i class="material-icons">delete</i>
+        </button>
+      </td>
+    `
+    return `
+      <tr>
+        <td>${obj.name}</td>
+        <td>${obj.rank}</td>
+        <td>${obj.desc}</td>
+        <td>${obj.creator}</td>
+        <td>${obj.time}</td>
+        ${obj.sys ? '<td>---</td>' : action}
+      </tr>
+    `
+  }
+
   function randUser() {
     const accounts = ['admin', '张腾', '小张', '张工']
     const companys = [
@@ -149,6 +236,39 @@
       date: rand(dates),
       banned: rand(ban),
       ...rand(types)
+    }
+  }
+
+  function randRole() {
+    const roles = [
+      {
+        name: '系统管理员',
+        rank: '系统管理员',
+        desc: '系统自定义',
+        sys: true
+      },
+      {
+        name: '企业用户',
+        rank: '平台用户',
+        desc: '普通用户',
+        sys: false
+      },
+      {
+        name: '华立企业管理员',
+        rank: '企业管理员',
+        desc: '企业管理员',
+        sys: false
+      }
+    ]
+    const times = [
+      '2019-04-23 17:15:25',
+      '2019-04-22 15:27:36',
+      '2019-05-01 09:30:44'
+    ]
+    return {
+      ...rand(roles),
+      creator: 'admin',
+      time: rand(times)
     }
   }
 
