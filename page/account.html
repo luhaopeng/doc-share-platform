@@ -7,7 +7,9 @@
     <title>账号管理</title>
     <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
     <!-- core -->
-    <link rel="stylesheet" href="../lib/material-icons/material-icons.css">
+    <link rel="stylesheet" href="../lib/material-icons/material-icons.css" />
+    <!-- jquery toast -->
+    <link rel="stylesheet" href="../lib/jquery.toast.min.css" />
     <!-- dashboard -->
     <link rel="stylesheet" href="../lib/material-dashboard.min.css" />
     <!-- page -->
@@ -84,12 +86,242 @@
       <!-- nav end -->
 
       <div class="container-fluid container-custom">
-
+        <div class="card result">
+          <div class="card-header card-header-tabs card-header-primary">
+            <div class="nav-tabs-navigation">
+              <div class="nav-tabs-wrapper">
+                <ul class="nav nav-tabs" data-tabs="tabs">
+                  <li class="nav-item">
+                    <a
+                      class="nav-link active show"
+                      href="#users"
+                      data-toggle="tab"
+                    >
+                      <i class="material-icons">supervisor_account</i> 用户管理
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#roles" data-toggle="tab">
+                      <i class="material-icons">assignment_ind</i> 角色管理
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#bonus" data-toggle="tab">
+                      <i class="material-icons">redeem</i> 积分管理
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="tab-content">
+              <div class="tab-pane active table-responsive" id="users">
+                <table id="table_user" class="table table-hover">
+                  <thead class="text-info">
+                    <tr>
+                      <th>用户名</th>
+                      <th>所属企业</th>
+                      <th>注册日期</th>
+                      <th>状态</th>
+                      <th>账号类型</th>
+                      <th>系统角色</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+                <nav>
+                  <div class="limit">
+                    每页显示
+                    <select class="custom-select custom-select-sm">
+                      <option value="5">5</option>
+                      <option value="15">15</option>
+                      <option value="30">30</option>
+                    </select>
+                    条
+                  </div>
+                  <ul class="pagination">
+                    <li class="page-item">
+                      <a class="page-link">上一页</a>
+                    </li>
+                    <li class="page-item active">
+                      <a class="page-link">1</a>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link">2</a>
+                    </li>
+                    <li class="page-item"><a class="page-link">3</a></li>
+                    <li class="page-item">
+                      <a class="page-link">下一页</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+              <div class="tab-pane table-responsive" id="roles">
+                <table id="table_star" class="table table-hover">
+                  <thead class="text-info">
+                    <tr>
+                      <th>角色名称</th>
+                      <th>角色等级</th>
+                      <th>角色描述</th>
+                      <th>创建人</th>
+                      <th>创建时间</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+                <nav>
+                  <div class="limit">
+                    每页显示
+                    <select class="custom-select custom-select-sm">
+                      <option value="5">5</option>
+                      <option value="15">15</option>
+                      <option value="30">30</option>
+                    </select>
+                    条
+                  </div>
+                  <ul class="pagination">
+                    <li class="page-item">
+                      <a class="page-link">上一页</a>
+                    </li>
+                    <li class="page-item active">
+                      <a class="page-link">1</a>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link">2</a>
+                    </li>
+                    <li class="page-item"><a class="page-link">3</a></li>
+                    <li class="page-item">
+                      <a class="page-link">下一页</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+              <div class="tab-pane table-responsive" id="bonus">
+                <table id="table_bonus" class="table table-hover">
+                  <thead class="text-info">
+                    <tr>
+                      <th>时间</th>
+                      <th>用户</th>
+                      <th>所属企业</th>
+                      <th>操作类型</th>
+                      <th>积分记录</th>
+                      <th>剩余积分</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+                <nav>
+                  <div class="limit">
+                    每页显示
+                    <select class="custom-select custom-select-sm">
+                      <option value="5">5</option>
+                      <option value="15">15</option>
+                      <option value="30">30</option>
+                    </select>
+                    条
+                  </div>
+                  <ul class="pagination">
+                    <li class="page-item">
+                      <a class="page-link">上一页</a>
+                    </li>
+                    <li class="page-item active">
+                      <a class="page-link">1</a>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link">2</a>
+                    </li>
+                    <li class="page-item"><a class="page-link">3</a></li>
+                    <li class="page-item">
+                      <a class="page-link">下一页</a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="modal fade"
+        id="modifyRoleModal"
+        tabindex="-1"
+        role="dialog"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">修改角色</h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label for="user">用户名</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="user"
+                      value="张腾"
+                      disabled
+                    />
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="company">所属企业</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="company"
+                      value="华立科技股份有限公司"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-12">
+                    <label for="role">角色</label>
+                    <select id="role" class="form-control">
+                      <option>系统管理员</option>
+                      <option>企业用户</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                取消
+              </button>
+              <button type="button" class="btn btn-primary" id="submitBtn">
+                提交
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
     <!-- core -->
     <script src="../lib/jquery.min.js"></script>
     <script src="../lib/popper.min.js"></script>
     <script src="../lib/bootstrap.min.js"></script>
+    <!-- jquery toast -->
+    <script src="../lib/jquery.toast.min.js"></script>
+    <!-- account -->
+    <script src="../js/account.js"></script>
   </body>
 </html>
