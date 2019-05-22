@@ -12,6 +12,7 @@
   $(function() {
     initModalBtn()
     initRoleModal()
+    initSearchComplete()
     initTable('#table_user', {
       ban: function ban() {
         let $target = $(this)
@@ -65,6 +66,7 @@
         $('#deleteRoleModal').modal()
       }
     })
+    initTable('#table_bonus')
   })
 
   function initModalBtn() {
@@ -121,6 +123,16 @@
     auths.map(obj => $authority.append(buildAuth(obj)))
   }
 
+  function initSearchComplete() {
+    const companys = [
+      '华立科技股份有限公司',
+      '威盛集团有限公司',
+      '江苏林洋能源有限公司',
+      '深圳市科陆电子科技股份有限公司'
+    ]
+    $('#searchCompany').autocomplete({ lookup: companys })
+  }
+
   function initTable(selector, actionCB = {}) {
     // data
     let $tbody = $(`${selector} tbody`)
@@ -151,6 +163,8 @@
       return buildUser(randUser())
     } else if (/role/i.test(selector)) {
       return buildRole(randRole())
+    } else if (/bonus/i.test(selector)) {
+      return buildBonus(randBonus())
     }
   }
 
@@ -241,6 +255,19 @@
     `
   }
 
+  function buildBonus(obj) {
+    return `
+      <tr>
+        <td>${obj.time}</td>
+        <td>${obj.account}</td>
+        <td>${obj.company}</td>
+        <td>${obj.type}</td>
+        <td>${obj.operand} ${obj.bonus}</td>
+        <td>${obj.total}</td>
+      </tr>
+    `
+  }
+
   function buildAuth(obj) {
     return `
       <div class="form-check col-md-4">
@@ -321,6 +348,36 @@
       ...rand(roles),
       creator: 'admin',
       time: rand(times)
+    }
+  }
+
+  function randBonus() {
+    const accounts = ['admin', '张腾', '小张', '张工']
+    const timeArr = [
+      '2019-05-21 15:47:12',
+      '2019-05-21 12:30:13',
+      '2019-05-21 08:19:53'
+    ]
+    const companys = [
+      '华立科技股份有限公司',
+      '威盛集团有限公司',
+      '江苏林洋能源有限公司',
+      '深圳市科陆电子科技股份有限公司'
+    ]
+    // prettier-ignore
+    const types = [
+      { type: '文件上传', bonus: 2, operand: '+' },
+      { type: '文件被收藏', bonus: 1, operand: '+' },
+      { type: '下载文件', bonus: 5, operand: '-' },
+      { type: '文件入库', bonus: 1, operand: '+' },
+      { type: '评论文件', bonus: 1, operand: '+' }
+    ]
+    return {
+      account: rand(accounts),
+      time: rand(timeArr),
+      company: rand(companys),
+      ...rand(types),
+      total: parseInt(Math.random() * 200)
     }
   }
 

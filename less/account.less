@@ -5,6 +5,7 @@
 @import "./component/jquery_toast.less";
 @import "./component/form_control.less";
 @import "./component/search.less";
+@import "./component/autocomplete.less";
 
 .result table.table tbody tr {
   cursor: default;
@@ -12,15 +13,32 @@
 
 .search {
   justify-content: center;
+}
 
-  .search-box {
+#users,
+#roles {
+  .search .search-box {
     max-width: 30%;
   }
+}
 
-  button.add {
-    margin: 0;
-    margin-left: 15px;
-    font-size: inherit;
+#roles .search button.add {
+  margin: 0;
+  margin-left: 15px;
+  font-size: inherit;
+}
+
+#bonus .search {
+  .search-box {
+    max-width: 15%;
+
+    &:first-child {
+      max-width: 20%;
+    }
+
+    & + .search-box {
+      border-radius: 0;
+    }
   }
 }
 
