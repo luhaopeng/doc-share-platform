@@ -8,12 +8,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 (function () {
   $(function () {
+    $('[data-toggle="popover"]').popover();
     initRank();
   });
 
   function initRank() {
     initTable('#table_upload');
     initTable('#table_star', true);
+    initTableBonus();
   }
 
   function initTable(selector, isStar) {
@@ -40,7 +42,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     } // limit
 
 
-    var $limit = $('.result nav .limit select');
+    var $limit = $(".result ".concat(selector, " + nav .limit select"));
     $limit.on('change', function limit(e) {
       var pageSize = parseInt(e.target.value);
       $tbody.html('');
@@ -106,6 +108,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   }
 
+  function initTableBonus() {
+    // data
+    var $tbody = $('#table_bonus tbody');
+
+    for (var i = 0; i < 5; i++) {
+      $tbody.append(buildBonusRow(randBonus()));
+    } // limit
+
+
+    var $limit = $('.result #table_bonus + nav .limit select');
+    $limit.on('change', function limit(e) {
+      var pageSize = parseInt(e.target.value);
+      $tbody.html('');
+
+      for (var _i2 = 0; _i2 < pageSize; _i2++) {
+        $tbody.append(buildBonusRow(randBonus()));
+      }
+    });
+  }
+
   function buildRankRow(obj, isStar) {
     var action = "\n      <td class=\"td-actions text-right\">\n        <button\n          data-action=\"star\"\n          data-toggle=\"".concat(obj.fav ? 'unstar' : 'star', "\"\n          type=\"button\"\n          class=\"btn btn-warning\"\n          title=\"").concat(obj.fav ? '取消' : '', "\u6536\u85CF\"\n        >\n          <i class=\"material-icons\">star").concat(obj.fav ? '' : '_border', "</i>\n        </button>\n        <button\n          data-action=\"download\"\n          type=\"button\"\n          class=\"btn btn-success\"\n          title=\"\u4E0B\u8F7D\"\n        >\n          <i class=\"material-icons\">get_app</i>\n        </button>\n      </td>\n    ");
     return "\n      <tr data-id=\"".concat(obj.id, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"text-ellipsis\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.type, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td>").concat(obj.state, "</td>\n        ").concat(isStar ? "<td>".concat(obj.bonus, "</td>") : '', "\n        <td class=\"text-right\">").concat(obj.download, "</td>\n        ").concat(isStar ? action : '', "\n      </tr>\n    ");
@@ -138,6 +160,45 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       download: parseInt(Math.random() * 100),
       fav: true
     };
+  }
+
+  function buildBonusRow(obj) {
+    return "\n      <tr>\n        <td>".concat(obj.time, "</td>\n        <td>").concat(obj.type, "</td>\n        <td>").concat(obj.remark, "</td>\n        <td>").concat(obj.operand, " ").concat(obj.bonus, "</td>\n      </tr>\n    ");
+  }
+
+  function randBonus() {
+    var timeArr = ['2019-05-21 15:47:12', '2019-05-21 12:30:13', '2019-05-21 08:19:53'];
+    var titles = ['常见react面试题汇总（适合中级前端）', 'SSM主流框架入门与综合项目实战', 'Java开发企业级权限管理系统', 'Linux随机密码']; // prettier-ignore
+
+    var types = [{
+      type: '文件上传',
+      remark: "\u4E0A\u4F20\u6587\u4EF6\"".concat(rand(titles), "\""),
+      bonus: 2,
+      operand: '+'
+    }, {
+      type: '文件被收藏',
+      remark: "\u6587\u4EF6\"".concat(rand(titles), "\"\u88AB\u7528\u6237\u6536\u85CF"),
+      bonus: 1,
+      operand: '+'
+    }, {
+      type: '下载文件',
+      remark: "\u4E0B\u8F7D\u6587\u4EF6\"".concat(rand(titles), "\""),
+      bonus: 5,
+      operand: '-'
+    }, {
+      type: '文件入库',
+      remark: "\u6587\u4EF6\"".concat(rand(titles), "\"\u6210\u529F\u5165\u5E93"),
+      bonus: 1,
+      operand: '+'
+    }, {
+      type: '评论文件',
+      remark: "\u8BC4\u8BBA\u6587\u4EF6\"".concat(rand(titles), "\""),
+      bonus: 1,
+      operand: '+'
+    }];
+    return _objectSpread({
+      time: rand(timeArr)
+    }, rand(types));
   }
 
   function rand(arr) {
