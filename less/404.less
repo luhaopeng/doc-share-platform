@@ -1,0 +1,44 @@
+// out: ../dist/css/404.min.css, compress: true, sourceMap: false
+
+@navbar-height: 50px;
+@navbar-padding: 10px;
+@navbar-margin: 20px;
+
+body {
+  margin: 0;
+}
+
+.fragment-container {
+  width: 100vw;
+  height: ~"calc(100vh - 50px - 20px - 20px)";
+  overflow: hidden;
+  position: relative;
+
+  div[class*="fragment-layer-"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: 0.1s;
+  }
+
+  .fragment-layer-1 .fragment {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    font-size: 18px;
+    color: #fff;
+  }
+
+  .fragment-layer-2 .fragment {
+    width: 20px;
+    height: 20px;
+  }
+
+  .fragment-layer-3 .fragment {
+    width: 10px;
+    height: 10px;
+  }
+}
