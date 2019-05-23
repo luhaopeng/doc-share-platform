@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "prebuild": "babel js -d dist/js/babel",
+    "build-404": "uglifyjs dist/js/babel/404.js -o dist/js/404.min.js -c -m",
     "build-account": "uglifyjs dist/js/babel/account.js -o dist/js/account.min.js -c -m",
     "build-admin": "uglifyjs dist/js/babel/admin.js -o dist/js/admin.min.js -c -m",
     "build-file": "uglifyjs dist/js/babel/file.js -o dist/js/file.min.js -c -m",
@@ -12,9 +13,10 @@
     "build-parsed": "uglifyjs dist/js/babel/parsed.js -o dist/js/parsed.min.js -c -m",
     "build-upload": "uglifyjs dist/js/babel/upload.js -o dist/js/upload.min.js -c -m",
     "build-util": "uglifyjs dist/js/babel/util.js -o dist/js/util.min.js -c -m",
-    "build-1": "npm run build-account && npm run build-admin && npm run build-file && npm run build-home",
-    "build-2": "npm run build-origin && npm run build-parsed && npm run build-upload && npm run build-util",
-    "build": "npm run build-1 && npm run build-2"
+    "build-1": "npm run build-404 && npm run build-account && npm run build-admin && npm run build-file",
+    "build-2": "npm run build-home && npm run build-origin && npm run build-parsed && npm run build-upload",
+    "build-3": "npm run build-util",
+    "build": "npm run build-1 && npm run build-2 && npm run build-3"
   },
   "author": "luhaopeng",
   "license": "MIT",
