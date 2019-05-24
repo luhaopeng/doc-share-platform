@@ -113,33 +113,42 @@
   }
 
   function initPie1() {
+    let labels = ['一类', '二类', '三类', '四类', '五类']
     let data = {
-      series: genRandInt(5)
+      series: genRandInt(5).map((v, i) => ({
+        meta: labels[i],
+        value: v
+      }))
     }
     new Chartist.Pie('#chart_pie_1', data, {
       height: '200px',
       labelOffset: 15,
       showLabel: false,
       plugins: [
-        Chartist.plugins.legend({
-          legendNames: ['一类', '二类', '三类', '四类', '五类']
+        Chartist.plugins.legend({ legendNames: labels }),
+        Chartist.plugins.tooltip({
+          tooltipOffset: { x: 14, y: -10 }
         })
       ]
     })
   }
 
   function initPie2() {
+    let labels = ['松下', '格力', '三星', '美的', '西门子', '海尔']
     let data = {
-      series: genRandInt(6)
+      series: genRandInt(6).map((v, i) => ({
+        meta: labels[i],
+        value: v
+      }))
     }
     new Chartist.Pie('#chart_pie_2', data, {
       height: '200px',
       labelOffset: 15,
       showLabel: false,
       plugins: [
-        Chartist.plugins.legend({
-          // prettier-ignore
-          legendNames: ['松下', '格力', '三星', '美的', '西门子', '海尔']
+        Chartist.plugins.legend({ legendNames: labels }),
+        Chartist.plugins.tooltip({
+          tooltipOffset: { x: 14, y: -10 }
         })
       ]
     })
@@ -161,6 +170,9 @@
       plugins: [
         Chartist.plugins.legend({
           legendNames: ['2018', '2019']
+        }),
+        Chartist.plugins.tooltip({
+          tooltipOffset: { x: 14, y: -10 }
         })
       ]
     })
@@ -195,6 +207,9 @@
       plugins: [
         Chartist.plugins.legend({
           legendNames: ['华立科技', '威盛电子']
+        }),
+        Chartist.plugins.tooltip({
+          tooltipOffset: { x: 14, y: -10 }
         })
       ]
     })

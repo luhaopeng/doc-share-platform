@@ -96,30 +96,51 @@
   }
 
   function initPie1() {
+    var labels = ['一类', '二类', '三类', '四类', '五类'];
     var data = {
-      series: genRandInt(5)
+      series: genRandInt(5).map(function (v, i) {
+        return {
+          meta: labels[i],
+          value: v
+        };
+      })
     };
     new Chartist.Pie('#chart_pie_1', data, {
       height: '200px',
       labelOffset: 15,
       showLabel: false,
       plugins: [Chartist.plugins.legend({
-        legendNames: ['一类', '二类', '三类', '四类', '五类']
+        legendNames: labels
+      }), Chartist.plugins.tooltip({
+        tooltipOffset: {
+          x: 14,
+          y: -10
+        }
       })]
     });
   }
 
   function initPie2() {
+    var labels = ['松下', '格力', '三星', '美的', '西门子', '海尔'];
     var data = {
-      series: genRandInt(6)
+      series: genRandInt(6).map(function (v, i) {
+        return {
+          meta: labels[i],
+          value: v
+        };
+      })
     };
     new Chartist.Pie('#chart_pie_2', data, {
       height: '200px',
       labelOffset: 15,
       showLabel: false,
       plugins: [Chartist.plugins.legend({
-        // prettier-ignore
-        legendNames: ['松下', '格力', '三星', '美的', '西门子', '海尔']
+        legendNames: labels
+      }), Chartist.plugins.tooltip({
+        tooltipOffset: {
+          x: 14,
+          y: -10
+        }
       })]
     });
   }
@@ -134,6 +155,11 @@
       seriesBarDistance: 10,
       plugins: [Chartist.plugins.legend({
         legendNames: ['2018', '2019']
+      }), Chartist.plugins.tooltip({
+        tooltipOffset: {
+          x: 14,
+          y: -10
+        }
       })]
     });
   }
@@ -153,6 +179,11 @@
       seriesBarDistance: 10,
       plugins: [Chartist.plugins.legend({
         legendNames: ['华立科技', '威盛电子']
+      }), Chartist.plugins.tooltip({
+        tooltipOffset: {
+          x: 14,
+          y: -10
+        }
       })]
     });
     var iStart = moment().startOf('year');
