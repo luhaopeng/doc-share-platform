@@ -68,7 +68,9 @@
       ],
       series: [genRandInt(30)]
     }
-    let chartLine = new Chartist.Line('#chart_line', dataMay)
+    let chartLine = new Chartist.Line('#chart_line', dataMay, {
+      plugins: [Chartist.plugins.ctPointLabels()]
+    })
 
     let iStart = moment().startOf('month')
     let iEnd = moment().endOf('month')

@@ -3,6 +3,16 @@
 @import "./style.less";
 @import "./component/chartist.less";
 
+.ct-chart {
+  svg {
+    overflow: visible;
+  }
+
+  text.ct-label {
+    fill: hsla(0, 0%, 100%, 0.7);
+  }
+}
+
 #chart_pie_1,
 #chart_pie_2 {
   .ct-chart-custom();
