@@ -149,20 +149,41 @@
   }
 
   function initTable(selector, actionCB = {}) {
-    // data
+    // initial params
+    let params = { pageNum: 1, pageSize: 5, keyword: '', disc: '' }
+
+    // initial data
     let $tbody = $(`${selector} tbody`)
-    for (let i = 0; i < 5; i++) {
-      $tbody.append(buildRow(selector))
-    }
+    buildRow(selector, params, $tbody)
 
     // limit
     let $limit = $(`.result ${selector} + nav .limit select`)
     $limit.on('change', function limit(e) {
       let pageSize = parseInt(e.target.value)
       $tbody.html('')
-      for (let i = 0; i < pageSize; i++) {
-        $tbody.append(buildRow(selector))
-      }
+      params.pageSize = pageSize
+      buildRow(selector, params, $tbody)
+    })
+
+    // page change
+
+    // search
+    let $search = $(selector).siblings('.search')
+    if (/user/i.test(selector)) {
+      $search.on('change', '.search-box', function() {
+        // prettier-ignore
+        params.keyword = $(this).val().trim()
+      })
+    } else if (/role/i.test(selector)) {
+      $search.on('change', '.search-box', function() {
+        // prettier-ignore
+        params.disc = $(this).val().trim()
+      })
+    } else if (/bonus/i.test(selector)) {
+      // TODO
+    }
+    $search.on('click', '.search-btn', function() {
+      buildRow(selector, params, $tbody)
     })
 
     // td-actions
@@ -173,13 +194,13 @@
     }
   }
 
-  function buildRow(selector) {
+  function buildRow(selector, data, $tbody) {
     if (/user/i.test(selector)) {
-      return buildUser(randUser())
+      getUsers(data, res => res.map($tbody.append(buildUser(res))))
     } else if (/role/i.test(selector)) {
-      return buildRole(randRole())
+      getRoles(data, res => res.map($tbody.append(buildRole(res))))
     } else if (/bonus/i.test(selector)) {
-      return buildBonus(randBonus())
+      getBonus(data, res => res.map($tbody.append(buildBonus(res))))
     }
   }
 
@@ -238,33 +259,30 @@
   }
 
   function buildRole(obj) {
-    let action = `
-      <td class="td-actions">
-        <button
-          data-action="edit"
-          type="button"
-          class="btn btn-info"
-          title="修改"
-        >
-          <i class="material-icons">edit</i>
-        </button>
-        <button
-          data-action="delete"
-          type="button"
-          class="btn btn-danger"
-          title="删除"
-        >
-          <i class="material-icons">delete</i>
-        </button>
-      </td>
-    `
     return `
-      <tr>
+      <tr data-id=${obj.id}>
         <td>${obj.name}</td>
         <td>${obj.desc}</td>
         <td>${obj.creator}</td>
         <td>${obj.time}</td>
-        ${obj.sys ? '<td>---</td>' : action}
+        <td class="td-actions">
+          <button
+            data-action="edit"
+            type="button"
+            class="btn btn-info"
+            title="修改"
+          >
+            <i class="material-icons">edit</i>
+          </button>
+          <button
+            data-action="delete"
+            type="button"
+            class="btn btn-danger"
+            title="删除"
+          >
+            <i class="material-icons">delete</i>
+          </button>
+        </td>
       </tr>
     `
   }
@@ -300,66 +318,63 @@
     `
   }
 
-  function randUser() {
-    const accounts = ['admin', '张腾', '小张', '张工']
-    const companys = [
-      '国网电力科学研究院',
-      '华立科技股份有限公司',
-      '威盛集团有限公司',
-      '江苏林洋能源有限公司'
-    ]
-    const dates = ['2019-05-09', '2019-05-08', '2019-05-07']
-    const ban = [true, false]
-    const types = [
-      {
-        sys: true,
-        type: '平台管理员',
-        role: '系统管理员'
-      },
-      {
-        sys: false,
-        type: '企业用户',
-        role: '企业用户'
-      }
-    ]
-    return {
-      id: parseInt(Math.random() * 100),
-      account: rand(accounts),
-      company: rand(companys),
-      date: rand(dates),
-      banned: rand(ban),
-      ...rand(types)
+  function buildPage(selector, options) {
+    let $pagination = $(selector)
+      .siblings('nav')
+      .find('ul.pagination')
+    $pagination
+      .find('li.page-item:not(:first-of-type):not(:last-of-type)')
+      .remove()
+    for (let i = 1; i <= options.pages; ++i) {
+      $(`
+        <li class="page-item ${i === options.pageNum ? 'active' : ''}">
+          <a class="page-link">${i}</a>
+        </li>
+      `).insertBefore(`${selector} + nav .pagination page-item:last-of-type`)
     }
   }
 
-  function randRole() {
-    const roles = [
-      {
-        name: '系统管理员',
-        desc: '系统自定义',
-        sys: true
-      },
-      {
-        name: '企业用户',
-        desc: '普通用户',
-        sys: false
-      },
-      {
-        name: '华立企业管理员',
-        desc: '企业管理员',
-        sys: false
+  function getUsers(data, buildFunc) {
+    $.post('sys/queryUsers', data, function done(res) {
+      if (res.ret === 0) {
+        let objs = res.data.list.map(v => ({
+          id: v.account,
+          account: v.account,
+          company: v.enterprise,
+          date: v.registerTimeStr,
+          banned: !!(v.status - 1),
+          sys: v.type === 2,
+          type: v.typeStr,
+          role: v.roleName
+        }))
+        typeof buildFunc === 'function' && buildFunc(objs)
+      } else {
+        // TODO res.msg
       }
-    ]
-    const times = [
-      '2019-04-23 17:15:25',
-      '2019-04-22 15:27:36',
-      '2019-05-01 09:30:44'
-    ]
-    return {
-      ...rand(roles),
-      creator: 'admin',
-      time: rand(times)
-    }
+    })
+  }
+
+  function getRoles(data, buildFunc) {
+    $.post('sys/queryRoles', data, function done(res) {
+      if (res.ret === 0) {
+        let objs = res.data.list.map(v => ({
+          id: v.roleid,
+          name: v.disc,
+          desc: v.remark,
+          creator: v.creator,
+          time: v.createtime
+        }))
+        typeof buildFunc === 'function' && buildFunc(objs)
+      } else {
+        // TODO res.msg
+      }
+    })
+  }
+
+  function getBonus(data, buildFunc) {
+    // TODO
+    let objs = [1, 2, 3, 4, 5].map(() => randBonus())
+    typeof buildFunc === 'function' && buildFunc(objs)
   }
 
   function randBonus() {
