@@ -31,7 +31,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             title: '恢复登录'
           }).addClass('btn-success').removeClass('btn-danger').children('.material-icons').text('replay');
           $.toast(_objectSpread({
-            heading: '已禁止该账号登录'
+            heading: '已禁用'
           }, TOAST_OPTION));
         } else if (action === 'recover') {
           $target.attr({
@@ -44,7 +44,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }
       },
       edit: function edit() {
-        $('#changeRoleModal').modal();
+        var $modal = $('#changeRoleModal'); // basic inputs
+
+        $modal.find('.modal-title').text('修改角色'); // prettier-ignore
+
+        $modal.find('input#user').prop('disabled', true).val('张腾'); // show
+
+        $modal.modal();
       }
     });
     initTable('#table_role', {
@@ -83,6 +89,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       $('#deleteRoleModal').modal('hide');
     }); // add
 
+    $('#users .search .add').on('click', function add() {
+      var $modal = $('#changeRoleModal'); // basic inputs
+
+      $modal.find('.modal-title').text('新增用户'); // prettier-ignore
+
+      $modal.find('input#user').prop('disabled', false).val(''); // show
+
+      $modal.modal();
+    });
     $('#roles .search .add').on('click', function add() {
       var $modal = $('#editRoleModal'); // basic inputs
 
