@@ -109,7 +109,20 @@
       if (/tr|td/i.test(tag)) {
         // prettier-ignore
         let id = $(this).closest('tr').attr('data-id')
-        window.location.href = `file.html?file=${id}&type=parsed`
+        let $form = $(`
+          <form
+            action="fileData/fileDataDetail"
+            method="post"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="display:none"
+          >
+            <input name="fileDataId" value="${id}" />
+            <input name="fileDataType" value="2" />
+          </form>
+        `)
+        $(document.body).append($form)
+        $form.submit().remove()
       }
     })
     $tbody
