@@ -124,6 +124,9 @@
                     placeholder="搜索 用户名|企业名"
                   />
                   <button type="button" class="search-btn">搜索</button>
+                  <button type="button" class="btn btn-sm btn-success add">
+                    新增
+                  </button>
                 </div>
                 <table id="table_user" class="table table-hover">
                   <thead class="text-info">
@@ -311,18 +314,12 @@
                       disabled
                     />
                   </div>
-                  <div class="form-group col-md-6">
-                    <label for="company">所属企业</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="company"
-                      value="华立科技股份有限公司"
-                      disabled
-                    />
+                  <div class="form-group col-md-12">
+                    <label for="type">类型</label>
+                    <select id="type" class="form-control" disabled>
+                      <option>平台管理员</option>
+                    </select>
                   </div>
-                </div>
-                <div class="form-row">
                   <div class="form-group col-md-12">
                     <label for="role">角色</label>
                     <select id="role" class="form-control">

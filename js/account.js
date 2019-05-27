@@ -25,7 +25,7 @@
             .children('.material-icons')
             .text('replay')
           $.toast({
-            heading: '已禁止该账号登录',
+            heading: '已禁用',
             ...TOAST_OPTION
           })
         } else if (action === 'recover') {
@@ -42,7 +42,13 @@
         }
       },
       edit: function edit() {
-        $('#changeRoleModal').modal()
+        let $modal = $('#changeRoleModal')
+        // basic inputs
+        $modal.find('.modal-title').text('修改角色')
+        // prettier-ignore
+        $modal.find('input#user').prop('disabled', true).val('张腾')
+        // show
+        $modal.modal()
       }
     })
     initTable('#table_role', {
@@ -86,6 +92,15 @@
     })
 
     // add
+    $('#users .search .add').on('click', function add() {
+      let $modal = $('#changeRoleModal')
+      // basic inputs
+      $modal.find('.modal-title').text('新增用户')
+      // prettier-ignore
+      $modal.find('input#user').prop('disabled', false).val('')
+      // show
+      $modal.modal()
+    })
     $('#roles .search .add').on('click', function add() {
       let $modal = $('#editRoleModal')
       // basic inputs
