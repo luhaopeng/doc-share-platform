@@ -33,15 +33,7 @@
       onColor: 'info',
       offColor: 'info',
       state: true,
-      size: 'mini'
-    })
-    $('#switch_bar_2').bootstrapSwitch({
-      onText: '下载量',
-      offText: '上传量',
-      onColor: 'info',
-      offColor: 'info',
-      state: true,
-      size: 'mini'
+      size: 'small'
     })
 
     initLine()
@@ -178,15 +170,24 @@
         })
       ]
     })
+
+    $('#switch_bar_option_1').bootstrapSwitch({
+      onText: '按年',
+      offText: '按月',
+      onColor: 'info',
+      offColor: 'info',
+      state: true,
+      size: 'mini'
+    })
   }
 
   function initBar2() {
     let data = {
       // prettier-ignore
       labels: [
-        'Jan', 'Feb', 'Mar', 'Apr',
-        'May', 'Jun', 'Jul', 'Aug',
-        'Sep', 'Oct', 'Nov', 'Dec'
+        '01', '02', '03', '04',
+        '05', '06', '07', '08',
+        '09', '10', '11', '12'
       ],
       series: [
         genRandInt(5).concat([0, 0, 0, 0, 0, 0, 0]),
@@ -194,17 +195,7 @@
       ]
     }
 
-    let dataPrev = {
-      // prettier-ignore
-      labels: [
-        'Jan', 'Feb', 'Mar', 'Apr',
-        'May', 'Jun', 'Jul', 'Aug',
-        'Sep', 'Oct', 'Nov', 'Dec'
-      ],
-      series: [genRandInt(12), genRandInt(12)]
-    }
-
-    let chartBar = new Chartist.Bar('#chart_bar_2', data, {
+    new Chartist.Bar('#chart_bar_2', data, {
       seriesBarDistance: 10,
       plugins: [
         Chartist.plugins.legend({
@@ -216,42 +207,22 @@
       ]
     })
 
-    let iStart = moment().startOf('year')
-    let iEnd = moment().endOf('year')
+    $('#switch_bar_option_2').bootstrapSwitch({
+      onText: '按年',
+      offText: '按月',
+      onColor: 'info',
+      offColor: 'info',
+      state: true,
+      size: 'mini'
+    })
 
-    function cb(start, end) {
-      let format = 'YYYY/MM'
-      $('#range_bar span').html(
-        start.format(format) + ' - ' + end.format(format)
-      )
-      if (iStart.startOf('year').isSame(start)) {
-        chartBar.update(data)
-      } else {
-        chartBar.update(dataPrev)
-      }
-    }
+    $('#btn_bar_option_2').on('click', function() {
+      $('#optionModal').modal()
+    })
 
-    $('#range_bar').daterangepicker(
-      {
-        startDate: iStart,
-        endDate: iEnd,
-        opens: 'center',
-        linkedCalendars: false,
-        showDropdowns: true,
-        locale: PICKER_LOCALE,
-        // prettier-ignore
-        ranges: {
-          '今年': [iStart, iEnd],
-          '去年': [
-            moment().subtract(1, 'year').startOf('year'),
-            moment().subtract(1, 'year').endOf('year')
-          ]
-        }
-      },
-      cb
-    )
-
-    cb(iStart, iEnd)
+    $('#optionModal .submit').on('click', function() {
+      $('#optionModal').modal('hide')
+    })
   }
 
   function initRank() {

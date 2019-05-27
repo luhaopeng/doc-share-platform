@@ -7,11 +7,11 @@
     <title>首页</title>
     <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
     <!-- core -->
-    <link rel="stylesheet" href="../lib/material-icons/material-icons.css">
+    <link rel="stylesheet" href="../lib/material-icons/material-icons.css" />
     <!-- chartist -->
     <link rel="stylesheet" href="../lib/chartist.min.css" />
     <!-- chartist tooltip -->
-    <link rel="stylesheet" href="../lib/chartist-plugin-tooltip.css">
+    <link rel="stylesheet" href="../lib/chartist-plugin-tooltip.css" />
     <!-- bootstrap switch -->
     <link rel="stylesheet" href="../lib/bootstrap-switch.min.css" />
     <!-- date range picker -->
@@ -301,13 +301,20 @@
         <div class="row">
           <div class="col-md-6 col-sm-12">
             <div class="card card-chart">
-              <div class="card-header card-header-dim">
+              <div
+                class="card-header card-header-dim"
+                data-header-animation="true"
+              >
                 <div class="ct-chart" id="chart_bar_1"></div>
               </div>
               <div class="card-body">
+                <div class="card-actions">
+                  <input type="checkbox" id="switch_bar_option_1" />
+                </div>
                 <h4 class="card-title">
-                  文件数据纵比&nbsp;
+                  文件
                   <input type="checkbox" id="switch_bar_1" />
+                  纵比
                 </h4>
               </div>
               <div class="card-footer">
@@ -328,16 +335,14 @@
               </div>
               <div class="card-body">
                 <div class="card-actions">
+                  <input type="checkbox" id="switch_bar_option_2" />
                   <button
                     type="button"
-                    id="range_bar"
-                    class="btn btn-lg btn-info btn-link"
+                    id="btn_bar_option_2"
+                    class="btn btn-large btn-link btn-info"
                   >
-                    <i class="material-icons">date_range</i>
-                    <span></span>
-                    <i class="material-icons">
-                      arrow_drop_down
-                    </i>
+                    <i class="material-icons">settings</i>
+                    选择企业
                   </button>
                 </div>
                 <h4 class="card-title">文件上传量横比</h4>
@@ -450,6 +455,67 @@
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="modal fade"
+        id="optionModal"
+        tabindex="-1"
+        role="dialog"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">选择对比企业</h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label for="ent1">企业1</label>
+                    <select id="ent1" class="form-control">
+                      <option>华立科技股份有限公司</option>
+                      <option>威盛集团有限公司</option>
+                      <option>江苏林洋能源有限公司</option>
+                      <option>深圳市科陆电子科技股份有限公司</option>
+                      <option>宁波三星医疗电器股份有限公司</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="ent2">企业2</label>
+                    <select id="ent2" class="form-control">
+                      <option>华立科技股份有限公司</option>
+                      <option>威盛集团有限公司</option>
+                      <option>江苏林洋能源有限公司</option>
+                      <option>深圳市科陆电子科技股份有限公司</option>
+                      <option>宁波三星医疗电器股份有限公司</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                取消
+              </button>
+              <button type="button" class="btn btn-primary submit">
+                提交
+              </button>
             </div>
           </div>
         </div>
