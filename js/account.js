@@ -153,11 +153,13 @@
     let params = { pageNum: 1, pageSize: 5, keyword: '', disc: '' }
 
     // initial data
-    let $tbody = $(`${selector} tbody`)
+    let $table = $(selector)
+    let $tbody = $table.find('tbody')
     buildRow(selector, params, $tbody)
 
     // limit
-    let $limit = $(`.result ${selector} + nav .limit select`)
+    let $nav = $table.siblings('nav')
+    let $limit = $nav.find('.limit select')
     $limit.on('change', function limit(e) {
       let pageSize = parseInt(e.target.value)
       $tbody.html('')
@@ -166,6 +168,18 @@
     })
 
     // page change
+    let $pagination = $nav.find('ul.pagination')
+    $pagination.on('click', '.page-item', function() {
+      let $this = $(this)
+      if ($this.hasClass('prev')) {
+        params.pageNum = params.pageNum - 1 || 1
+      } else if ($this.hasClass('prev')) {
+        params.pageNum = params.pageNum + 1 || 1
+      } else {
+        params.pageNum = $this.index()
+      }
+      buildRow(selector, params, $tbody)
+    })
 
     // search
     let $search = $(selector).siblings('.search')
@@ -196,11 +210,23 @@
 
   function buildRow(selector, data, $tbody) {
     if (/user/i.test(selector)) {
-      getUsers(data, res => res.map($tbody.append(buildUser(res))))
+      getUsers(
+        data,
+        res => res.map($tbody.append(buildUser(res))),
+        page => buildPage(selector, page)
+      )
     } else if (/role/i.test(selector)) {
-      getRoles(data, res => res.map($tbody.append(buildRole(res))))
+      getRoles(
+        data,
+        res => res.map($tbody.append(buildRole(res))),
+        page => buildPage(selector, page)
+      )
     } else if (/bonus/i.test(selector)) {
-      getBonus(data, res => res.map($tbody.append(buildBonus(res))))
+      getBonus(
+        data,
+        res => res.map($tbody.append(buildBonus(res))),
+        page => buildPage(selector, page)
+      )
     }
   }
 
@@ -322,22 +348,22 @@
     let $pagination = $(selector)
       .siblings('nav')
       .find('ul.pagination')
-    $pagination
-      .find('li.page-item:not(:first-of-type):not(:last-of-type)')
-      .remove()
+    $pagination.find('li.page-item:not(.prev):not(.next)').remove()
     for (let i = 1; i <= options.pages; ++i) {
       $(`
         <li class="page-item ${i === options.pageNum ? 'active' : ''}">
           <a class="page-link">${i}</a>
         </li>
-      `).insertBefore(`${selector} + nav .pagination page-item:last-of-type`)
+      `).insertBefore(`${selector} + nav .pagination .page-item.next`)
     }
   }
 
-  function getUsers(data, buildFunc) {
+  function getUsers(data, buildFunc, pageFunc) {
     $.post('sys/queryUsers', data, function done(res) {
-      if (res.ret === 0) {
-        let objs = res.data.list.map(v => ({
+      if (!res.ret) {
+        let { pageNum, pageSize, total, pages, list } = res.data
+        let pageObj = { pageNum, pageSize, total, pages }
+        let objs = list.map(v => ({
           id: v.account,
           account: v.account,
           company: v.enterprise,
@@ -348,16 +374,19 @@
           role: v.roleName
         }))
         typeof buildFunc === 'function' && buildFunc(objs)
+        typeof pageFunc === 'function' && pageFunc(pageObj)
       } else {
         // TODO res.msg
       }
     })
   }
 
-  function getRoles(data, buildFunc) {
+  function getRoles(data, buildFunc, pageFunc) {
     $.post('sys/queryRoles', data, function done(res) {
-      if (res.ret === 0) {
-        let objs = res.data.list.map(v => ({
+      if (!res.ret) {
+        let { pageNum, pageSize, total, pages, list } = res.data
+        let pageObj = { pageNum, pageSize, total, pages }
+        let objs = list.map(v => ({
           id: v.roleid,
           name: v.disc,
           desc: v.remark,
@@ -365,6 +394,7 @@
           time: v.createtime
         }))
         typeof buildFunc === 'function' && buildFunc(objs)
+        typeof pageFunc === 'function' && pageFunc(pageObj)
       } else {
         // TODO res.msg
       }
