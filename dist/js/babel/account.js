@@ -202,7 +202,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
   function buildRole(obj) {
     var action = "\n      <td class=\"td-actions\">\n        <button\n          data-action=\"edit\"\n          type=\"button\"\n          class=\"btn btn-info\"\n          title=\"\u4FEE\u6539\"\n        >\n          <i class=\"material-icons\">edit</i>\n        </button>\n        <button\n          data-action=\"delete\"\n          type=\"button\"\n          class=\"btn btn-danger\"\n          title=\"\u5220\u9664\"\n        >\n          <i class=\"material-icons\">delete</i>\n        </button>\n      </td>\n    ";
-    return "\n      <tr>\n        <td>".concat(obj.name, "</td>\n        <td>").concat(obj.rank, "</td>\n        <td>").concat(obj.desc, "</td>\n        <td>").concat(obj.creator, "</td>\n        <td>").concat(obj.time, "</td>\n        ").concat(obj.sys ? '<td>---</td>' : action, "\n      </tr>\n    ");
+    return "\n      <tr>\n        <td>".concat(obj.name, "</td>\n        <td>").concat(obj.desc, "</td>\n        <td>").concat(obj.creator, "</td>\n        <td>").concat(obj.time, "</td>\n        ").concat(obj.sys ? '<td>---</td>' : action, "\n      </tr>\n    ");
   }
 
   function buildBonus(obj) {
@@ -239,17 +239,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   function randRole() {
     var roles = [{
       name: '系统管理员',
-      rank: '系统管理员',
       desc: '系统自定义',
       sys: true
     }, {
       name: '企业用户',
-      rank: '平台用户',
       desc: '普通用户',
       sys: false
     }, {
       name: '华立企业管理员',
-      rank: '企业管理员',
       desc: '企业管理员',
       sys: false
     }];

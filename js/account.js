@@ -261,7 +261,6 @@
     return `
       <tr>
         <td>${obj.name}</td>
-        <td>${obj.rank}</td>
         <td>${obj.desc}</td>
         <td>${obj.creator}</td>
         <td>${obj.time}</td>
@@ -337,19 +336,16 @@
     const roles = [
       {
         name: '系统管理员',
-        rank: '系统管理员',
         desc: '系统自定义',
         sys: true
       },
       {
         name: '企业用户',
-        rank: '平台用户',
         desc: '普通用户',
         sys: false
       },
       {
         name: '华立企业管理员',
-        rank: '企业管理员',
         desc: '企业管理员',
         sys: false
       }
