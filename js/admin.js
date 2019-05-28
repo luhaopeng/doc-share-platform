@@ -19,14 +19,6 @@
   }
 
   $(function() {
-    $('#switch_line').bootstrapSwitch({
-      onText: '下载',
-      offText: '上传',
-      onColor: 'info',
-      offColor: 'info',
-      state: true,
-      size: 'small'
-    })
     $('#switch_bar_1').bootstrapSwitch({
       onText: '下载量',
       offText: '上传量',
@@ -36,6 +28,7 @@
       size: 'small'
     })
 
+    // 所有统计时间
     $('.card .card-footer .stats').html(`
       <i class="material-icons">access_time</i>
       统计时间：${moment().format('YYYY-MM-DD HH:mm:ss')}
@@ -72,38 +65,39 @@
   }
 
   function initLine() {
-    let dataMay = {
-      labels: ['01', '02', '03', '04', '05', '06', '07'],
-      series: [genRandInt(7)]
-    }
-    let dataApril = {
-      // prettier-ignore
-      labels: [
-        '01', '02', '03', '04', '05', '06',
-        '07', '08', '09', '10', '11', '12',
-        '13', '14', '15', '16', '17', '18',
-        '19', '20', '21', '22', '23', '24',
-        '25', '26', '27', '28', '29', '30'
-      ],
-      series: [genRandInt(30)]
-    }
-    let chartLine = new Chartist.Line('#chart_line', dataMay, {
-      plugins: [Chartist.plugins.ctPointLabels()]
+    const FORMAT_DISPLAY = 'YYYY/MM/DD'
+    const FORMAT_API = 'YYYY-MM-DD'
+    let params = { type: 2, startDate: '', endDate: '' }
+    $('#switch_line').bootstrapSwitch({
+      onText: '下载',
+      offText: '上传',
+      onColor: 'info',
+      offColor: 'info',
+      state: true,
+      size: 'small',
+      onSwitchChange: function(e, state) {
+        params.type = state ? 2 : 1
+        getLineData(params)
+      }
     })
+    let chartLine = new Chartist.Line(
+      '#chart_line',
+      {},
+      {
+        plugins: [Chartist.plugins.ctPointLabels()]
+      }
+    )
 
     let iStart = moment().startOf('month')
     let iEnd = moment().endOf('month')
 
-    function cb(start, end) {
-      let format = 'YYYY/MM/DD'
+    function pickerUpdate(start, end) {
       $('#range_line span').html(
-        start.format(format) + ' - ' + end.format(format)
+        start.format(FORMAT_DISPLAY) + ' - ' + end.format(FORMAT_DISPLAY)
       )
-      if (iStart.isSame(start)) {
-        chartLine.update(dataMay)
-      } else {
-        chartLine.update(dataApril)
-      }
+      params.startDate = start.format(FORMAT_API)
+      params.endDate = end.format(FORMAT_API)
+      getLineData(params)
     }
 
     $('#range_line').daterangepicker(
@@ -127,10 +121,23 @@
           ]
         }
       },
-      cb
+      pickerUpdate
     )
 
-    cb(iStart, iEnd)
+    pickerUpdate(iStart, iEnd)
+
+    function getLineData(obj) {
+      $.post('main/queryUpAndDownFile', obj, function(res) {
+        handleResult(res, function(data) {
+          let { valueList, dataTimeList } = data
+          let series = valueList.map(v => parseInt(v))
+          chartLine.update({
+            labels: dataTimeList.map(v => v.substr(8)),
+            series: [series]
+          })
+        })
+      })
+    }
   }
 
   function initPie1(list) {

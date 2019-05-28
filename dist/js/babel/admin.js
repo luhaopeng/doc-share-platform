@@ -18,14 +18,6 @@
     firstDay: 1
   };
   $(function () {
-    $('#switch_line').bootstrapSwitch({
-      onText: '下载',
-      offText: '上传',
-      onColor: 'info',
-      offColor: 'info',
-      state: true,
-      size: 'small'
-    });
     $('#switch_bar_1').bootstrapSwitch({
       onText: '下载量',
       offText: '上传量',
@@ -33,7 +25,8 @@
       offColor: 'info',
       state: true,
       size: 'small'
-    });
+    }); // 所有统计时间
+
     $('.card .card-footer .stats').html("\n      <i class=\"material-icons\">access_time</i>\n      \u7EDF\u8BA1\u65F6\u95F4\uFF1A".concat(moment().format('YYYY-MM-DD HH:mm:ss'), "\n    "));
     initBasis();
     initLine();
@@ -63,30 +56,36 @@
   }
 
   function initLine() {
-    var dataMay = {
-      labels: ['01', '02', '03', '04', '05', '06', '07'],
-      series: [genRandInt(7)]
+    var FORMAT_DISPLAY = 'YYYY/MM/DD';
+    var FORMAT_API = 'YYYY-MM-DD';
+    var params = {
+      type: 2,
+      startDate: '',
+      endDate: ''
     };
-    var dataApril = {
-      // prettier-ignore
-      labels: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30'],
-      series: [genRandInt(30)]
-    };
-    var chartLine = new Chartist.Line('#chart_line', dataMay, {
+    $('#switch_line').bootstrapSwitch({
+      onText: '下载',
+      offText: '上传',
+      onColor: 'info',
+      offColor: 'info',
+      state: true,
+      size: 'small',
+      onSwitchChange: function onSwitchChange(e, state) {
+        params.type = state ? 2 : 1;
+        getLineData(params);
+      }
+    });
+    var chartLine = new Chartist.Line('#chart_line', {}, {
       plugins: [Chartist.plugins.ctPointLabels()]
     });
     var iStart = moment().startOf('month');
     var iEnd = moment().endOf('month');
 
-    function cb(start, end) {
-      var format = 'YYYY/MM/DD';
-      $('#range_line span').html(start.format(format) + ' - ' + end.format(format));
-
-      if (iStart.isSame(start)) {
-        chartLine.update(dataMay);
-      } else {
-        chartLine.update(dataApril);
-      }
+    function pickerUpdate(start, end) {
+      $('#range_line span').html(start.format(FORMAT_DISPLAY) + ' - ' + end.format(FORMAT_DISPLAY));
+      params.startDate = start.format(FORMAT_API);
+      params.endDate = end.format(FORMAT_API);
+      getLineData(params);
     }
 
     $('#range_line').daterangepicker({
@@ -105,8 +104,26 @@
         '当月': [moment().startOf('month'), moment().endOf('month')],
         '上月': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
       }
-    }, cb);
-    cb(iStart, iEnd);
+    }, pickerUpdate);
+    pickerUpdate(iStart, iEnd);
+
+    function getLineData(obj) {
+      $.post('main/queryUpAndDownFile', obj, function (res) {
+        handleResult(res, function (data) {
+          var valueList = data.valueList,
+              dataTimeList = data.dataTimeList;
+          var series = valueList.map(function (v) {
+            return parseInt(v);
+          });
+          chartLine.update({
+            labels: dataTimeList.map(function (v) {
+              return v.substr(8);
+            }),
+            series: [series]
+          });
+        });
+      });
+    }
   }
 
   function initPie1(list) {
