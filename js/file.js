@@ -1,6 +1,4 @@
 ;(function() {
-  let parsed = false
-
   $(function() {
     initType()
     initDetail()
@@ -8,21 +6,23 @@
   })
 
   function initType() {
-    let qsObj = qs(window.location.search)
-    parsed = !!qsObj.type && qsObj.type === 'parsed'
-
-    if (parsed) {
-      // navbar
-      $('nav.navbar .navbar-nav li.nav-item')
-        .eq(2)
-        .addClass('active')
-        .siblings()
-        .removeClass('active')
-      // breadcrumb
-      $('nav ol.breadcrumb li.breadcrumb-item')
-        .eq(0)
-        .html('<a href="./parsed.html">解析文件库</a>')
-      // file info
+    // navbar
+    $('nav.navbar .navbar-nav li.nav-item')
+      .eq(fileType)
+      .addClass('active')
+      .siblings()
+      .removeClass('active')
+    // breadcrumb
+    let link = `
+      <a href="fileData/${fileType === 2 ? 'analysis' : 'base'}FileData">
+        ${fileType === 2 ? '解析' : '原始'}文件库
+      </a>
+    `
+    $('nav ol.breadcrumb li.breadcrumb-item')
+      .eq(0)
+      .html(link)
+    // file info
+    if (fileType === 2) {
       $('.card .card-body ul.author li')
         .eq(3)
         .text('解析文件')
@@ -66,7 +66,7 @@
       }
     })
 
-    if (parsed) {
+    if (fileType === 2) {
       $('.card ul.author .download').on('click', function showModal() {
         $('#downloadModal').modal()
       })

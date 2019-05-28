@@ -7,7 +7,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 ;
 
 (function () {
-  var parsed = false;
   $(function () {
     initType();
     initDetail();
@@ -15,15 +14,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   });
 
   function initType() {
-    var qsObj = qs(window.location.search);
-    parsed = !!qsObj.type && qsObj.type === 'parsed';
+    // navbar
+    $('nav.navbar .navbar-nav li.nav-item').eq(fileType).addClass('active').siblings().removeClass('active'); // breadcrumb
 
-    if (parsed) {
-      // navbar
-      $('nav.navbar .navbar-nav li.nav-item').eq(2).addClass('active').siblings().removeClass('active'); // breadcrumb
+    var link = "\n      <a href=\"fileData/".concat(fileType === 2 ? 'analysis' : 'base', "FileData\">\n        ").concat(fileType === 2 ? '解析' : '原始', "\u6587\u4EF6\u5E93\n      </a>\n    ");
+    $('nav ol.breadcrumb li.breadcrumb-item').eq(0).html(link); // file info
 
-      $('nav ol.breadcrumb li.breadcrumb-item').eq(0).html('<a href="./parsed.html">解析文件库</a>'); // file info
-
+    if (fileType === 2) {
       $('.card .card-body ul.author li').eq(3).text('解析文件');
       $('<li>需 5 积分</li>').insertBefore('.card .card-body ul.author li.download');
     }
@@ -62,7 +59,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
     });
 
-    if (parsed) {
+    if (fileType === 2) {
       $('.card ul.author .download').on('click', function showModal() {
         $('#downloadModal').modal();
       });
