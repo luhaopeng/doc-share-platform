@@ -112,14 +112,13 @@
         handleResult(res, function (data) {
           var valueList = data.valueList,
               dataTimeList = data.dataTimeList;
-          var series = valueList.map(function (v) {
-            return parseInt(v);
-          });
           chartLine.update({
             labels: dataTimeList.map(function (v) {
               return v.substr(8);
             }),
-            series: [series]
+            series: [valueList.map(function (v) {
+              return parseInt(v);
+            })]
           });
         });
       });

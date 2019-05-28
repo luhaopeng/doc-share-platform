@@ -130,10 +130,9 @@
       $.post('main/queryUpAndDownFile', obj, function(res) {
         handleResult(res, function(data) {
           let { valueList, dataTimeList } = data
-          let series = valueList.map(v => parseInt(v))
           chartLine.update({
             labels: dataTimeList.map(v => v.substr(8)),
-            series: [series]
+            series: [valueList.map(v => parseInt(v))]
           })
         })
       })
