@@ -47,12 +47,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       edit: function edit() {
         var $this = $(this);
         var $tr = $this.closest('tr');
-        var account = $tr.data('id');
+        var account = $tr.data('account');
+        var roleid = $tr.data('role');
         var $modal = $('#changeRoleModal'); // basic inputs
 
         $modal.find('.modal-title').text('修改角色'); // prettier-ignore
 
-        $modal.find('input#user').prop('disabled', true).val('张腾'); // show
+        $modal.find('input#user').prop('disabled', true).val(account);
+        $modal.find('select#role').val(roleid); // show
 
         $modal.modal();
       }
@@ -98,7 +100,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       $modal.find('.modal-title').text('新增用户'); // prettier-ignore
 
-      $modal.find('input#user').prop('disabled', false).val(''); // show
+      $modal.find('input#user').prop('disabled', false).val('');
+      $modal.find('select#role').get(0).selectedIndex = 0; // show
 
       $modal.modal();
     });
@@ -285,7 +288,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         title = _banAction.title,
         icon = _banAction.icon;
     var action = "\n      <td class=\"td-actions\">\n        <button\n          data-action=\"ban\"\n          data-toggle=\"".concat(toggle, "\"\n          type=\"button\"\n          class=\"btn btn-").concat(color, "\"\n          title=\"").concat(title, "\"\n        >\n          <i class=\"material-icons\">").concat(icon, "</i>\n        </button>\n        <button\n          data-action=\"edit\"\n          type=\"button\"\n          class=\"btn btn-info\"\n          title=\"\u4FEE\u6539\u89D2\u8272\"\n        >\n          <i class=\"material-icons\">edit</i>\n        </button>\n      </td>\n    ");
-    return "\n      <tr data-id=".concat(obj.id, ">\n        <td>").concat(obj.account, "</td>\n        <td>").concat(obj.company, "</td>\n        <td>").concat(obj.date, "</td>\n        <td class=\"").concat(obj.banned ? 'text-warning' : '', "\">\n          ").concat(obj.banned ? '登录受限' : '正常', "\n        </td>\n        <td>").concat(obj.type, "</td>\n        <td>").concat(obj.role, "</td>\n        ").concat(obj.sys ? '<td>---</td>' : action, "\n      </tr>\n    ");
+    return "\n      <tr data-account=".concat(obj.account, " data-role=").concat(obj.roleid, ">\n        <td>").concat(obj.account, "</td>\n        <td>").concat(obj.company, "</td>\n        <td>").concat(obj.date, "</td>\n        <td class=\"").concat(obj.banned ? 'text-warning' : '', "\">\n          ").concat(obj.banned ? '登录受限' : '正常', "\n        </td>\n        <td>").concat(obj.type, "</td>\n        <td>").concat(obj.role, "</td>\n        ").concat(obj.sys ? '<td>---</td>' : action, "\n      </tr>\n    ");
   }
 
   function buildRole(obj) {
@@ -360,13 +363,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
         var objs = list.map(function (v) {
           return {
-            id: v.account,
             account: v.account,
             company: v.enterprise,
             date: v.registerTimeStr,
             banned: !!(v.status - 1),
             sys: v.type === 2,
             type: v.typeStr,
+            roleid: v.roleid,
             role: v.roleName
           };
         });

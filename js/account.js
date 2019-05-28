@@ -45,12 +45,15 @@
       edit: function edit() {
         let $this = $(this)
         let $tr = $this.closest('tr')
-        let account = $tr.data('id')
+        let account = $tr.data('account')
+        let roleid = $tr.data('role')
+
         let $modal = $('#changeRoleModal')
         // basic inputs
         $modal.find('.modal-title').text('修改角色')
         // prettier-ignore
-        $modal.find('input#user').prop('disabled', true).val('张腾')
+        $modal.find('input#user').prop('disabled', true).val(account)
+        $modal.find('select#role').val(roleid)
         // show
         $modal.modal()
       }
@@ -102,6 +105,7 @@
       $modal.find('.modal-title').text('新增用户')
       // prettier-ignore
       $modal.find('input#user').prop('disabled', false).val('')
+      $modal.find('select#role').get(0).selectedIndex = 0
       // show
       $modal.modal()
     })
@@ -312,7 +316,7 @@
       </td>
     `
     return `
-      <tr data-id=${obj.id}>
+      <tr data-account=${obj.account} data-role=${obj.roleid}>
         <td>${obj.account}</td>
         <td>${obj.company}</td>
         <td>${obj.date}</td>
@@ -445,13 +449,13 @@
         let { pageNum, pageSize, total, pages, list } = data
         let pageObj = { pageNum, pageSize, total, pages }
         let objs = list.map(v => ({
-          id: v.account,
           account: v.account,
           company: v.enterprise,
           date: v.registerTimeStr,
           banned: !!(v.status - 1),
           sys: v.type === 2,
           type: v.typeStr,
+          roleid: v.roleid,
           role: v.roleName
         }))
         typeof buildFunc === 'function' && buildFunc(objs)
