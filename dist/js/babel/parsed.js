@@ -103,7 +103,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       if (/tr|td/i.test(tag)) {
         // prettier-ignore
         var id = $(this).closest('tr').attr('data-id');
-        window.location.href = "file.html?file=".concat(id, "&type=parsed");
+        var $form = $("\n          <form\n            action=\"fileData/fileDataDetail\"\n            method=\"post\"\n            target=\"_blank\"\n            rel=\"noopener noreferrer\"\n            style=\"display:none\"\n          >\n            <input name=\"fileDataId\" value=\"".concat(id, "\" />\n            <input name=\"fileDataType\" value=\"2\" />\n          </form>\n        "));
+        $(document.body).append($form);
+        $form.submit().remove();
       }
     });
     $tbody.on('click', 'button[data-action=star]', function star() {

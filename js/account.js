@@ -11,6 +11,7 @@
 
   $(function() {
     initModalBtn()
+    initUserModal()
     initRoleModal()
     initSearchComplete()
     initTable('#table_user', {
@@ -42,6 +43,9 @@
         }
       },
       edit: function edit() {
+        let $this = $(this)
+        let $tr = $this.closest('tr')
+        let account = $tr.data('id')
         let $modal = $('#changeRoleModal')
         // basic inputs
         $modal.find('.modal-title').text('修改角色')
@@ -115,6 +119,23 @@
     })
   }
 
+  /**
+   * 初始化角色select列表
+   */
+  function initUserModal() {
+    $.post('sys/queryRoleList', function(res) {
+      handleResult(res, function(data) {
+        let $select = $('#changeRoleModal select#role')
+        $select.html('')
+        data.map(role => {
+          $select.append(`
+            <option value="${role.roleid}">${role.disc}</option>
+          `)
+        })
+      })
+    })
+  }
+
   function initRoleModal() {
     let $authority = $('#editRoleModal .authority')
     const auths = [
@@ -162,7 +183,6 @@
     let $limit = $nav.find('.limit select')
     $limit.on('change', function limit(e) {
       let pageSize = parseInt(e.target.value)
-      $tbody.html('')
       params.pageSize = pageSize
       buildRow(selector, params, $tbody)
     })
@@ -170,15 +190,26 @@
     // page change
     let $pagination = $nav.find('ul.pagination')
     $pagination.on('click', '.page-item', function() {
+      let max = parseInt(
+        $pagination
+          .find('.page-item:not(.prev):not(.next)')
+          .last()
+          .text()
+      )
       let $this = $(this)
+      let old = params.pageNum
       if ($this.hasClass('prev')) {
         params.pageNum = params.pageNum - 1 || 1
-      } else if ($this.hasClass('prev')) {
-        params.pageNum = params.pageNum + 1 || 1
+      } else if ($this.hasClass('next')) {
+        params.pageNum = (params.pageNum + 1) % (max + 1) || max
+      } else if ($this.hasClass('else')) {
+        // do nothing
       } else {
-        params.pageNum = $this.index()
+        params.pageNum = parseInt($this.text()) || 1
       }
-      buildRow(selector, params, $tbody)
+      if (old !== params.pageNum) {
+        buildRow(selector, params, $tbody)
+      }
     })
 
     // search
@@ -196,9 +227,17 @@
     } else if (/bonus/i.test(selector)) {
       // TODO
     }
-    $search.on('click', '.search-btn', function() {
-      buildRow(selector, params, $tbody)
-    })
+    $search
+      .on('click', '.search-btn', function() {
+        buildRow(selector, params, $tbody)
+      })
+      .on('keydown', '.search-box', function(e) {
+        if (e.keyCode == 13) {
+          // prettier-ignore
+          params.keyword = $(this).val().trim()
+          buildRow(selector, params, $tbody)
+        }
+      })
 
     // td-actions
     for (let key in actionCB) {
@@ -210,21 +249,24 @@
 
   function buildRow(selector, data, $tbody) {
     if (/user/i.test(selector)) {
+      $tbody.html('')
       getUsers(
         data,
-        res => res.map($tbody.append(buildUser(res))),
+        res => res.map(v => $tbody.append(buildUser(v))),
         page => buildPage(selector, page)
       )
     } else if (/role/i.test(selector)) {
+      $tbody.html('')
       getRoles(
         data,
-        res => res.map($tbody.append(buildRole(res))),
+        res => res.map(v => $tbody.append(buildRole(v))),
         page => buildPage(selector, page)
       )
     } else if (/bonus/i.test(selector)) {
+      $tbody.html('')
       getBonus(
         data,
-        res => res.map($tbody.append(buildBonus(res))),
+        res => res.map(v => $tbody.append(buildBonus(v))),
         page => buildPage(selector, page)
       )
     }
@@ -349,19 +391,58 @@
       .siblings('nav')
       .find('ul.pagination')
     $pagination.find('li.page-item:not(.prev):not(.next)').remove()
-    for (let i = 1; i <= options.pages; ++i) {
-      $(`
-        <li class="page-item ${i === options.pageNum ? 'active' : ''}">
+    let $next = $pagination.find('.page-item.next')
+    let max = options.pages
+    let n = options.pageNum
+    if (max <= 10) {
+      for (let i = 1; i <= max; ++i) {
+        $(page(i, n)).insertBefore($next)
+      }
+    } else {
+      if (n <= 3) {
+        // 1, 2, 3, ..., max
+        $(page(1, n)).insertBefore($next)
+        $(page(2, n)).insertBefore($next)
+        $(page(3, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(max, n)).insertBefore($next)
+      } else if (n >= max - 2) {
+        // 1, ..., max-2, max-1, max
+        $(page(1, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(max - 2, n)).insertBefore($next)
+        $(page(max - 1, n)).insertBefore($next)
+        $(page(max, n)).insertBefore($next)
+      } else {
+        // 1, ..., n-1, n, n+1, ..., max
+        $(page(1, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(n - 1, n)).insertBefore($next)
+        $(page(n, n)).insertBefore($next)
+        $(page(n + 1, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(max, n)).insertBefore($next)
+      }
+    }
+
+    function page(i, cur) {
+      // prettier-ignore
+      return `
+        <li class="page-item ${
+          cur === i ? 'active' : ''
+        } ${
+          i === '...' ? 'else' : ''
+        }">
           <a class="page-link">${i}</a>
         </li>
-      `).insertBefore(`${selector} + nav .pagination .page-item.next`)
+      `
     }
   }
 
   function getUsers(data, buildFunc, pageFunc) {
     $.post('sys/queryUsers', data, function done(res) {
-      if (!res.ret) {
-        let { pageNum, pageSize, total, pages, list } = res.data
+      handleResult(res, function(data) {
+        let { pageNum, pageSize, total, pages, list } = data
         let pageObj = { pageNum, pageSize, total, pages }
         let objs = list.map(v => ({
           id: v.account,
@@ -375,16 +456,14 @@
         }))
         typeof buildFunc === 'function' && buildFunc(objs)
         typeof pageFunc === 'function' && pageFunc(pageObj)
-      } else {
-        // TODO res.msg
-      }
+      })
     })
   }
 
   function getRoles(data, buildFunc, pageFunc) {
     $.post('sys/queryRoles', data, function done(res) {
-      if (!res.ret) {
-        let { pageNum, pageSize, total, pages, list } = res.data
+      handleResult(res, function(data) {
+        let { pageNum, pageSize, total, pages, list } = data
         let pageObj = { pageNum, pageSize, total, pages }
         let objs = list.map(v => ({
           id: v.roleid,
@@ -395,9 +474,7 @@
         }))
         typeof buildFunc === 'function' && buildFunc(objs)
         typeof pageFunc === 'function' && pageFunc(pageObj)
-      } else {
-        // TODO res.msg
-      }
+      })
     })
   }
 
