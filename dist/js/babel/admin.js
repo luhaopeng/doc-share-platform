@@ -34,13 +34,33 @@
       state: true,
       size: 'small'
     });
+    $('.card .card-footer .stats').html("\n      <i class=\"material-icons\">access_time</i>\n      \u7EDF\u8BA1\u65F6\u95F4\uFF1A".concat(moment().format('YYYY-MM-DD HH:mm:ss'), "\n    "));
+    initBasis();
     initLine();
-    initPie1();
-    initPie2();
     initBar1();
     initBar2();
     initRank();
   });
+
+  function initBasis() {
+    $.post('main/queryBaseData', function (res) {
+      handleResult(res, function (data) {
+        var totalFile = data.totalFile,
+            totalDownload = data.totalDownload,
+            totalEnterprise = data.totalEnterprise,
+            totalCustomer = data.totalCustomer,
+            typeList = data.typeList,
+            brandList = data.brandList,
+            otherList = data.otherList;
+        $('#docCount').html("".concat(totalFile, " <small>\u4EFD</small>"));
+        $('#saveCount').html("".concat(totalDownload, " <small>\u6B21</small>"));
+        $('#entCount').html("".concat(totalEnterprise, " <small>\u5BB6</small>"));
+        $('#userCount').html("".concat(totalCustomer, " <small>\u4EBA</small>"));
+        initPie1(typeList);
+        initPie2(brandList, otherList);
+      });
+    });
+  }
 
   function initLine() {
     var dataMay = {
@@ -89,17 +109,20 @@
     cb(iStart, iEnd);
   }
 
-  function initPie1() {
-    var labels = ['一类', '二类', '三类', '四类', '五类'];
-    var data = {
-      series: genRandInt(5).map(function (v, i) {
-        return {
-          meta: labels[i],
-          value: v
-        };
-      })
-    };
-    new Chartist.Pie('#chart_pie_1', data, {
+  function initPie1(list) {
+    var labels = [];
+    var total = 0;
+    var series = list.map(function (obj) {
+      labels.push(obj.name);
+      total += parseInt(obj.typeNum);
+      return {
+        meta: obj.name,
+        value: obj.typeNum
+      };
+    });
+    new Chartist.Pie('#chart_pie_1', {
+      series: series
+    }, {
       height: '200px',
       labelOffset: 15,
       showLabel: false,
@@ -112,19 +135,27 @@
         }
       })]
     });
+    var desc = '';
+    list.map(function (obj) {
+      desc += "\n        ".concat(obj.name, "\n        <span>\n          ").concat(parseInt(obj.typeNum) / total * 100 | 0, "%\n        </span>\n      ");
+    });
+    $('.card p.chart-pie-1').html(desc);
   }
 
-  function initPie2() {
-    var labels = ['松下', '格力', '三星', '美的', '西门子', '海尔'];
-    var data = {
-      series: genRandInt(6).map(function (v, i) {
-        return {
-          meta: labels[i],
-          value: v
-        };
-      })
-    };
-    new Chartist.Pie('#chart_pie_2', data, {
+  function initPie2(list, other) {
+    var labels = [];
+    var total = 0;
+    var series = list.map(function (obj) {
+      labels.push(obj.name);
+      total += parseInt(obj.typeNum);
+      return {
+        meta: obj.name,
+        value: obj.typeNum
+      };
+    });
+    new Chartist.Pie('#chart_pie_2', {
+      series: series
+    }, {
       height: '200px',
       labelOffset: 15,
       showLabel: false,
@@ -137,6 +168,34 @@
         }
       })]
     });
+    var desc = '';
+    var otherName, otherNum;
+    list.map(function (obj) {
+      if (obj.name !== '其他') {
+        desc += "\n          ".concat(obj.name, "\n          <span>\n            ").concat(parseInt(obj.typeNum) / total * 100 | 0, "%\n          </span>\n        ");
+      } else {
+        otherName = obj.name;
+        otherNum = obj.typeNum;
+      }
+    });
+    var $cardBody = $('.card p.chart-pie-2');
+    $cardBody.html(desc);
+
+    if (other instanceof Array) {
+      var otherLink = "\n        <a\n          class=\"other\"\n          tabindex=\"0\"\n          title=\"\u5176\u4ED6\"\n          data-trigger=\"hover\"\n        >\n          ".concat(otherName, "\n          <span>\n            ").concat(parseInt(otherNum) / total * 100 | 0, "%\n          </span>\n        </a>\n      ");
+      $cardBody.append(otherLink);
+      var detail = '';
+      other.map(function (obj) {
+        total += obj.typeNum;
+      });
+      other.map(function (obj) {
+        detail += "\n          ".concat(obj.name, "\n          ").concat(parseInt(obj.typeNum) / total * 100 | 0, "%\n          <br />\n        ");
+      });
+      $cardBody.find('.other').popover({
+        html: true,
+        content: detail
+      });
+    }
   }
 
   function initBar1() {

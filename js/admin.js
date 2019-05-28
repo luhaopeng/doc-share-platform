@@ -36,13 +36,40 @@
       size: 'small'
     })
 
+    $('.card .card-footer .stats').html(`
+      <i class="material-icons">access_time</i>
+      统计时间：${moment().format('YYYY-MM-DD HH:mm:ss')}
+    `)
+
+    initBasis()
     initLine()
-    initPie1()
-    initPie2()
     initBar1()
     initBar2()
     initRank()
   })
+
+  function initBasis() {
+    $.post('main/queryBaseData', function(res) {
+      handleResult(res, function(data) {
+        let {
+          totalFile,
+          totalDownload,
+          totalEnterprise,
+          totalCustomer,
+          typeList,
+          brandList,
+          otherList
+        } = data
+        $('#docCount').html(`${totalFile} <small>份</small>`)
+        $('#saveCount').html(`${totalDownload} <small>次</small>`)
+        $('#entCount').html(`${totalEnterprise} <small>家</small>`)
+        $('#userCount').html(`${totalCustomer} <small>人</small>`)
+
+        initPie1(typeList)
+        initPie2(brandList, otherList)
+      })
+    })
+  }
 
   function initLine() {
     let dataMay = {
@@ -106,46 +133,118 @@
     cb(iStart, iEnd)
   }
 
-  function initPie1() {
-    let labels = ['一类', '二类', '三类', '四类', '五类']
-    let data = {
-      series: genRandInt(5).map((v, i) => ({
-        meta: labels[i],
-        value: v
-      }))
-    }
-    new Chartist.Pie('#chart_pie_1', data, {
-      height: '200px',
-      labelOffset: 15,
-      showLabel: false,
-      plugins: [
-        Chartist.plugins.legend({ legendNames: labels }),
-        Chartist.plugins.tooltip({
-          tooltipOffset: { x: 14, y: -10 }
-        })
-      ]
+  function initPie1(list) {
+    let labels = []
+    let total = 0
+    let series = list.map(obj => {
+      labels.push(obj.name)
+      total += parseInt(obj.typeNum)
+      return {
+        meta: obj.name,
+        value: obj.typeNum
+      }
     })
+    new Chartist.Pie(
+      '#chart_pie_1',
+      { series },
+      {
+        height: '200px',
+        labelOffset: 15,
+        showLabel: false,
+        plugins: [
+          Chartist.plugins.legend({ legendNames: labels }),
+          Chartist.plugins.tooltip({
+            tooltipOffset: { x: 14, y: -10 }
+          })
+        ]
+      }
+    )
+    let desc = ''
+    list.map(obj => {
+      desc += `
+        ${obj.name}
+        <span>
+          ${((parseInt(obj.typeNum) / total) * 100) | 0}%
+        </span>
+      `
+    })
+    $('.card p.chart-pie-1').html(desc)
   }
 
-  function initPie2() {
-    let labels = ['松下', '格力', '三星', '美的', '西门子', '海尔']
-    let data = {
-      series: genRandInt(6).map((v, i) => ({
-        meta: labels[i],
-        value: v
-      }))
-    }
-    new Chartist.Pie('#chart_pie_2', data, {
-      height: '200px',
-      labelOffset: 15,
-      showLabel: false,
-      plugins: [
-        Chartist.plugins.legend({ legendNames: labels }),
-        Chartist.plugins.tooltip({
-          tooltipOffset: { x: 14, y: -10 }
-        })
-      ]
+  function initPie2(list, other) {
+    let labels = []
+    let total = 0
+    let series = list.map(obj => {
+      labels.push(obj.name)
+      total += parseInt(obj.typeNum)
+      return {
+        meta: obj.name,
+        value: obj.typeNum
+      }
     })
+    new Chartist.Pie(
+      '#chart_pie_2',
+      { series },
+      {
+        height: '200px',
+        labelOffset: 15,
+        showLabel: false,
+        plugins: [
+          Chartist.plugins.legend({ legendNames: labels }),
+          Chartist.plugins.tooltip({
+            tooltipOffset: { x: 14, y: -10 }
+          })
+        ]
+      }
+    )
+    let desc = ''
+    let otherName, otherNum
+    list.map(obj => {
+      if (obj.name !== '其他') {
+        desc += `
+          ${obj.name}
+          <span>
+            ${((parseInt(obj.typeNum) / total) * 100) | 0}%
+          </span>
+        `
+      } else {
+        otherName = obj.name
+        otherNum = obj.typeNum
+      }
+    })
+    let $cardBody = $('.card p.chart-pie-2')
+    $cardBody.html(desc)
+    if (other instanceof Array) {
+      let otherLink = `
+        <a
+          class="other"
+          tabindex="0"
+          title="其他"
+          data-trigger="hover"
+        >
+          ${otherName}
+          <span>
+            ${((parseInt(otherNum) / total) * 100) | 0}%
+          </span>
+        </a>
+      `
+      $cardBody.append(otherLink)
+      let detail = ''
+      other.map(obj => {
+        total += obj.typeNum
+      })
+      other.map(obj => {
+        detail += `
+          ${obj.name}
+          ${((parseInt(obj.typeNum) / total) * 100) | 0}%
+          <br />
+        `
+      })
+      $cardBody.find('.other').popover({
+        html: true,
+        content: detail
+      })
+    }
   }
 
   function initBar1() {
