@@ -247,6 +247,7 @@
   function initBar1() {
     // initial params
     let params = { fileType: 2, circleType: 3 }
+    let chartBar
 
     $('#switch_bar_1').bootstrapSwitch({
       onText: '下载量',
@@ -256,7 +257,7 @@
       state: true,
       size: 'small',
       onSwitchChange: function(e, state) {
-        params.contrastType = state ? 2 : 1
+        params.fileType = state ? 2 : 1
         getBarData(params)
       }
     })
@@ -269,23 +270,10 @@
       state: true,
       size: 'mini',
       onSwitchChange: function(e, state) {
-        params.timeType = state ? 3 : 2
+        params.circleType = state ? 3 : 2
         getBarData(params)
       }
     })
-
-    let chartBar = new Chartist.Bar(
-      '#chart_bar_1',
-      {},
-      {
-        seriesBarDistance: 10,
-        plugins: [
-          Chartist.plugins.tooltip({
-            tooltipOffset: { x: 14, y: -10 }
-          })
-        ]
-      }
-    )
 
     getBarData(params)
 
@@ -295,21 +283,29 @@
           let legendNames = []
           let labels = []
           let series = []
-          data.fileCountList.map((legend, idx) => {
+          data.dataList.map((legend, idx) => {
             let part = []
             legendNames.push(legend.dataTime)
             legend.fileCountList.map(val => {
-              if (labels.length < legend.length) {
+              if (labels.length < legend.fileCountList.length) {
                 labels.push(val.xdata)
               }
               part.push(val.fileCount)
             })
             series[idx] = part
           })
-          chartBar.update(
+          chartBar && chartBar.detach()
+          chartBar = new Chartist.Bar(
+            '#chart_bar_1',
             { labels, series },
             {
-              plugins: [Chartist.plugins.legend({ legendNames })]
+              seriesBarDistance: 10,
+              plugins: [
+                Chartist.plugins.legend({ legendNames }),
+                Chartist.plugins.tooltip({
+                  tooltipOffset: { x: 14, y: -10 }
+                })
+              ]
             }
           )
         })
@@ -320,6 +316,7 @@
   function initBar2() {
     // initial params
     let params = { fileType: 1, circleType: 3, eid: 1, compareEid: 1 }
+    let chartBar
 
     $('#switch_bar_option_2').bootstrapSwitch({
       onText: '按年',
@@ -329,23 +326,10 @@
       state: true,
       size: 'mini',
       onSwitchChange: function(e, state) {
-        params.timeType = state ? 3 : 2
+        params.circleType = state ? 3 : 2
         getBarData(params)
       }
     })
-
-    let chartBar = new Chartist.Bar(
-      '#chart_bar_2',
-      {},
-      {
-        seriesBarDistance: 10,
-        plugins: [
-          Chartist.plugins.tooltip({
-            tooltipOffset: { x: 14, y: -10 }
-          })
-        ]
-      }
-    )
 
     let $modal = $('#optionModal')
     $('#btn_bar_option_2').on('click', function() {
@@ -384,21 +368,29 @@
           let legendNames = []
           let labels = []
           let series = []
-          data.fileCountList.map((legend, idx) => {
+          data.dataList.map((legend, idx) => {
             let part = []
             legendNames.push(legend.enterprise)
             legend.fileCountList.map(val => {
-              if (labels.length < legend.length) {
+              if (labels.length < legend.fileCountList.length) {
                 labels.push(val.xdata)
               }
               part.push(val.fileCount)
             })
             series[idx] = part
           })
-          chartBar.update(
+          chartBar && chartBar.detach()
+          chartBar = new Chartist.Bar(
+            '#chart_bar_2',
             { labels, series },
             {
-              plugins: [Chartist.plugins.legend({ legendNames })]
+              seriesBarDistance: 10,
+              plugins: [
+                Chartist.plugins.legend({ legendNames }),
+                Chartist.plugins.tooltip({
+                  tooltipOffset: { x: 14, y: -10 }
+                })
+              ]
             }
           )
         })
@@ -459,15 +451,15 @@
       let $tbody = $table.find('tbody')
       $.post('main/queryEnterpriseRanking', obj, function(res) {
         handleResult(res, function(data) {
+          $tbody.html('')
           data.map((val, idx) => {
-            $tbody.html('')
             $tbody.append(`
               <tr>
                 <td>${idx + 1}</td>
-                <td>${val.enterprise}</td>
+                <td>${val.name}</td>
                 <td>${val.integralCount}</td>
                 <td>${val.fileUploadCount}</td>
-                <td>${val.fileDownloadCount}</td>
+                <td>${val.fileDownloadedCount}</td>
               </tr>
             `)
           })

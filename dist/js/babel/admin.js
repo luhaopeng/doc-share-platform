@@ -212,6 +212,7 @@
       fileType: 2,
       circleType: 3
     };
+    var chartBar;
     $('#switch_bar_1').bootstrapSwitch({
       onText: '下载量',
       offText: '上传量',
@@ -220,7 +221,7 @@
       state: true,
       size: 'small',
       onSwitchChange: function onSwitchChange(e, state) {
-        params.contrastType = state ? 2 : 1;
+        params.fileType = state ? 2 : 1;
         getBarData(params);
       }
     });
@@ -232,18 +233,9 @@
       state: true,
       size: 'mini',
       onSwitchChange: function onSwitchChange(e, state) {
-        params.timeType = state ? 3 : 2;
+        params.circleType = state ? 3 : 2;
         getBarData(params);
       }
-    });
-    var chartBar = new Chartist.Bar('#chart_bar_1', {}, {
-      seriesBarDistance: 10,
-      plugins: [Chartist.plugins.tooltip({
-        tooltipOffset: {
-          x: 14,
-          y: -10
-        }
-      })]
     });
     getBarData(params);
 
@@ -253,11 +245,11 @@
           var legendNames = [];
           var labels = [];
           var series = [];
-          data.fileCountList.map(function (legend, idx) {
+          data.dataList.map(function (legend, idx) {
             var part = [];
             legendNames.push(legend.dataTime);
             legend.fileCountList.map(function (val) {
-              if (labels.length < legend.length) {
+              if (labels.length < legend.fileCountList.length) {
                 labels.push(val.xdata);
               }
 
@@ -265,12 +257,19 @@
             });
             series[idx] = part;
           });
-          chartBar.update({
+          chartBar && chartBar.detach();
+          chartBar = new Chartist.Bar('#chart_bar_1', {
             labels: labels,
             series: series
           }, {
+            seriesBarDistance: 10,
             plugins: [Chartist.plugins.legend({
               legendNames: legendNames
+            }), Chartist.plugins.tooltip({
+              tooltipOffset: {
+                x: 14,
+                y: -10
+              }
             })]
           });
         });
@@ -286,6 +285,7 @@
       eid: 1,
       compareEid: 1
     };
+    var chartBar;
     $('#switch_bar_option_2').bootstrapSwitch({
       onText: '按年',
       offText: '按月',
@@ -294,18 +294,9 @@
       state: true,
       size: 'mini',
       onSwitchChange: function onSwitchChange(e, state) {
-        params.timeType = state ? 3 : 2;
+        params.circleType = state ? 3 : 2;
         getBarData(params);
       }
-    });
-    var chartBar = new Chartist.Bar('#chart_bar_2', {}, {
-      seriesBarDistance: 10,
-      plugins: [Chartist.plugins.tooltip({
-        tooltipOffset: {
-          x: 14,
-          y: -10
-        }
-      })]
     });
     var $modal = $('#optionModal');
     $('#btn_bar_option_2').on('click', function () {
@@ -342,11 +333,11 @@
           var legendNames = [];
           var labels = [];
           var series = [];
-          data.fileCountList.map(function (legend, idx) {
+          data.dataList.map(function (legend, idx) {
             var part = [];
             legendNames.push(legend.enterprise);
             legend.fileCountList.map(function (val) {
-              if (labels.length < legend.length) {
+              if (labels.length < legend.fileCountList.length) {
                 labels.push(val.xdata);
               }
 
@@ -354,12 +345,19 @@
             });
             series[idx] = part;
           });
-          chartBar.update({
+          chartBar && chartBar.detach();
+          chartBar = new Chartist.Bar('#chart_bar_2', {
             labels: labels,
             series: series
           }, {
+            seriesBarDistance: 10,
             plugins: [Chartist.plugins.legend({
               legendNames: legendNames
+            }), Chartist.plugins.tooltip({
+              tooltipOffset: {
+                x: 14,
+                y: -10
+              }
             })]
           });
         });
@@ -415,9 +413,9 @@
       var $tbody = $table.find('tbody');
       $.post('main/queryEnterpriseRanking', obj, function (res) {
         handleResult(res, function (data) {
+          $tbody.html('');
           data.map(function (val, idx) {
-            $tbody.html('');
-            $tbody.append("\n              <tr>\n                <td>".concat(idx + 1, "</td>\n                <td>").concat(val.enterprise, "</td>\n                <td>").concat(val.integralCount, "</td>\n                <td>").concat(val.fileUploadCount, "</td>\n                <td>").concat(val.fileDownloadCount, "</td>\n              </tr>\n            "));
+            $tbody.append("\n              <tr>\n                <td>".concat(idx + 1, "</td>\n                <td>").concat(val.name, "</td>\n                <td>").concat(val.integralCount, "</td>\n                <td>").concat(val.fileUploadCount, "</td>\n                <td>").concat(val.fileDownloadedCount, "</td>\n              </tr>\n            "));
           });
         });
       });
