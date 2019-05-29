@@ -179,8 +179,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var $nav = $table.siblings('nav');
     var $limit = $nav.find('.limit select');
     $limit.on('change', function limit(e) {
-      var pageSize = parseInt(e.target.value);
-      params.pageSize = pageSize;
+      params.pageNum = 1;
+      params.pageSize = parseInt(e.target.value);
       buildRow(selector, params, $tbody);
     }); // page change
 

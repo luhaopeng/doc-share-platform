@@ -186,8 +186,8 @@
     let $nav = $table.siblings('nav')
     let $limit = $nav.find('.limit select')
     $limit.on('change', function limit(e) {
-      let pageSize = parseInt(e.target.value)
-      params.pageSize = pageSize
+      params.pageNum = 1
+      params.pageSize = parseInt(e.target.value)
       buildRow(selector, params, $tbody)
     })
 

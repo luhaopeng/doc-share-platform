@@ -7,54 +7,170 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 ;
 
 (function () {
+  // initial params
+  var params = {
+    pageNum: 1,
+    pageSize: 5,
+    fileDataType: 1,
+    sortType: 1,
+    keyWord: '',
+    classOne: 0,
+    classTwo: 0,
+    brands: []
+  };
   $(function () {
     initFilter();
     initRank();
   });
 
   function initFilter() {
+    // parse filter obj
+    var filterObj = JSON.parse(filterObjStr);
+    var brands = filterObj.BRAND.map(function (obj) {
+      return {
+        id: obj.value,
+        label: obj.name
+      };
+    });
+    var categories = filterObj.CLASS_ONE.map(function (obj) {
+      var children = obj.childrens.map(function (child) {
+        return {
+          id: child.value,
+          label: child.name
+        };
+      });
+      return {
+        id: obj.value,
+        label: obj.name,
+        children: children
+      };
+    }); // build conditions
+
     var $combine = $('.filter .combine');
     var $condition = $('.filter .condition');
+    $condition.html('').append(buildCondition({
+      cat: 'brand',
+      catStr: '品牌',
+      options: brands,
+      multi: true
+    })).append(buildCondition({
+      cat: 'type',
+      catStr: '设备类型',
+      options: categories,
+      multi: false
+    }));
     $combine.on('click', '.factor', function cancel() {
       var $target = $(this);
       var cat = $target.attr('data-cat');
       $condition.children(".row[data-cat=".concat(cat, "]")).show();
       $target.remove();
+
+      switch (cat) {
+        case 'brand':
+          params.brands = [];
+          break;
+
+        case 'type':
+          params.classOne = 0;
+          params.classTwo = 0;
+          $target.siblings('[data-cat="subtype"]').remove();
+          $condition.find('[data-cat="subtype"]').remove();
+          break;
+
+        case 'subtype':
+          params.classTwo = 0;
+          break;
+
+        default:
+          return;
+      }
+
+      getRankData(params);
     }).on('click', '.reset', function reset() {
-      $condition.children('.row[data-cat]').show();
+      $condition.children('.row[data-cat]').show().filter('[data-cat="subtype"]').remove();
       $combine.children('.factor').remove();
+      params.brands = [];
+      params.classOne = 0;
+      params.classTwo = 0;
+      getRankData(params);
     });
     $condition.on('click', '.row:not(.multi) .value a', function filter() {
+      // single selection
       var $target = $(this);
       var $row = $target.closest('.row[data-cat]');
       var cat = $row.attr('data-cat');
       var val = $target.text();
       $(buildFactor(cat, val)).insertBefore('.filter .combine .reset');
       $row.hide();
+
+      switch (cat) {
+        case 'brand':
+          params.brands = [parseInt($target.attr('data-id'))];
+          break;
+
+        case 'type':
+          var typeId = parseInt($target.attr('data-id'));
+          params.classOne = typeId; // find type
+
+          var type = categories.find(function (v) {
+            return v.id === typeId;
+          });
+
+          if (type.children.length) {
+            // build sub type
+            $condition.append(buildCondition({
+              cat: 'subtype',
+              catStr: '设备次级类型',
+              options: type.children,
+              multi: false
+            }));
+          }
+
+          break;
+
+        case 'subtype':
+          params.classTwo = parseInt($target.attr('data-id'));
+          break;
+
+        default:
+          return;
+      }
+
+      getRankData(params);
     }).on('click', '.row.multi .value li', function select() {
+      // multi-selection
+      // toggle active
       var $target = $(this);
       $target.closest('li').toggleClass('active');
     }).on('click', '.extra .multi', function multi() {
+      // enter multi-selection mode
       var $target = $(this);
       $target.closest('.row[data-cat]').addClass('multi');
     }).on('click', '.extra .submit', function submit() {
+      // submit multi-selection
       var $target = $(this);
       var $row = $target.closest('.row.multi[data-cat]');
       var $active = $row.find('.value li.active');
       var cat = $row.attr('data-cat');
       var comb = '';
+      var multi = [];
       $active.text(function combine(idx, val) {
         comb += (idx ? ',' : '') + val;
+        var $a = $(this).find('a');
+        multi.push(parseInt($a.attr('data-id')));
       });
 
       if (comb) {
         $(buildFactor(cat, comb)).insertBefore('.filter .combine .reset');
         $row.hide();
+        params.brands = multi;
+        getRankData(params);
       }
 
       $row.removeClass('multi');
       $active.removeClass('active');
     }).on('click', '.extra .cancel', function cancel() {
+      // exit multi-selection mode
       var $target = $(this);
       var $row = $target.closest('.row.multi[data-cat]');
       var $active = $row.find('.value li.active');
@@ -64,21 +180,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function initRank() {
-    // initial params
-    var params = {
-      pageNum: 1,
-      pageSize: 5,
-      fileDataType: 1,
-      sortType: 1,
-      keyWord: '',
-      classOne: '',
-      classTwo: '',
-      brand: ''
-    };
     var $table = $('#table_origin');
     var $tbody = $table.find('tbody'); // initial data
 
-    getRankData(params, $tbody); // rank mark
+    getRankData(params); // rank mark
 
     var $rank_a = $table.find('a[data-rank]');
     $rank_a.on('click', function () {
@@ -90,16 +195,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         $cur_a.attr('data-rank', 'desc').children('i').addClass('rank-desc');
         params.sortType = $cur_a.attr('data-type'); // reload data
 
-        getRankData(params, $tbody);
+        getRankData(params);
       }
     }); // limit
 
     var $nav = $table.siblings('nav');
     var $limit = $nav.find('.limit select');
     $limit.on('change', function limit(e) {
+      params.pageNum = 1;
       params.pageSize = parseInt(e.target.value); // reload data
 
-      getRankData(params, $tbody);
+      getRankData(params);
     }); // page change
 
     var $pagination = $nav.find('ul.pagination');
@@ -119,23 +225,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       if (old !== params.pageNum) {
         // reload data
-        getRankData(params, $tbody);
+        getRankData(params);
       }
     }); // search
 
-    var $search = $table.siblings('.search');
+    var $search = $table.closest('.card.result').siblings('.search');
     $search.on('change', '.search-box', function () {
       // prettier-ignore
       params.keyWord = $(this).val().trim();
     }).on('click', '.search-btn', function () {
       // reload data
-      getRankData(params, $tbody);
+      getRankData(params);
     }).on('keydown', '.search-box', function (e) {
       if (e.keyCode == 13) {
         // prettier-ignore
         params.keyWord = $(this).val().trim(); // reload data
 
-        getRankData(params, $tbody);
+        getRankData(params);
       }
     }); // click
 
@@ -183,6 +289,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
   }
 
+  function buildCondition(obj) {
+    var lis = '';
+    obj.options.map(function (v) {
+      lis += "<li><a data-id=\"".concat(v.id, "\">").concat(v.label, "</a></li>");
+    });
+    var mult = "\n      <div class=\"col-sm-2 extra\">\n        <a class=\"submit\">\u63D0\u4EA4</a>\n        <a class=\"cancel\">\u53D6\u6D88</a>\n        <a class=\"multi\">\n          <i class=\"material-icons\">add</i>\n          \u591A\u9009\n        </a>\n      </div>\n    ";
+    return "\n      <div class=\"row\" data-cat=\"".concat(obj.cat, "\">\n        <div class=\"col-sm-2 key\">\n          ").concat(obj.catStr, "\uFF1A\n        </div>\n        <ul class=\"col-sm-8 value\">\n          ").concat(lis, "\n        </ul>\n        ").concat(obj.multi ? mult : '', "\n      </div>\n    ");
+  }
+
   function buildFactor(cat, value) {
     var translate;
 
@@ -195,8 +310,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         translate = '设备类型';
         break;
 
+      case 'subtype':
+        translate = '设备次级类型';
+        break;
+
       default:
         translate = '';
+        break;
     }
 
     var em = value;
@@ -256,7 +376,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   }
 
-  function getRankData(obj, $tbody) {
+  function getRankData(obj) {
+    var $tbody = $('#table_origin tbody');
     $.post('fileData/queryFileData', obj, function (res) {
       handleResult(res, function (data) {
         // build table
@@ -273,8 +394,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             company: file.enterprise,
             state: file.fileDataStatusDesc,
             download: file.downloadCount,
-            fav: false // TODO
-
+            fav: file.favoriteStatus === 1
           }));
         }); // build pagination
 

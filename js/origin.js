@@ -1,57 +1,171 @@
 ;(function() {
+  // initial params
+  let params = {
+    pageNum: 1,
+    pageSize: 5,
+    fileDataType: 1,
+    sortType: 1,
+    keyWord: '',
+    classOne: 0,
+    classTwo: 0,
+    brands: []
+  }
+
   $(function() {
     initFilter()
     initRank()
   })
 
   function initFilter() {
+    // parse filter obj
+    let filterObj = JSON.parse(filterObjStr)
+    let brands = filterObj.BRAND.map(obj => ({
+      id: obj.value,
+      label: obj.name
+    }))
+    let categories = filterObj.CLASS_ONE.map(obj => {
+      let children = obj.childrens.map(child => ({
+        id: child.value,
+        label: child.name
+      }))
+      return {
+        id: obj.value,
+        label: obj.name,
+        children
+      }
+    })
+    // build conditions
     let $combine = $('.filter .combine')
     let $condition = $('.filter .condition')
+
+    $condition
+      .html('')
+      .append(
+        buildCondition({
+          cat: 'brand',
+          catStr: '品牌',
+          options: brands,
+          multi: true
+        })
+      )
+      .append(
+        buildCondition({
+          cat: 'type',
+          catStr: '设备类型',
+          options: categories,
+          multi: false
+        })
+      )
+
     $combine
       .on('click', '.factor', function cancel() {
         let $target = $(this)
         let cat = $target.attr('data-cat')
         $condition.children(`.row[data-cat=${cat}]`).show()
         $target.remove()
+        switch (cat) {
+          case 'brand':
+            params.brands = []
+            break
+          case 'type':
+            params.classOne = 0
+            params.classTwo = 0
+            $target.siblings('[data-cat="subtype"]').remove()
+            $condition.find('[data-cat="subtype"]').remove()
+            break
+          case 'subtype':
+            params.classTwo = 0
+            break
+          default:
+            return
+        }
+        getRankData(params)
       })
       .on('click', '.reset', function reset() {
-        $condition.children('.row[data-cat]').show()
+        $condition
+          .children('.row[data-cat]')
+          .show()
+          .filter('[data-cat="subtype"]')
+          .remove()
         $combine.children('.factor').remove()
+        params.brands = []
+        params.classOne = 0
+        params.classTwo = 0
+        getRankData(params)
       })
     $condition
       .on('click', '.row:not(.multi) .value a', function filter() {
+        // single selection
         let $target = $(this)
         let $row = $target.closest('.row[data-cat]')
         let cat = $row.attr('data-cat')
         let val = $target.text()
         $(buildFactor(cat, val)).insertBefore('.filter .combine .reset')
         $row.hide()
+        switch (cat) {
+          case 'brand':
+            params.brands = [parseInt($target.attr('data-id'))]
+            break
+          case 'type':
+            let typeId = parseInt($target.attr('data-id'))
+            params.classOne = typeId
+            // find type
+            let type = categories.find(v => v.id === typeId)
+            if (type.children.length) {
+              // build sub type
+              $condition.append(
+                buildCondition({
+                  cat: 'subtype',
+                  catStr: '设备次级类型',
+                  options: type.children,
+                  multi: false
+                })
+              )
+            }
+            break
+          case 'subtype':
+            params.classTwo = parseInt($target.attr('data-id'))
+            break
+          default:
+            return
+        }
+        getRankData(params)
       })
       .on('click', '.row.multi .value li', function select() {
+        // multi-selection
+        // toggle active
         let $target = $(this)
         $target.closest('li').toggleClass('active')
       })
       .on('click', '.extra .multi', function multi() {
+        // enter multi-selection mode
         let $target = $(this)
         $target.closest('.row[data-cat]').addClass('multi')
       })
       .on('click', '.extra .submit', function submit() {
+        // submit multi-selection
         let $target = $(this)
         let $row = $target.closest('.row.multi[data-cat]')
         let $active = $row.find('.value li.active')
         let cat = $row.attr('data-cat')
         let comb = ''
+        let multi = []
         $active.text(function combine(idx, val) {
           comb += (idx ? ',' : '') + val
+          let $a = $(this).find('a')
+          multi.push(parseInt($a.attr('data-id')))
         })
         if (comb) {
           $(buildFactor(cat, comb)).insertBefore('.filter .combine .reset')
           $row.hide()
+          params.brands = multi
+          getRankData(params)
         }
         $row.removeClass('multi')
         $active.removeClass('active')
       })
       .on('click', '.extra .cancel', function cancel() {
+        // exit multi-selection mode
         let $target = $(this)
         let $row = $target.closest('.row.multi[data-cat]')
         let $active = $row.find('.value li.active')
@@ -61,21 +175,10 @@
   }
 
   function initRank() {
-    // initial params
-    let params = {
-      pageNum: 1,
-      pageSize: 5,
-      fileDataType: 1,
-      sortType: 1,
-      keyWord: '',
-      classOne: '',
-      classTwo: '',
-      brand: ''
-    }
     let $table = $('#table_origin')
     let $tbody = $table.find('tbody')
     // initial data
-    getRankData(params, $tbody)
+    getRankData(params)
 
     // rank mark
     let $rank_a = $table.find('a[data-rank]')
@@ -94,7 +197,7 @@
           .addClass('rank-desc')
         params.sortType = $cur_a.attr('data-type')
         // reload data
-        getRankData(params, $tbody)
+        getRankData(params)
       }
     })
 
@@ -102,9 +205,10 @@
     let $nav = $table.siblings('nav')
     let $limit = $nav.find('.limit select')
     $limit.on('change', function limit(e) {
+      params.pageNum = 1
       params.pageSize = parseInt(e.target.value)
       // reload data
-      getRankData(params, $tbody)
+      getRankData(params)
     })
 
     // page change
@@ -129,12 +233,12 @@
       }
       if (old !== params.pageNum) {
         // reload data
-        getRankData(params, $tbody)
+        getRankData(params)
       }
     })
 
     // search
-    let $search = $table.siblings('.search')
+    let $search = $table.closest('.card.result').siblings('.search')
     $search
       .on('change', '.search-box', function() {
         // prettier-ignore
@@ -142,14 +246,14 @@
       })
       .on('click', '.search-btn', function() {
         // reload data
-        getRankData(params, $tbody)
+        getRankData(params)
       })
       .on('keydown', '.search-box', function(e) {
         if (e.keyCode == 13) {
           // prettier-ignore
           params.keyWord = $(this).val().trim()
           // reload data
-          getRankData(params, $tbody)
+          getRankData(params)
         }
       })
 
@@ -209,6 +313,34 @@
     })
   }
 
+  function buildCondition(obj) {
+    let lis = ''
+    obj.options.map(v => {
+      lis += `<li><a data-id="${v.id}">${v.label}</a></li>`
+    })
+    let mult = `
+      <div class="col-sm-2 extra">
+        <a class="submit">提交</a>
+        <a class="cancel">取消</a>
+        <a class="multi">
+          <i class="material-icons">add</i>
+          多选
+        </a>
+      </div>
+    `
+    return `
+      <div class="row" data-cat="${obj.cat}">
+        <div class="col-sm-2 key">
+          ${obj.catStr}：
+        </div>
+        <ul class="col-sm-8 value">
+          ${lis}
+        </ul>
+        ${obj.multi ? mult : ''}
+      </div>
+    `
+  }
+
   function buildFactor(cat, value) {
     let translate
     switch (cat) {
@@ -218,8 +350,12 @@
       case 'type':
         translate = '设备类型'
         break
+      case 'subtype':
+        translate = '设备次级类型'
+        break
       default:
         translate = ''
+        break
     }
     let em = value
     if (em.length > 7) {
@@ -331,7 +467,8 @@
     }
   }
 
-  function getRankData(obj, $tbody) {
+  function getRankData(obj) {
+    let $tbody = $('#table_origin tbody')
     $.post('fileData/queryFileData', obj, function(res) {
       handleResult(res, function(data) {
         // build table
@@ -349,7 +486,7 @@
               company: file.enterprise,
               state: file.fileDataStatusDesc,
               download: file.downloadCount,
-              fav: false // TODO
+              fav: file.favoriteStatus === 1
             })
           )
         })
