@@ -246,7 +246,7 @@
 
   function initBar1() {
     // initial params
-    let params = { contrastType: 2, timeType: 2 }
+    let params = { fileType: 2, circleType: 3 }
 
     $('#switch_bar_1').bootstrapSwitch({
       onText: '下载量',
@@ -269,7 +269,7 @@
       state: true,
       size: 'mini',
       onSwitchChange: function(e, state) {
-        params.timeType = state ? 2 : 1
+        params.timeType = state ? 3 : 2
         getBarData(params)
       }
     })
@@ -295,7 +295,7 @@
           let legendNames = []
           let labels = []
           let series = []
-          data.map((legend, idx) => {
+          data.fileCountList.map((legend, idx) => {
             let part = []
             legendNames.push(legend.dataTime)
             legend.fileCountList.map(val => {
@@ -318,30 +318,8 @@
   }
 
   function initBar2() {
-    let data = {
-      // prettier-ignore
-      labels: [
-        '01', '02', '03', '04',
-        '05', '06', '07', '08',
-        '09', '10', '11', '12'
-      ],
-      series: [
-        genRandInt(5).concat([0, 0, 0, 0, 0, 0, 0]),
-        genRandInt(5).concat([0, 0, 0, 0, 0, 0, 0])
-      ]
-    }
-
-    new Chartist.Bar('#chart_bar_2', data, {
-      seriesBarDistance: 10,
-      plugins: [
-        Chartist.plugins.legend({
-          legendNames: ['华立科技', '威盛电子']
-        }),
-        Chartist.plugins.tooltip({
-          tooltipOffset: { x: 14, y: -10 }
-        })
-      ]
-    })
+    // initial params
+    let params = { fileType: 1, circleType: 3, eid: 1, compareEid: 1 }
 
     $('#switch_bar_option_2').bootstrapSwitch({
       onText: '按年',
@@ -349,49 +327,152 @@
       onColor: 'info',
       offColor: 'info',
       state: true,
-      size: 'mini'
+      size: 'mini',
+      onSwitchChange: function(e, state) {
+        params.timeType = state ? 3 : 2
+        getBarData(params)
+      }
     })
 
+    let chartBar = new Chartist.Bar(
+      '#chart_bar_2',
+      {},
+      {
+        seriesBarDistance: 10,
+        plugins: [
+          Chartist.plugins.tooltip({
+            tooltipOffset: { x: 14, y: -10 }
+          })
+        ]
+      }
+    )
+
+    let $modal = $('#optionModal')
     $('#btn_bar_option_2').on('click', function() {
-      $('#optionModal').modal()
+      $modal.modal()
     })
 
-    $('#optionModal .submit').on('click', function() {
-      $('#optionModal').modal('hide')
+    $modal.on('click', '.submit', function() {
+      params.eid = parseInt($modal.find('#ent1').val())
+      params.compareEid = parseInt($modal.find('#ent2').val())
+      getBarData(params)
+      $modal.modal('hide')
     })
+
+    initOptionModal()
+
+    function initOptionModal() {
+      let $selects = $('#optionModal #ent1, #optionModal #ent2')
+      $.post('main/queryAllEnt', function(res) {
+        handleResult(res, function(data) {
+          // build options
+          $selects.html('')
+          data.map(v => {
+            $selects.append(`<option value="${v.id}">${v.name}</option>`)
+          })
+          params.eid = data[0].id
+          params.compareEid = data[data.length - 1].id
+          // init bar
+          getBarData(params)
+        })
+      })
+    }
+
+    function getBarData(obj) {
+      $.post('main/queryTransverseFile', obj, function(res) {
+        handleResult(res, function(data) {
+          let legendNames = []
+          let labels = []
+          let series = []
+          data.fileCountList.map((legend, idx) => {
+            let part = []
+            legendNames.push(legend.enterprise)
+            legend.fileCountList.map(val => {
+              if (labels.length < legend.length) {
+                labels.push(val.xdata)
+              }
+              part.push(val.fileCount)
+            })
+            series[idx] = part
+          })
+          chartBar.update(
+            { labels, series },
+            {
+              plugins: [Chartist.plugins.legend({ legendNames })]
+            }
+          )
+        })
+      })
+    }
   }
 
   function initRank() {
-    let $rank_a = $('#table_rank a[data-rank]')
+    // initial params
+    let params = { rankingType: 1, rankingTimeType: 1, sortType: 'desc' }
+    // rank mark
+    let $table = $('#table_rank')
+    let $rank_a = $table.find('a[data-rank]')
     $rank_a.on('click', function() {
       let $cur_a = $(this)
-      let rank = $cur_a.attr('data-rank')
+      let rank = $cur_a.data('rank')
       if (rank === 'none') {
         $rank_a
-          .attr('data-rank', 'none')
+          .data('rank', 'none')
           .children('i')
           .removeClass('rank-desc')
           .removeClass('rank-asc')
         $cur_a
-          .attr('data-rank', 'desc')
+          .data('rank', 'desc')
           .children('i')
           .addClass('rank-desc')
       } else {
         let to = rank === 'desc' ? 'asc' : 'desc'
         $cur_a
-          .attr('data-rank', to)
+          .data('rank', to)
           .children('i')
           .removeClass('rank-' + rank)
           .addClass('rank-' + to)
       }
+      // rank data
+      params.rankingType = parseInt($cur_a.data('type'))
+      params.sortType = $cur_a.data('rank')
+      // get data
+      getRankData(params)
     })
-  }
 
-  function genRandInt(n) {
-    let arr = []
-    while (n-- > 0) {
-      arr.push(parseInt(Math.random() * 15 + 1))
+    // nav tab
+    let $nav = $table.closest('.card').find('ul.nav-tabs')
+    $nav.on('click', '.nav-link', function tab() {
+      let $this = $(this)
+      if ($this.hasClass('active')) {
+        return
+      }
+      $nav.find('.nav-link').removeClass('active')
+      $this.addClass('active')
+      params.rankingTimeType = parseInt($this.data('type'))
+      getRankData(params)
+    })
+
+    getRankData(params)
+
+    function getRankData(obj) {
+      let $tbody = $table.find('tbody')
+      $.post('main/queryEnterpriseRanking', obj, function(res) {
+        handleResult(res, function(data) {
+          data.map((val, idx) => {
+            $tbody.html('')
+            $tbody.append(`
+              <tr>
+                <td>${idx + 1}</td>
+                <td>${val.enterprise}</td>
+                <td>${val.integralCount}</td>
+                <td>${val.fileUploadCount}</td>
+                <td>${val.fileDownloadCount}</td>
+              </tr>
+            `)
+          })
+        })
+      })
     }
-    return arr
   }
 })()
