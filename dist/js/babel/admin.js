@@ -18,15 +18,7 @@
     firstDay: 1
   };
   $(function () {
-    $('#switch_bar_1').bootstrapSwitch({
-      onText: '下载量',
-      offText: '上传量',
-      onColor: 'info',
-      offColor: 'info',
-      state: true,
-      size: 'small'
-    }); // 所有统计时间
-
+    // 所有统计时间
     $('.card .card-footer .stats').html("\n      <i class=\"material-icons\">access_time</i>\n      \u7EDF\u8BA1\u65F6\u95F4\uFF1A".concat(moment().format('YYYY-MM-DD HH:mm:ss'), "\n    "));
     initBasis();
     initLine();
@@ -215,21 +207,22 @@
   }
 
   function initBar1() {
-    var data = {
-      // prettier-ignore
-      labels: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
-      series: [genRandInt(12), genRandInt(5).concat([0, 0, 0, 0, 0, 0, 0])]
+    // initial params
+    var params = {
+      contrastType: 2,
+      timeType: 2
     };
-    new Chartist.Bar('#chart_bar_1', data, {
-      seriesBarDistance: 10,
-      plugins: [Chartist.plugins.legend({
-        legendNames: ['2018', '2019']
-      }), Chartist.plugins.tooltip({
-        tooltipOffset: {
-          x: 14,
-          y: -10
-        }
-      })]
+    $('#switch_bar_1').bootstrapSwitch({
+      onText: '下载量',
+      offText: '上传量',
+      onColor: 'info',
+      offColor: 'info',
+      state: true,
+      size: 'small',
+      onSwitchChange: function onSwitchChange(e, state) {
+        params.contrastType = state ? 2 : 1;
+        getBarData(params);
+      }
     });
     $('#switch_bar_option_1').bootstrapSwitch({
       onText: '按年',
@@ -237,8 +230,52 @@
       onColor: 'info',
       offColor: 'info',
       state: true,
-      size: 'mini'
+      size: 'mini',
+      onSwitchChange: function onSwitchChange(e, state) {
+        params.timeType = state ? 2 : 1;
+        getBarData(params);
+      }
     });
+    var chartBar = new Chartist.Bar('#chart_bar_1', {}, {
+      seriesBarDistance: 10,
+      plugins: [Chartist.plugins.tooltip({
+        tooltipOffset: {
+          x: 14,
+          y: -10
+        }
+      })]
+    });
+    getBarData(params);
+
+    function getBarData(obj) {
+      $.post('main/queryVerticalFile', obj, function (res) {
+        handleResult(res, function (data) {
+          var legendNames = [];
+          var labels = [];
+          var series = [];
+          data.map(function (legend, idx) {
+            var part = [];
+            legendNames.push(legend.dataTime);
+            legend.fileCountList.map(function (val) {
+              if (labels.length < legend.length) {
+                labels.push(val.xdata);
+              }
+
+              part.push(val.fileCount);
+            });
+            series[idx] = part;
+          });
+          chartBar.update({
+            labels: labels,
+            series: series
+          }, {
+            plugins: [Chartist.plugins.legend({
+              legendNames: legendNames
+            })]
+          });
+        });
+      });
+    }
   }
 
   function initBar2() {

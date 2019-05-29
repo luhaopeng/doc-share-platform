@@ -19,15 +19,6 @@
   }
 
   $(function() {
-    $('#switch_bar_1').bootstrapSwitch({
-      onText: '下载量',
-      offText: '上传量',
-      onColor: 'info',
-      offColor: 'info',
-      state: true,
-      size: 'small'
-    })
-
     // 所有统计时间
     $('.card .card-footer .stats').html(`
       <i class="material-icons">access_time</i>
@@ -254,26 +245,20 @@
   }
 
   function initBar1() {
-    let data = {
-      // prettier-ignore
-      labels: [
-        '01', '02', '03', '04',
-        '05', '06', '07', '08',
-        '09', '10', '11', '12'
-      ],
-      series: [genRandInt(12), genRandInt(5).concat([0, 0, 0, 0, 0, 0, 0])]
-    }
+    // initial params
+    let params = { contrastType: 2, timeType: 2 }
 
-    new Chartist.Bar('#chart_bar_1', data, {
-      seriesBarDistance: 10,
-      plugins: [
-        Chartist.plugins.legend({
-          legendNames: ['2018', '2019']
-        }),
-        Chartist.plugins.tooltip({
-          tooltipOffset: { x: 14, y: -10 }
-        })
-      ]
+    $('#switch_bar_1').bootstrapSwitch({
+      onText: '下载量',
+      offText: '上传量',
+      onColor: 'info',
+      offColor: 'info',
+      state: true,
+      size: 'small',
+      onSwitchChange: function(e, state) {
+        params.contrastType = state ? 2 : 1
+        getBarData(params)
+      }
     })
 
     $('#switch_bar_option_1').bootstrapSwitch({
@@ -282,8 +267,54 @@
       onColor: 'info',
       offColor: 'info',
       state: true,
-      size: 'mini'
+      size: 'mini',
+      onSwitchChange: function(e, state) {
+        params.timeType = state ? 2 : 1
+        getBarData(params)
+      }
     })
+
+    let chartBar = new Chartist.Bar(
+      '#chart_bar_1',
+      {},
+      {
+        seriesBarDistance: 10,
+        plugins: [
+          Chartist.plugins.tooltip({
+            tooltipOffset: { x: 14, y: -10 }
+          })
+        ]
+      }
+    )
+
+    getBarData(params)
+
+    function getBarData(obj) {
+      $.post('main/queryVerticalFile', obj, function(res) {
+        handleResult(res, function(data) {
+          let legendNames = []
+          let labels = []
+          let series = []
+          data.map((legend, idx) => {
+            let part = []
+            legendNames.push(legend.dataTime)
+            legend.fileCountList.map(val => {
+              if (labels.length < legend.length) {
+                labels.push(val.xdata)
+              }
+              part.push(val.fileCount)
+            })
+            series[idx] = part
+          })
+          chartBar.update(
+            { labels, series },
+            {
+              plugins: [Chartist.plugins.legend({ legendNames })]
+            }
+          )
+        })
+      })
+    }
   }
 
   function initBar2() {
