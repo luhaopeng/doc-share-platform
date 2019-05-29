@@ -145,7 +145,7 @@
     });
     var desc = '';
     list.map(function (obj) {
-      desc += "\n        ".concat(obj.name, "\n        <span>\n          ").concat(parseInt(obj.typeNum) / total * 100 | 0, "%\n        </span>\n      ");
+      desc += "\n        ".concat(obj.name, "\n        <span>\n          ").concat((parseInt(obj.typeNum) / total * 100).toFixed(), "%\n        </span>\n      ");
     });
     $('.card p.chart-pie-1').html(desc);
   }
@@ -180,7 +180,7 @@
     var otherName, otherNum;
     list.map(function (obj) {
       if (obj.name !== '其他') {
-        desc += "\n          ".concat(obj.name, "\n          <span>\n            ").concat(parseInt(obj.typeNum) / total * 100 | 0, "%\n          </span>\n        ");
+        desc += "\n          ".concat(obj.name, "\n          <span>\n            ").concat((parseInt(obj.typeNum) / total * 100).toFixed(), "%\n          </span>\n        ");
       } else {
         otherName = obj.name;
         otherNum = obj.typeNum;
@@ -190,14 +190,14 @@
     $cardBody.html(desc);
 
     if (other instanceof Array) {
-      var otherLink = "\n        <a\n          class=\"other\"\n          tabindex=\"0\"\n          title=\"\u5176\u4ED6\"\n          data-trigger=\"hover\"\n        >\n          ".concat(otherName, "\n          <span>\n            ").concat(parseInt(otherNum) / total * 100 | 0, "%\n          </span>\n        </a>\n      ");
+      var otherLink = "\n        <a\n          class=\"other\"\n          tabindex=\"0\"\n          title=\"\u5176\u4ED6\"\n          data-trigger=\"hover\"\n        >\n          ".concat(otherName, "\n          <span>\n            ").concat((parseInt(otherNum) / total * 100).toFixed(), "%\n          </span>\n        </a>\n      ");
       $cardBody.append(otherLink);
       var detail = '';
       other.map(function (obj) {
         total += obj.typeNum;
       });
       other.map(function (obj) {
-        detail += "\n          ".concat(obj.name, "\n          ").concat(parseInt(obj.typeNum) / total * 100 | 0, "%\n          <br />\n        ");
+        detail += "\n          ".concat(obj.name, "\n          ").concat((parseInt(obj.typeNum) / total * 100).toFixed(), "%\n          <br />\n        ");
       });
       $cardBody.find('.other').popover({
         html: true,
@@ -377,19 +377,19 @@
     var $rank_a = $table.find('a[data-rank]');
     $rank_a.on('click', function () {
       var $cur_a = $(this);
-      var rank = $cur_a.data('rank');
+      var rank = $cur_a.attr('data-rank');
 
       if (rank === 'none') {
-        $rank_a.data('rank', 'none').children('i').removeClass('rank-desc').removeClass('rank-asc');
-        $cur_a.data('rank', 'desc').children('i').addClass('rank-desc');
+        $rank_a.attr('data-rank', 'none').children('i').removeClass('rank-desc').removeClass('rank-asc');
+        $cur_a.attr('data-rank', 'desc').children('i').addClass('rank-desc');
       } else {
         var to = rank === 'desc' ? 'asc' : 'desc';
-        $cur_a.data('rank', to).children('i').removeClass('rank-' + rank).addClass('rank-' + to);
+        $cur_a.attr('data-rank', to).children('i').removeClass('rank-' + rank).addClass('rank-' + to);
       } // rank data
 
 
-      params.rankingType = parseInt($cur_a.data('type'));
-      params.sortType = $cur_a.data('rank'); // get data
+      params.rankingType = parseInt($cur_a.attr('data-type'));
+      params.sortType = $cur_a.attr('data-rank'); // get data
 
       getRankData(params);
     }); // nav tab
@@ -404,7 +404,7 @@
 
       $nav.find('.nav-link').removeClass('active');
       $this.addClass('active');
-      params.rankingTimeType = parseInt($this.data('type'));
+      params.rankingTimeType = parseInt($this.attr('data-type'));
       getRankData(params);
     });
     getRankData(params);

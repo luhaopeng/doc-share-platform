@@ -47,8 +47,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       edit: function edit() {
         var $this = $(this);
         var $tr = $this.closest('tr');
-        var account = $tr.data('account');
-        var roleid = $tr.data('role');
+        var account = $tr.attr('data-account');
+        var roleid = $tr.attr('data-role');
         var $modal = $('#changeRoleModal'); // basic inputs
 
         $modal.find('.modal-title').text('修改角色'); // prettier-ignore

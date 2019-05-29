@@ -45,8 +45,8 @@
       edit: function edit() {
         let $this = $(this)
         let $tr = $this.closest('tr')
-        let account = $tr.data('account')
-        let roleid = $tr.data('role')
+        let account = $tr.attr('data-account')
+        let roleid = $tr.attr('data-role')
 
         let $modal = $('#changeRoleModal')
         // basic inputs

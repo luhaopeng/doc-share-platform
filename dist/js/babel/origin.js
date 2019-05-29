@@ -64,7 +64,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function initRank() {
-    var $table = $('#table_origin'); // rank mark
+    // initial params
+    var params = {
+      pageNum: 1,
+      pageSize: 5,
+      fileDataType: 1,
+      sortType: 1,
+      keyWord: '',
+      classOne: '',
+      classTwo: '',
+      brand: ''
+    };
+    var $table = $('#table_origin');
+    var $tbody = $table.find('tbody'); // initial data
+
+    getRankData(params, $tbody); // rank mark
 
     var $rank_a = $table.find('a[data-rank]');
     $rank_a.on('click', function () {
@@ -74,26 +88,54 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       if (rank === 'none') {
         $rank_a.attr('data-rank', 'none').children('i').removeClass('rank-desc').removeClass('rank-asc');
         $cur_a.attr('data-rank', 'desc').children('i').addClass('rank-desc');
-      } else {
-        var to = rank === 'desc' ? 'asc' : 'desc';
-        $cur_a.attr('data-rank', to).children('i').removeClass('rank-' + rank).addClass('rank-' + to);
+        params.sortType = $cur_a.attr('data-type'); // reload data
+
+        getRankData(params, $tbody);
       }
-    }); // data
+    }); // limit
 
-    var $tbody = $table.find('tbody');
-
-    for (var i = 0; i < 5; i++) {
-      $tbody.append(buildRankRow(randFile()));
-    } // limit
-
-
-    var $limit = $('.result nav .limit select');
+    var $nav = $table.siblings('nav');
+    var $limit = $nav.find('.limit select');
     $limit.on('change', function limit(e) {
-      var pageSize = parseInt(e.target.value);
-      $tbody.html('');
+      params.pageSize = parseInt(e.target.value); // reload data
 
-      for (var _i = 0; _i < pageSize; _i++) {
-        $tbody.append(buildRankRow(randFile()));
+      getRankData(params, $tbody);
+    }); // page change
+
+    var $pagination = $nav.find('ul.pagination');
+    $pagination.on('click', '.page-item', function () {
+      var max = parseInt($pagination.find('.page-item:not(.prev):not(.next)').last().text());
+      var $this = $(this);
+      var old = params.pageNum;
+
+      if ($this.hasClass('prev')) {
+        params.pageNum = params.pageNum - 1 || 1;
+      } else if ($this.hasClass('next')) {
+        params.pageNum = (params.pageNum + 1) % (max + 1) || max;
+      } else if ($this.hasClass('else')) {// do nothing
+      } else {
+        params.pageNum = parseInt($this.text()) || 1;
+      }
+
+      if (old !== params.pageNum) {
+        // reload data
+        getRankData(params, $tbody);
+      }
+    }); // search
+
+    var $search = $table.siblings('.search');
+    $search.on('change', '.search-box', function () {
+      // prettier-ignore
+      params.keyWord = $(this).val().trim();
+    }).on('click', '.search-btn', function () {
+      // reload data
+      getRankData(params, $tbody);
+    }).on('keydown', '.search-box', function (e) {
+      if (e.keyCode == 13) {
+        // prettier-ignore
+        params.keyWord = $(this).val().trim(); // reload data
+
+        getRankData(params, $tbody);
       }
     }); // click
 
@@ -170,30 +212,81 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     return "\n      <tr data-id=\"".concat(obj.id, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"text-ellipsis\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.type, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td title=\"").concat(obj.company, "\">").concat(obj.company.substr(0, 4), "</td>\n        <td>").concat(obj.state, "</td>\n        <td class=\"text-right\">").concat(obj.download, "</td>\n        <td class=\"td-actions text-right\">\n          <button\n            data-action=\"star\"\n            data-toggle=\"").concat(obj.fav ? 'unstar' : 'star', "\"\n            type=\"button\"\n            class=\"btn btn-warning\"\n            title=\"").concat(obj.fav ? '取消' : '', "\u6536\u85CF\"\n          >\n            <i class=\"material-icons\">star").concat(obj.fav ? '' : '_border', "</i>\n          </button>\n          <button\n            data-action=\"download\"\n            type=\"button\"\n            class=\"btn btn-success\"\n            title=\"\u4E0B\u8F7D\"\n          >\n            <i class=\"material-icons\">get_app</i>\n          </button>\n        </td>\n      </tr>\n    ");
   }
 
-  function randFile() {
-    var titles = ['常见react面试题汇总（适合中级前端）', 'SSM主流框架入门与综合项目实战', 'Java开发企业级权限管理系统', 'Linux随机密码'];
-    var dates = ['2019-05-09', '2019-05-08', '2019-05-07'];
-    var cates = ['电脑', '空调', '热水器', '冰箱'];
-    var brands = ['海尔', '格力', '美的', '西门子', '三星', '松下'];
-    var companys = ['华立科技股份有限公司', '威盛集团有限公司', '江苏林洋能源有限公司', '深圳市科陆电子科技股份有限公司'];
-    var states = ['已解析', '未解析'];
-    var favs = [true, false];
-    return {
-      id: parseInt(Math.random() * 100),
-      title: rand(titles),
-      date: rand(dates),
-      size: (Math.random() * 100).toFixed(2) + 'MB',
-      type: '原始文件',
-      cate: rand(cates),
-      brand: rand(brands),
-      company: rand(companys),
-      state: rand(states),
-      download: parseInt(Math.random() * 100),
-      fav: rand(favs)
-    };
+  function buildPage(options) {
+    var $pagination = $('#table_origin').siblings('nav').find('ul.pagination');
+    $pagination.find('li.page-item:not(.prev):not(.next)').remove();
+    var $next = $pagination.find('.page-item.next');
+    var max = options.pages;
+    var n = options.pageNum;
+
+    if (max <= 10) {
+      for (var i = 1; i <= max; ++i) {
+        $(page(i, n)).insertBefore($next);
+      }
+    } else {
+      if (n <= 3) {
+        // 1, 2, 3, ..., max
+        $(page(1, n)).insertBefore($next);
+        $(page(2, n)).insertBefore($next);
+        $(page(3, n)).insertBefore($next);
+        $(page('...', n)).insertBefore($next);
+        $(page(max, n)).insertBefore($next);
+      } else if (n >= max - 2) {
+        // 1, ..., max-2, max-1, max
+        $(page(1, n)).insertBefore($next);
+        $(page('...', n)).insertBefore($next);
+        $(page(max - 2, n)).insertBefore($next);
+        $(page(max - 1, n)).insertBefore($next);
+        $(page(max, n)).insertBefore($next);
+      } else {
+        // 1, ..., n-1, n, n+1, ..., max
+        $(page(1, n)).insertBefore($next);
+        $(page('...', n)).insertBefore($next);
+        $(page(n - 1, n)).insertBefore($next);
+        $(page(n, n)).insertBefore($next);
+        $(page(n + 1, n)).insertBefore($next);
+        $(page('...', n)).insertBefore($next);
+        $(page(max, n)).insertBefore($next);
+      }
+    }
+
+    function page(i, cur) {
+      // prettier-ignore
+      return "\n        <li class=\"page-item ".concat(cur === i ? 'active' : '', " ").concat(i === '...' ? 'else' : '', "\">\n          <a class=\"page-link\">").concat(i, "</a>\n        </li>\n      ");
+    }
   }
 
-  function rand(arr) {
-    return arr[Math.random() * arr.length | 0];
+  function getRankData(obj, $tbody) {
+    $.post('fileData/queryFileData', obj, function (res) {
+      handleResult(res, function (data) {
+        // build table
+        $tbody.html('');
+        data.list.map(function (file) {
+          $tbody.append(buildRankRow({
+            id: file.fileDataId,
+            title: file.fileName,
+            date: file.dataTimeDesc,
+            size: file.fileSize + 'MB',
+            type: file.fileDataTypeDesc,
+            cate: file.classTwoDesc,
+            brand: file.brandDesc,
+            company: file.enterprise,
+            state: file.fileDataStatusDesc,
+            download: file.downloadCount,
+            fav: false // TODO
+
+          }));
+        }); // build pagination
+
+        var pageNum = data.pageNum,
+            total = data.total,
+            pages = data.pages;
+        buildPage({
+          pageNum: pageNum,
+          total: total,
+          pages: pages
+        });
+      });
+    });
   }
 })();

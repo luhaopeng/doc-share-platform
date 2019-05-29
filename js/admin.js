@@ -161,7 +161,7 @@
       desc += `
         ${obj.name}
         <span>
-          ${((parseInt(obj.typeNum) / total) * 100) | 0}%
+          ${((parseInt(obj.typeNum) / total) * 100).toFixed()}%
         </span>
       `
     })
@@ -201,7 +201,7 @@
         desc += `
           ${obj.name}
           <span>
-            ${((parseInt(obj.typeNum) / total) * 100) | 0}%
+            ${((parseInt(obj.typeNum) / total) * 100).toFixed()}%
           </span>
         `
       } else {
@@ -221,7 +221,7 @@
         >
           ${otherName}
           <span>
-            ${((parseInt(otherNum) / total) * 100) | 0}%
+            ${((parseInt(otherNum) / total) * 100).toFixed()}%
           </span>
         </a>
       `
@@ -233,7 +233,7 @@
       other.map(obj => {
         detail += `
           ${obj.name}
-          ${((parseInt(obj.typeNum) / total) * 100) | 0}%
+          ${((parseInt(obj.typeNum) / total) * 100).toFixed()}%
           <br />
         `
       })
@@ -406,28 +406,28 @@
     let $rank_a = $table.find('a[data-rank]')
     $rank_a.on('click', function() {
       let $cur_a = $(this)
-      let rank = $cur_a.data('rank')
+      let rank = $cur_a.attr('data-rank')
       if (rank === 'none') {
         $rank_a
-          .data('rank', 'none')
+          .attr('data-rank', 'none')
           .children('i')
           .removeClass('rank-desc')
           .removeClass('rank-asc')
         $cur_a
-          .data('rank', 'desc')
+          .attr('data-rank', 'desc')
           .children('i')
           .addClass('rank-desc')
       } else {
         let to = rank === 'desc' ? 'asc' : 'desc'
         $cur_a
-          .data('rank', to)
+          .attr('data-rank', to)
           .children('i')
           .removeClass('rank-' + rank)
           .addClass('rank-' + to)
       }
       // rank data
-      params.rankingType = parseInt($cur_a.data('type'))
-      params.sortType = $cur_a.data('rank')
+      params.rankingType = parseInt($cur_a.attr('data-type'))
+      params.sortType = $cur_a.attr('data-rank')
       // get data
       getRankData(params)
     })
@@ -441,7 +441,7 @@
       }
       $nav.find('.nav-link').removeClass('active')
       $this.addClass('active')
-      params.rankingTimeType = parseInt($this.data('type'))
+      params.rankingTimeType = parseInt($this.attr('data-type'))
       getRankData(params)
     })
 

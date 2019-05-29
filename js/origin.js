@@ -61,7 +61,22 @@
   }
 
   function initRank() {
+    // initial params
+    let params = {
+      pageNum: 1,
+      pageSize: 5,
+      fileDataType: 1,
+      sortType: 1,
+      keyWord: '',
+      classOne: '',
+      classTwo: '',
+      brand: ''
+    }
     let $table = $('#table_origin')
+    let $tbody = $table.find('tbody')
+    // initial data
+    getRankData(params, $tbody)
+
     // rank mark
     let $rank_a = $table.find('a[data-rank]')
     $rank_a.on('click', function() {
@@ -77,31 +92,66 @@
           .attr('data-rank', 'desc')
           .children('i')
           .addClass('rank-desc')
-      } else {
-        let to = rank === 'desc' ? 'asc' : 'desc'
-        $cur_a
-          .attr('data-rank', to)
-          .children('i')
-          .removeClass('rank-' + rank)
-          .addClass('rank-' + to)
+        params.sortType = $cur_a.attr('data-type')
+        // reload data
+        getRankData(params, $tbody)
       }
     })
-
-    // data
-    let $tbody = $table.find('tbody')
-    for (let i = 0; i < 5; i++) {
-      $tbody.append(buildRankRow(randFile()))
-    }
 
     // limit
-    let $limit = $('.result nav .limit select')
+    let $nav = $table.siblings('nav')
+    let $limit = $nav.find('.limit select')
     $limit.on('change', function limit(e) {
-      let pageSize = parseInt(e.target.value)
-      $tbody.html('')
-      for (let i = 0; i < pageSize; i++) {
-        $tbody.append(buildRankRow(randFile()))
+      params.pageSize = parseInt(e.target.value)
+      // reload data
+      getRankData(params, $tbody)
+    })
+
+    // page change
+    let $pagination = $nav.find('ul.pagination')
+    $pagination.on('click', '.page-item', function() {
+      let max = parseInt(
+        $pagination
+          .find('.page-item:not(.prev):not(.next)')
+          .last()
+          .text()
+      )
+      let $this = $(this)
+      let old = params.pageNum
+      if ($this.hasClass('prev')) {
+        params.pageNum = params.pageNum - 1 || 1
+      } else if ($this.hasClass('next')) {
+        params.pageNum = (params.pageNum + 1) % (max + 1) || max
+      } else if ($this.hasClass('else')) {
+        // do nothing
+      } else {
+        params.pageNum = parseInt($this.text()) || 1
+      }
+      if (old !== params.pageNum) {
+        // reload data
+        getRankData(params, $tbody)
       }
     })
+
+    // search
+    let $search = $table.siblings('.search')
+    $search
+      .on('change', '.search-box', function() {
+        // prettier-ignore
+        params.keyWord = $(this).val().trim()
+      })
+      .on('click', '.search-btn', function() {
+        // reload data
+        getRankData(params, $tbody)
+      })
+      .on('keydown', '.search-box', function(e) {
+        if (e.keyCode == 13) {
+          // prettier-ignore
+          params.keyWord = $(this).val().trim()
+          // reload data
+          getRankData(params, $tbody)
+        }
+      })
 
     // click
     $tbody.on('click', 'tr', function detail(e) {
@@ -228,40 +278,85 @@
     `
   }
 
-  function randFile() {
-    const titles = [
-      '常见react面试题汇总（适合中级前端）',
-      'SSM主流框架入门与综合项目实战',
-      'Java开发企业级权限管理系统',
-      'Linux随机密码'
-    ]
-    const dates = ['2019-05-09', '2019-05-08', '2019-05-07']
-    const cates = ['电脑', '空调', '热水器', '冰箱']
-    const brands = ['海尔', '格力', '美的', '西门子', '三星', '松下']
-    const companys = [
-      '华立科技股份有限公司',
-      '威盛集团有限公司',
-      '江苏林洋能源有限公司',
-      '深圳市科陆电子科技股份有限公司'
-    ]
-    const states = ['已解析', '未解析']
-    const favs = [true, false]
-    return {
-      id: parseInt(Math.random() * 100),
-      title: rand(titles),
-      date: rand(dates),
-      size: (Math.random() * 100).toFixed(2) + 'MB',
-      type: '原始文件',
-      cate: rand(cates),
-      brand: rand(brands),
-      company: rand(companys),
-      state: rand(states),
-      download: parseInt(Math.random() * 100),
-      fav: rand(favs)
+  function buildPage(options) {
+    let $pagination = $('#table_origin')
+      .siblings('nav')
+      .find('ul.pagination')
+    $pagination.find('li.page-item:not(.prev):not(.next)').remove()
+    let $next = $pagination.find('.page-item.next')
+    let max = options.pages
+    let n = options.pageNum
+    if (max <= 10) {
+      for (let i = 1; i <= max; ++i) {
+        $(page(i, n)).insertBefore($next)
+      }
+    } else {
+      if (n <= 3) {
+        // 1, 2, 3, ..., max
+        $(page(1, n)).insertBefore($next)
+        $(page(2, n)).insertBefore($next)
+        $(page(3, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(max, n)).insertBefore($next)
+      } else if (n >= max - 2) {
+        // 1, ..., max-2, max-1, max
+        $(page(1, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(max - 2, n)).insertBefore($next)
+        $(page(max - 1, n)).insertBefore($next)
+        $(page(max, n)).insertBefore($next)
+      } else {
+        // 1, ..., n-1, n, n+1, ..., max
+        $(page(1, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(n - 1, n)).insertBefore($next)
+        $(page(n, n)).insertBefore($next)
+        $(page(n + 1, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(max, n)).insertBefore($next)
+      }
+    }
+
+    function page(i, cur) {
+      // prettier-ignore
+      return `
+        <li class="page-item ${
+          cur === i ? 'active' : ''
+        } ${
+          i === '...' ? 'else' : ''
+        }">
+          <a class="page-link">${i}</a>
+        </li>
+      `
     }
   }
 
-  function rand(arr) {
-    return arr[(Math.random() * arr.length) | 0]
+  function getRankData(obj, $tbody) {
+    $.post('fileData/queryFileData', obj, function(res) {
+      handleResult(res, function(data) {
+        // build table
+        $tbody.html('')
+        data.list.map(file => {
+          $tbody.append(
+            buildRankRow({
+              id: file.fileDataId,
+              title: file.fileName,
+              date: file.dataTimeDesc,
+              size: file.fileSize + 'MB',
+              type: file.fileDataTypeDesc,
+              cate: file.classTwoDesc,
+              brand: file.brandDesc,
+              company: file.enterprise,
+              state: file.fileDataStatusDesc,
+              download: file.downloadCount,
+              fav: false // TODO
+            })
+          )
+        })
+        // build pagination
+        let { pageNum, total, pages } = data
+        buildPage({ pageNum, total, pages })
+      })
+    })
   }
 })()
