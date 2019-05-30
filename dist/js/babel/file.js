@@ -134,7 +134,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function initComment() {
-    var $publish = $('.card .publish');
+    // initial params
+    var params = {
+      fileDataId: fileId,
+      fileDataType: fileType,
+      pageNum: 1,
+      pageSize: 10
+    };
+    var $card = $('.card');
+    var $commentDiv = $card.find('.comment-list');
+    var $comment = $commentDiv.find('ul.comment'); // publish
+
+    var $publish = $card.find('.publish');
     var $textarea = $publish.find('textarea');
     var $send = $publish.find('button.send');
     $send.on('click', function send() {
@@ -143,12 +154,104 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         time: moment().format('YYYY-MM-DD HH:mm:ss'),
         content: $textarea.val().trim()
       };
-      $('.card ul.comment').prepend(buildComment(comment));
+      $comment.prepend(buildComment(comment));
       $textarea.val('');
-    });
-  }
+    }); // page change
 
-  function buildComment(obj) {
-    return "\n      <li class=\"row\">\n        <div class=\"icon\">\n          <i class=\"material-icons\">face</i>\n        </div>\n        <div class=\"col\">\n          <h4>".concat(obj.user, "</h4>\n          <span>").concat(obj.time, "</span>\n          <p>").concat(obj.content, "</p>\n        </div>\n      </li>\n    ");
+    var $pagination = $commentDiv.find('ul.pagination');
+    $pagination.on('click', '.page-item', function () {
+      var max = parseInt($pagination.find('.page-item:not(.prev):not(.next)').last().text());
+      var $this = $(this);
+      var old = params.pageNum;
+
+      if ($this.hasClass('prev')) {
+        params.pageNum = params.pageNum - 1 || 1;
+      } else if ($this.hasClass('next')) {
+        params.pageNum = (params.pageNum + 1) % (max + 1) || max;
+      } else if ($this.hasClass('else')) {// do nothing
+      } else {
+        params.pageNum = parseInt($this.text()) || 1;
+      }
+
+      if (old !== params.pageNum) {
+        // reload data
+        getCommentData(params);
+      }
+    });
+    getCommentData(params);
+
+    function getCommentData(obj) {
+      $.post('account/queryComments', obj, function (res) {
+        handleResult(res, function (data) {
+          var pageNum = data.pageNum,
+              total = data.total,
+              pages = data.pages,
+              list = data.list; // build list
+
+          $commentDiv.find('.card-title').text("\u8BC4\u8BBA\uFF08".concat(list.length, "\uFF09"));
+          list.map(function (v) {
+            $comment.append(buildComment({
+              user: v.account,
+              time: v.commentTimeDes,
+              content: v.content
+            }));
+          }); // build pagination
+
+          buildPage({
+            pageNum: pageNum,
+            total: total,
+            pages: pages
+          });
+        });
+      });
+    }
+
+    function buildComment(obj) {
+      return "\n        <li class=\"row\">\n          <div class=\"icon\">\n            <i class=\"material-icons\">face</i>\n          </div>\n          <div class=\"col\">\n            <h4>".concat(obj.user, "</h4>\n            <span>").concat(obj.time, "</span>\n            <p>").concat(obj.content, "</p>\n          </div>\n        </li>\n      ");
+    }
+
+    function buildPage(options) {
+      var $pagination = $comment.siblings('nav').find('ul.pagination');
+      $pagination.find('li.page-item:not(.prev):not(.next)').remove();
+      var $next = $pagination.find('.page-item.next');
+      var max = options.pages;
+      var n = options.pageNum;
+
+      if (max <= 10) {
+        for (var i = 1; i <= max; ++i) {
+          $(page(i, n)).insertBefore($next);
+        }
+      } else {
+        if (n <= 3) {
+          // 1, 2, 3, ..., max
+          $(page(1, n)).insertBefore($next);
+          $(page(2, n)).insertBefore($next);
+          $(page(3, n)).insertBefore($next);
+          $(page('...', n)).insertBefore($next);
+          $(page(max, n)).insertBefore($next);
+        } else if (n >= max - 2) {
+          // 1, ..., max-2, max-1, max
+          $(page(1, n)).insertBefore($next);
+          $(page('...', n)).insertBefore($next);
+          $(page(max - 2, n)).insertBefore($next);
+          $(page(max - 1, n)).insertBefore($next);
+          $(page(max, n)).insertBefore($next);
+        } else {
+          // 1, ..., n-1, n, n+1, ..., max
+          $(page(1, n)).insertBefore($next);
+          $(page('...', n)).insertBefore($next);
+          $(page(n - 1, n)).insertBefore($next);
+          $(page(n, n)).insertBefore($next);
+          $(page(n + 1, n)).insertBefore($next);
+          $(page('...', n)).insertBefore($next);
+          $(page(max, n)).insertBefore($next);
+        }
+      }
+
+      function page(i, cur) {
+        // prettier-ignore
+        return "\n          <li class=\"page-item ".concat(cur === i ? 'active' : '', " ").concat(i === '...' ? 'else' : '', "\">\n            <a class=\"page-link\">").concat(i, "</a>\n          </li>\n        ");
+      }
+    }
   }
 })();

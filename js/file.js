@@ -157,7 +157,18 @@
   }
 
   function initComment() {
-    let $publish = $('.card .publish')
+    // initial params
+    let params = {
+      fileDataId: fileId,
+      fileDataType: fileType,
+      pageNum: 1,
+      pageSize: 10
+    }
+    let $card = $('.card')
+    let $commentDiv = $card.find('.comment-list')
+    let $comment = $commentDiv.find('ul.comment')
+    // publish
+    let $publish = $card.find('.publish')
     let $textarea = $publish.find('textarea')
     let $send = $publish.find('button.send')
     $send.on('click', function send() {
@@ -166,23 +177,123 @@
         time: moment().format('YYYY-MM-DD HH:mm:ss'),
         content: $textarea.val().trim()
       }
-      $('.card ul.comment').prepend(buildComment(comment))
+      $comment.prepend(buildComment(comment))
       $textarea.val('')
     })
-  }
 
-  function buildComment(obj) {
-    return `
-      <li class="row">
-        <div class="icon">
-          <i class="material-icons">face</i>
-        </div>
-        <div class="col">
-          <h4>${obj.user}</h4>
-          <span>${obj.time}</span>
-          <p>${obj.content}</p>
-        </div>
-      </li>
-    `
+    // page change
+    let $pagination = $commentDiv.find('ul.pagination')
+    $pagination.on('click', '.page-item', function() {
+      let max = parseInt(
+        $pagination
+          .find('.page-item:not(.prev):not(.next)')
+          .last()
+          .text()
+      )
+      let $this = $(this)
+      let old = params.pageNum
+      if ($this.hasClass('prev')) {
+        params.pageNum = params.pageNum - 1 || 1
+      } else if ($this.hasClass('next')) {
+        params.pageNum = (params.pageNum + 1) % (max + 1) || max
+      } else if ($this.hasClass('else')) {
+        // do nothing
+      } else {
+        params.pageNum = parseInt($this.text()) || 1
+      }
+      if (old !== params.pageNum) {
+        // reload data
+        getCommentData(params)
+      }
+    })
+
+    getCommentData(params)
+
+    function getCommentData(obj) {
+      $.post('account/queryComments', obj, function(res) {
+        handleResult(res, function(data) {
+          let { pageNum, total, pages, list } = data
+          // build list
+          $commentDiv.find('.card-title').text(`评论（${list.length}）`)
+          list.map(v => {
+            $comment.append(
+              buildComment({
+                user: v.account,
+                time: v.commentTimeDes,
+                content: v.content
+              })
+            )
+          })
+          // build pagination
+          buildPage({ pageNum, total, pages })
+        })
+      })
+    }
+
+    function buildComment(obj) {
+      return `
+        <li class="row">
+          <div class="icon">
+            <i class="material-icons">face</i>
+          </div>
+          <div class="col">
+            <h4>${obj.user}</h4>
+            <span>${obj.time}</span>
+            <p>${obj.content}</p>
+          </div>
+        </li>
+      `
+    }
+
+    function buildPage(options) {
+      let $pagination = $comment.siblings('nav').find('ul.pagination')
+      $pagination.find('li.page-item:not(.prev):not(.next)').remove()
+      let $next = $pagination.find('.page-item.next')
+      let max = options.pages
+      let n = options.pageNum
+      if (max <= 10) {
+        for (let i = 1; i <= max; ++i) {
+          $(page(i, n)).insertBefore($next)
+        }
+      } else {
+        if (n <= 3) {
+          // 1, 2, 3, ..., max
+          $(page(1, n)).insertBefore($next)
+          $(page(2, n)).insertBefore($next)
+          $(page(3, n)).insertBefore($next)
+          $(page('...', n)).insertBefore($next)
+          $(page(max, n)).insertBefore($next)
+        } else if (n >= max - 2) {
+          // 1, ..., max-2, max-1, max
+          $(page(1, n)).insertBefore($next)
+          $(page('...', n)).insertBefore($next)
+          $(page(max - 2, n)).insertBefore($next)
+          $(page(max - 1, n)).insertBefore($next)
+          $(page(max, n)).insertBefore($next)
+        } else {
+          // 1, ..., n-1, n, n+1, ..., max
+          $(page(1, n)).insertBefore($next)
+          $(page('...', n)).insertBefore($next)
+          $(page(n - 1, n)).insertBefore($next)
+          $(page(n, n)).insertBefore($next)
+          $(page(n + 1, n)).insertBefore($next)
+          $(page('...', n)).insertBefore($next)
+          $(page(max, n)).insertBefore($next)
+        }
+      }
+
+      function page(i, cur) {
+        // prettier-ignore
+        return `
+          <li class="page-item ${
+            cur === i ? 'active' : ''
+          } ${
+            i === '...' ? 'else' : ''
+          }">
+            <a class="page-link">${i}</a>
+          </li>
+        `
+      }
+    }
   }
 })()
