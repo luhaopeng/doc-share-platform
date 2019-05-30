@@ -7,7 +7,7 @@
     <title>登录</title>
     <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon" />
     <!-- core -->
-    <link rel="stylesheet" href="../lib/material-icons/material-icons.css">
+    <link rel="stylesheet" href="../lib/material-icons/material-icons.css" />
     <!-- dashboard -->
     <link rel="stylesheet" href="../lib/material-dashboard.min.css" />
     <!-- page -->
@@ -62,14 +62,31 @@
             aria-labelledby="home-tab"
           >
             <div class="form-wrapper">
-              <form>
+              <div
+                class="alert alert-warning alert-dismissible fade show"
+                role="alert"
+                data-msg="${errorMsg}"
+              >
+                ${errorMsg}
+                <button
+                  type="button"
+                  class="close"
+                  style="top:9px;"
+                  data-dismiss="alert"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <form action="frame/login" method="post">
                 <div class="form-group">
                   <label for="in_username">用户名</label>
                   <input
                     type="text"
                     class="form-control"
-                    id="in_username"
+                    name="account"
                     placeholder="用户名"
+                    required
                   />
                 </div>
                 <div class="form-group">
@@ -78,8 +95,9 @@
                     type="password"
                     maxlength="16"
                     class="form-control"
-                    id="in_password"
+                    name="password"
                     placeholder="密码"
+                    required
                   />
                 </div>
                 <div class="form-group">
@@ -90,16 +108,17 @@
                     <input
                       type="text"
                       class="form-control"
-                      id="in_code"
+                      name="validCode"
                       placeholder="验证码"
                       autocomplete="off"
+                      required
                     />
                     <div class="input-group-append">
                       <img
                         title="点击图片刷新验证码"
                         class="val-code"
-                        src="../img/validation.png"
-                        alt="bzan"
+                        src="common/validateCode"
+                        alt="validation code"
                         width="80"
                         height="40"
                       />
@@ -110,7 +129,7 @@
                   登录
                 </button>
                 <div class="form-group">
-                  <a class="forgot" href="./password.html">忘记密码？</a>
+                  <a class="forgot" href="frame/forgetPassword">忘记密码？</a>
                 </div>
               </form>
             </div>
@@ -122,6 +141,21 @@
             aria-labelledby="tab_sign_up"
           >
             <div class="form-wrapper">
+              <div
+                class="alert alert-warning alert-dismissible fade show"
+                role="alert"
+              >
+                <span class="msg">企业不存在</span>
+                <button
+                  type="button"
+                  class="close"
+                  style="top:9px;"
+                  data-dismiss="alert"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
               <form>
                 <div class="form-group">
                   <label for="up_username">用户名</label>
@@ -129,8 +163,9 @@
                     type="text"
                     class="form-control"
                     maxlength="10"
-                    id="up_username"
+                    name="username"
                     placeholder="用户名，最长10个字符"
+                    required
                   />
                 </div>
                 <div class="form-group">
@@ -139,8 +174,9 @@
                     type="password"
                     maxlength="16"
                     class="form-control"
-                    id="up_password"
+                    name="password"
                     placeholder="设置密码"
+                    required
                   />
                 </div>
                 <div class="form-group">
@@ -151,8 +187,9 @@
                     type="password"
                     maxlength="16"
                     class="form-control"
-                    id="up_confirm"
+                    name="confirm"
                     placeholder="再次输入密码"
+                    required
                   />
                 </div>
                 <div class="form-group">
@@ -160,8 +197,9 @@
                   <input
                     type="text"
                     class="form-control"
-                    id="up_coop_name"
+                    name="company"
                     placeholder="完整的企业名称"
+                    required
                   />
                 </div>
                 <div class="form-group">
@@ -169,8 +207,9 @@
                   <input
                     type="text"
                     class="form-control"
-                    id="up_coop_code"
-                    placeholder="电科院提供的验证编码"
+                    name="code"
+                    placeholder="企业验证编码"
+                    required
                   />
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">
@@ -186,5 +225,7 @@
     <script src="../lib/jquery.min.js"></script>
     <script src="../lib/popper.min.js"></script>
     <script src="../lib/bootstrap.min.js"></script>
+    <!-- login -->
+    <script src="../js/login.js"></script>
   </body>
 </html>
