@@ -155,9 +155,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function initSearchComplete() {
-    var companys = ['华立科技股份有限公司', '威盛集团有限公司', '江苏林洋能源有限公司', '深圳市科陆电子科技股份有限公司'];
-    $('#searchCompany').autocomplete({
-      lookup: companys
+    $.post('main/queryAllEnt', function (res) {
+      handleResult(res, function (data) {
+        var companys = data.map(function (v) {
+          return v.name;
+        });
+        $('#searchCompany').autocomplete({
+          lookup: companys
+        });
+      });
     });
   }
 
