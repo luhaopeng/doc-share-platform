@@ -141,5 +141,28 @@ ol.breadcrumb {
         }
       }
     }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+
+      .pagination {
+        margin-right: 8px;
+        margin-bottom: 0;
+        color: @color-secondary;
+
+        .page-item {
+          &:first-child .page-link {
+            margin-left: 0;
+          }
+
+          .page-link {
+            border-width: 1px;
+            margin-left: -1px;
+          }
+        }
+      }
+    }
   }
 }
