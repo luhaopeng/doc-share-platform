@@ -269,7 +269,7 @@
             method="post"
             target="_blank"
             rel="noopener noreferrer"
-            style="display:none"
+            style="display:none;"
           >
             <input name="fileDataId" value="${id}" />
             <input name="fileDataType" value="1" />
@@ -486,7 +486,7 @@
               company: file.enterprise,
               state: file.fileDataStatusDesc,
               download: file.downloadCount,
-              fav: file.favoriteStatus === 1
+              fav: parseInt(file.favoriteStatus) === 1
             })
           )
         })
