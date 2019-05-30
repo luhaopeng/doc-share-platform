@@ -7,79 +7,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 ;
 
 (function () {
+  var TOAST_OPTION = {
+    icon: 'success',
+    position: 'bottom-right',
+    allowToastClose: false,
+    stack: false,
+    loader: false,
+    hideAfter: 2000,
+    textAlign: 'center'
+  };
   $(function () {
     $('[data-toggle="popover"]').popover();
-    initRank();
-  });
-
-  function initRank() {
-    initTable('#table_upload');
-    initTable('#table_star', true);
-    initTableBonus();
-  }
-
-  function initTable(selector, isStar) {
-    var $table = $(selector); // rank mark
-
-    var $rank_a = $table.find('a[data-rank]');
-    $rank_a.on('click', function () {
-      var $cur_a = $(this);
-      var rank = $cur_a.attr('data-rank');
-
-      if (rank === 'none') {
-        $rank_a.attr('data-rank', 'none').children('i').removeClass('rank-desc').removeClass('rank-asc');
-        $cur_a.attr('data-rank', 'desc').children('i').addClass('rank-desc');
-      } else {
-        var to = rank === 'desc' ? 'asc' : 'desc';
-        $cur_a.attr('data-rank', to).children('i').removeClass('rank-' + rank).addClass('rank-' + to);
-      }
-    }); // data
-
-    var $tbody = $table.find('tbody');
-
-    for (var i = 0; i < 5; i++) {
-      $tbody.append(buildRankRow(randFile(isStar), isStar));
-    } // limit
-
-
-    var $limit = $(".result ".concat(selector, " + nav .limit select"));
-    $limit.on('change', function limit(e) {
-      var pageSize = parseInt(e.target.value);
-      $tbody.html('');
-
-      for (var _i = 0; _i < pageSize; _i++) {
-        $tbody.append(buildRankRow(randFile(isStar), isStar));
-      }
-    }); // click
-
-    $tbody.on('click', 'tr', function detail(e) {
-      var tag = e.target.tagName;
-
-      if (/tr|td/i.test(tag)) {
-        // prettier-ignore
-        var id = $(this).closest('tr').attr('data-id');
-        var $form = $("\n          <form\n            action=\"fileData/fileDataDetail\"\n            method=\"post\"\n            target=\"_blank\"\n            rel=\"noopener noreferrer\"\n            style=\"display:none\"\n          >\n            <input name=\"fileDataId\" value=\"".concat(id, "\" />\n            <input name=\"fileDataType\" value=\"1\" />\n          </form>\n        "));
-        $(document.body).append($form);
-        $form.submit().remove();
-      }
+    $('#downloadModal #downloadBtn').on('click', function download() {
+      $('#downloadModal').modal('hide');
     });
-
-    if (isStar) {
-      $('#downloadModal #downloadBtn').on('click', function download() {
-        $('#downloadModal').modal('hide');
-      });
-      $tbody.on('click', 'button[data-action=star]', function star() {
+    initUserInfo();
+    initTable('#table_upload');
+    initTable('#table_star', {
+      star: function star() {
         var $target = $(this);
         var action = $target.attr('data-toggle');
-        var TOAST_OPTION = {
-          icon: 'success',
-          position: 'bottom-right',
-          allowToastClose: false,
-          stack: false,
-          loader: false,
-          hideAfter: 2000,
-          textAlign: 'center'
-        };
 
         if (action === 'star') {
           $target.attr({
@@ -98,7 +45,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             heading: '已取消收藏'
           }, TOAST_OPTION));
         }
-      }).on('click', 'button[data-action=download]', function download() {
+      },
+      download: function download() {
         var $tr = $(this).closest('tr'); // TODO use obj.id
 
         var bonusStr = $tr.find('td:nth-child(8)').text();
@@ -106,104 +54,308 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         if (parseInt(bonusStr) > 0) {
           $('#downloadModal').modal();
         }
+      }
+    });
+    initTable('#table_bonus');
+    initDropdown();
+  });
+
+  function initUserInfo() {
+    $.post('account/queryAccountInfo', function (res) {
+      handleResult(res, function (data) {
+        var account = data.account,
+            enterprise = data.enterprise,
+            integral = data.integral,
+            uploadFileCount = data.uploadFileCount,
+            beDownloadFileCount = data.beDownloadFileCount;
+        var $user = $('.card.user');
+        var $header = $user.find('.card-header');
+        $header.find('h3').text(account);
+        $header.find('h4').text(enterprise);
+        var $stats = $user.find('.stats p');
+        $stats.eq(0).text(integral);
+        $stats.eq(1).text(uploadFileCount);
+        $stats.eq(2).text(beDownloadFileCount);
+      });
+    });
+  }
+
+  function initDropdown() {
+    var $menu = $('#table_bonus .dropdown .dropdown-menu');
+    $menu.html("\n      <a\n        tabindex=\"-1\"\n        data-type=\"0\"\n        class=\"dropdown-item\"\n      >\n        \u5168\u90E8\u7C7B\u578B\n      </a>\n      <div class=\"dropdown-divider\"></div>\n    "); // add items
+
+    var menuList = JSON.parse(bonusMenuStr);
+    menuList.map(function (v) {
+      $menu.append("\n        <a\n          tabindex=\"-1\"\n          data-type=\"".concat(v.value, "\"\n          class=\"dropdown-item\"\n        >\n          ").concat(v.text, "\n        </a>\n      "));
+    });
+  }
+
+  function initTable(selector) {
+    var actionCB = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    // initial params
+    var params = {
+      pageNum: 1,
+      pageSize: 5,
+      integralType: 0 // initial data
+
+    };
+    var $table = $(selector);
+    var $tbody = $table.find('tbody');
+    buildRow(selector, params, $tbody); // rank mark
+
+    var $rank_a = $table.find('a[data-rank]');
+    $rank_a.on('click', function () {
+      var $cur_a = $(this);
+      var rank = $cur_a.attr('data-rank');
+
+      if (rank === 'none') {
+        $rank_a.attr('data-rank', 'none').children('i').removeClass('rank-desc').removeClass('rank-asc');
+        $cur_a.attr('data-rank', 'desc').children('i').addClass('rank-desc');
+      } else {
+        var to = rank === 'desc' ? 'asc' : 'desc';
+        $cur_a.attr('data-rank', to).children('i').removeClass('rank-' + rank).addClass('rank-' + to);
+      }
+    }); // limit
+
+    var $nav = $table.siblings('nav');
+    var $limit = $nav.find('.limit select');
+    $limit.on('change', function limit(e) {
+      params.pageNum = 1;
+      params.pageSize = parseInt(e.target.value);
+      buildRow(selector, params, $tbody);
+    }); // page change
+
+    var $pagination = $nav.find('ul.pagination');
+    $pagination.on('click', '.page-item', function () {
+      var max = parseInt($pagination.find('.page-item:not(.prev):not(.next)').last().text());
+      var $this = $(this);
+      var old = params.pageNum;
+
+      if ($this.hasClass('prev')) {
+        params.pageNum = params.pageNum - 1 || 1;
+      } else if ($this.hasClass('next')) {
+        params.pageNum = (params.pageNum + 1) % (max + 1) || max;
+      } else if ($this.hasClass('else')) {// do nothing
+      } else {
+        params.pageNum = parseInt($this.text()) || 1;
+      }
+
+      if (old !== params.pageNum) {
+        buildRow(selector, params, $tbody);
+      }
+    }); // click
+
+    if (!/bonus/i.test(selector)) {
+      $tbody.on('click', 'tr', function detail(e) {
+        var tag = e.target.tagName;
+
+        if (/tr|td/i.test(tag)) {
+          // prettier-ignore
+          var $tr = $(this).closest('tr');
+          var id = $tr.attr('data-id');
+          var type = $tr.attr('data-type');
+          var $form = $("\n          <form\n            action=\"fileData/fileDataDetail\"\n            method=\"post\"\n            target=\"_blank\"\n            rel=\"noopener noreferrer\"\n            style=\"display:none\"\n          >\n            <input name=\"fileDataId\" value=\"".concat(id, "\" />\n            <input name=\"fileDataType\" value=\"").concat(type, "\" />\n          </form>\n        "));
+          $(document.body).append($form);
+          $form.submit().remove();
+        }
+      });
+    } // td-actions
+
+
+    if (/star/i.test(selector)) {
+      for (var key in actionCB) {
+        if (typeof actionCB[key] === 'function') {
+          $tbody.on('click', "button[data-action=".concat(key, "]"), actionCB[key]);
+        }
+      }
+    } // dropdown
+
+
+    if (/bonus/i.test(selector)) {
+      $table.find('.dropdown').on('click', '.dropdown-item', function () {
+        params.integralType = $(this).attr('data-type');
+        buildRow(selector, params, $tbody);
       });
     }
   }
 
-  function initTableBonus() {
-    // data
-    var $tbody = $('#table_bonus tbody');
-
-    for (var i = 0; i < 5; i++) {
-      $tbody.append(buildBonusRow(randBonus()));
-    } // limit
-
-
-    var $limit = $('.result #table_bonus + nav .limit select');
-    $limit.on('change', function limit(e) {
-      var pageSize = parseInt(e.target.value);
+  function buildRow(selector, data, $tbody) {
+    if (/upload/i.test(selector)) {
       $tbody.html('');
-
-      for (var _i2 = 0; _i2 < pageSize; _i2++) {
-        $tbody.append(buildBonusRow(randBonus()));
-      }
-    });
+      getUploads(data, function (res) {
+        return res.map(function (v) {
+          return $tbody.append(buildUpload(v));
+        });
+      }, function (page) {
+        return buildPage(selector, page);
+      });
+    } else if (/star/i.test(selector)) {
+      $tbody.html('');
+      getStars(data, function (res) {
+        return res.map(function (v) {
+          return $tbody.append(buildStar(v));
+        });
+      }, function (page) {
+        return buildPage(selector, page);
+      });
+    } else if (/bonus/i.test(selector)) {
+      $tbody.html('');
+      getBonus(data, function (res) {
+        return res.map(function (v) {
+          return $tbody.append(buildBonus(v));
+        });
+      }, function (page) {
+        return buildPage(selector, page);
+      });
+    }
   }
 
-  function buildRankRow(obj, isStar) {
-    var action = "\n      <td class=\"td-actions text-right\">\n        <button\n          data-action=\"star\"\n          data-toggle=\"".concat(obj.fav ? 'unstar' : 'star', "\"\n          type=\"button\"\n          class=\"btn btn-warning\"\n          title=\"").concat(obj.fav ? '取消' : '', "\u6536\u85CF\"\n        >\n          <i class=\"material-icons\">star").concat(obj.fav ? '' : '_border', "</i>\n        </button>\n        <button\n          data-action=\"download\"\n          type=\"button\"\n          class=\"btn btn-success\"\n          title=\"\u4E0B\u8F7D\"\n        >\n          <i class=\"material-icons\">get_app</i>\n        </button>\n      </td>\n    ");
-    return "\n      <tr data-id=\"".concat(obj.id, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"text-ellipsis\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.type, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td>").concat(obj.state, "</td>\n        ").concat(isStar ? "<td>".concat(obj.bonus, "</td>") : '', "\n        <td class=\"text-right\">").concat(obj.download, "</td>\n        ").concat(isStar ? action : '', "\n      </tr>\n    ");
+  function buildUpload(obj) {
+    return "\n      <tr data-id=\"".concat(obj.id, "\" data-type=\"").concat(obj.type, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"text-ellipsis\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.typeStr, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td>").concat(obj.state, "</td>\n        <td class=\"text-right\">").concat(obj.download, "</td>\n      </tr>\n    ");
   }
 
-  function randFile(isStar) {
-    var titles = ['常见react面试题汇总（适合中级前端）', 'SSM主流框架入门与综合项目实战', 'Java开发企业级权限管理系统', 'Linux随机密码'];
-    var dates = ['2019-05-09', '2019-05-08', '2019-05-07'];
-    var cates = ['电脑', '空调', '热水器', '冰箱'];
-    var brands = ['海尔', '格力', '美的', '西门子', '三星', '松下'];
-    var states = ['已解析', '未解析'];
-    var objs = [{
-      type: '原始文件',
-      bonus: 0
-    }, {
-      type: '解析文件',
-      bonus: 5
-    }];
-    var obj = rand(objs);
-    return {
-      id: parseInt(Math.random() * 100),
-      title: rand(titles),
-      date: rand(dates),
-      size: (Math.random() * 100).toFixed(2) + 'MB',
-      type: isStar ? obj.type : '原始文件',
-      cate: rand(cates),
-      brand: rand(brands),
-      state: rand(states),
-      bonus: obj.bonus,
-      download: parseInt(Math.random() * 100),
-      fav: true
-    };
+  function buildStar(obj) {
+    return "\n      <tr data-id=\"".concat(obj.id, "\" data-type=\"").concat(obj.type, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"text-ellipsis\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.typeStr, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td>").concat(obj.state, "</td>\n        <td>").concat(obj.bonus, "</td>\n        <td class=\"text-right\">").concat(obj.download, "</td>\n        <td class=\"td-actions text-right\">\n          <button\n            data-action=\"star\"\n            data-toggle=\"").concat(obj.fav ? 'unstar' : 'star', "\"\n            type=\"button\"\n            class=\"btn btn-warning\"\n            title=\"").concat(obj.fav ? '取消' : '', "\u6536\u85CF\"\n          >\n            <i class=\"material-icons\">star").concat(obj.fav ? '' : '_border', "</i>\n          </button>\n          <button\n            data-action=\"download\"\n            type=\"button\"\n            class=\"btn btn-success\"\n            title=\"\u4E0B\u8F7D\"\n          >\n            <i class=\"material-icons\">get_app</i>\n          </button>\n        </td>\n      </tr>\n    ");
   }
 
-  function buildBonusRow(obj) {
+  function buildBonus(obj) {
     return "\n      <tr>\n        <td>".concat(obj.time, "</td>\n        <td>").concat(obj.type, "</td>\n        <td>").concat(obj.remark, "</td>\n        <td>").concat(obj.operand, " ").concat(obj.bonus, "</td>\n      </tr>\n    ");
   }
 
-  function randBonus() {
-    var timeArr = ['2019-05-21 15:47:12', '2019-05-21 12:30:13', '2019-05-21 08:19:53'];
-    var titles = ['常见react面试题汇总（适合中级前端）', 'SSM主流框架入门与综合项目实战', 'Java开发企业级权限管理系统', 'Linux随机密码']; // prettier-ignore
+  function buildPage(selector, options) {
+    var $pagination = $(selector).siblings('nav').find('ul.pagination');
+    $pagination.find('li.page-item:not(.prev):not(.next)').remove();
+    var $next = $pagination.find('.page-item.next');
+    var max = options.pages;
+    var n = options.pageNum;
 
-    var types = [{
-      type: '文件上传',
-      remark: "\u4E0A\u4F20\u6587\u4EF6\"".concat(rand(titles), "\""),
-      bonus: 2,
-      operand: '+'
-    }, {
-      type: '文件被收藏',
-      remark: "\u6587\u4EF6\"".concat(rand(titles), "\"\u88AB\u7528\u6237\u6536\u85CF"),
-      bonus: 1,
-      operand: '+'
-    }, {
-      type: '下载文件',
-      remark: "\u4E0B\u8F7D\u6587\u4EF6\"".concat(rand(titles), "\""),
-      bonus: 5,
-      operand: '-'
-    }, {
-      type: '文件入库',
-      remark: "\u6587\u4EF6\"".concat(rand(titles), "\"\u6210\u529F\u5165\u5E93"),
-      bonus: 1,
-      operand: '+'
-    }, {
-      type: '评论文件',
-      remark: "\u8BC4\u8BBA\u6587\u4EF6\"".concat(rand(titles), "\""),
-      bonus: 1,
-      operand: '+'
-    }];
-    return _objectSpread({
-      time: rand(timeArr)
-    }, rand(types));
+    if (max <= 10) {
+      for (var i = 1; i <= max; ++i) {
+        $(page(i, n)).insertBefore($next);
+      }
+    } else {
+      if (n <= 3) {
+        // 1, 2, 3, ..., max
+        $(page(1, n)).insertBefore($next);
+        $(page(2, n)).insertBefore($next);
+        $(page(3, n)).insertBefore($next);
+        $(page('...', n)).insertBefore($next);
+        $(page(max, n)).insertBefore($next);
+      } else if (n >= max - 2) {
+        // 1, ..., max-2, max-1, max
+        $(page(1, n)).insertBefore($next);
+        $(page('...', n)).insertBefore($next);
+        $(page(max - 2, n)).insertBefore($next);
+        $(page(max - 1, n)).insertBefore($next);
+        $(page(max, n)).insertBefore($next);
+      } else {
+        // 1, ..., n-1, n, n+1, ..., max
+        $(page(1, n)).insertBefore($next);
+        $(page('...', n)).insertBefore($next);
+        $(page(n - 1, n)).insertBefore($next);
+        $(page(n, n)).insertBefore($next);
+        $(page(n + 1, n)).insertBefore($next);
+        $(page('...', n)).insertBefore($next);
+        $(page(max, n)).insertBefore($next);
+      }
+    }
+
+    function page(i, cur) {
+      // prettier-ignore
+      return "\n        <li class=\"page-item ".concat(cur === i ? 'active' : '', " ").concat(i === '...' ? 'else' : '', "\">\n          <a class=\"page-link\">").concat(i, "</a>\n        </li>\n      ");
+    }
   }
 
-  function rand(arr) {
-    return arr[Math.random() * arr.length | 0];
+  function getUploads(obj, buildFunc, pageFunc) {
+    $.post('account/queryMyUploads', obj, function done(res) {
+      handleResult(res, function (data) {
+        var pageNum = data.pageNum,
+            total = data.total,
+            pages = data.pages,
+            list = data.list;
+        var pageObj = {
+          pageNum: pageNum,
+          total: total,
+          pages: pages
+        };
+        var objs = list.map(function (v) {
+          return {
+            id: v.fileDataId,
+            title: v.fileName,
+            date: v.uploadTimeDesc,
+            size: v.fileSize + ' MB',
+            type: v.fileDataType,
+            typeStr: v.fileDataTypeDesc,
+            cate: v.classTwoDesc,
+            brand: v.brandDesc,
+            state: v.fileDataStatusDesc,
+            download: v.downloadCount
+          };
+        });
+        typeof buildFunc === 'function' && buildFunc(objs);
+        typeof pageFunc === 'function' && pageFunc(pageObj);
+      });
+    });
+  }
+
+  function getStars(obj, buildFunc, pageFunc) {
+    $.post('account/queryMyFavorites', obj, function done(res) {
+      handleResult(res, function (data) {
+        var pageNum = data.pageNum,
+            total = data.total,
+            pages = data.pages,
+            list = data.list;
+        var pageObj = {
+          pageNum: pageNum,
+          total: total,
+          pages: pages
+        };
+        var objs = list.map(function (v) {
+          return {
+            id: v.fileDataId,
+            title: v.fileName,
+            date: v.dataTimeDesc,
+            size: v.fileSize + ' MB',
+            type: v.fileDataType,
+            typeStr: v.fileDataTypeDesc,
+            cate: v.classTwoDesc,
+            brand: v.brandDesc,
+            state: v.fileDataStatusDesc,
+            bonus: v.requiredIntegral,
+            download: v.downloadCount,
+            fav: true
+          };
+        });
+        typeof buildFunc === 'function' && buildFunc(objs);
+        typeof pageFunc === 'function' && pageFunc(pageObj);
+      });
+    });
+  }
+
+  function getBonus(obj, buildFunc, pageFunc) {
+    $.post('account/queryMyIntegrals', obj, function done(res) {
+      handleResult(res, function (data) {
+        var pageNum = data.pageNum,
+            total = data.total,
+            pages = data.pages,
+            list = data.list;
+        var pageObj = {
+          pageNum: pageNum,
+          total: total,
+          pages: pages
+        };
+        var objs = list.map(function (v) {
+          return {
+            time: v.addTimeDesc,
+            type: v.integralTypeDesc,
+            remark: v.description,
+            bonus: v.integral,
+            operand: parseInt(v.inOutType) === 1 ? '+' : '-'
+          };
+        });
+        typeof buildFunc === 'function' && buildFunc(objs);
+        typeof pageFunc === 'function' && pageFunc(pageObj);
+      });
+    });
   }
 })();

@@ -1,17 +1,116 @@
 ;(function() {
-  $(function() {
-    $('[data-toggle="popover"]').popover()
-    initRank()
-  })
-
-  function initRank() {
-    initTable('#table_upload')
-    initTable('#table_star', true)
-    initTableBonus()
+  const TOAST_OPTION = {
+    icon: 'success',
+    position: 'bottom-right',
+    allowToastClose: false,
+    stack: false,
+    loader: false,
+    hideAfter: 2000,
+    textAlign: 'center'
   }
 
-  function initTable(selector, isStar) {
+  $(function() {
+    $('[data-toggle="popover"]').popover()
+    $('#downloadModal #downloadBtn').on('click', function download() {
+      $('#downloadModal').modal('hide')
+    })
+    initUserInfo()
+    initTable('#table_upload')
+    initTable('#table_star', {
+      star: function star() {
+        let $target = $(this)
+        let action = $target.attr('data-toggle')
+        if (action === 'star') {
+          $target
+            .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
+            .children('.material-icons')
+            .text('star')
+          $.toast({
+            heading: '收藏成功',
+            ...TOAST_OPTION
+          })
+        } else if (action === 'unstar') {
+          $target
+            .attr({ 'data-toggle': 'star', title: '收藏' })
+            .children('.material-icons')
+            .text('star_border')
+          $.toast({
+            heading: '已取消收藏',
+            ...TOAST_OPTION
+          })
+        }
+      },
+      download: function download() {
+        let $tr = $(this).closest('tr')
+        // TODO use obj.id
+        let bonusStr = $tr.find('td:nth-child(8)').text()
+        if (parseInt(bonusStr) > 0) {
+          $('#downloadModal').modal()
+        }
+      }
+    })
+    initTable('#table_bonus')
+    initDropdown()
+  })
+
+  function initUserInfo() {
+    $.post('account/queryAccountInfo', function(res) {
+      handleResult(res, function(data) {
+        let {
+          account,
+          enterprise,
+          integral,
+          uploadFileCount,
+          beDownloadFileCount
+        } = data
+        let $user = $('.card.user')
+        let $header = $user.find('.card-header')
+        $header.find('h3').text(account)
+        $header.find('h4').text(enterprise)
+        let $stats = $user.find('.stats p')
+        $stats.eq(0).text(integral)
+        $stats.eq(1).text(uploadFileCount)
+        $stats.eq(2).text(beDownloadFileCount)
+      })
+    })
+  }
+
+  function initDropdown() {
+    let $menu = $('#table_bonus .dropdown .dropdown-menu')
+    $menu.html(`
+      <a
+        tabindex="-1"
+        data-type="0"
+        class="dropdown-item"
+      >
+        全部类型
+      </a>
+      <div class="dropdown-divider"></div>
+    `)
+    // add items
+    let menuList = JSON.parse(bonusMenuStr)
+    menuList.map(v => {
+      $menu.append(`
+        <a
+          tabindex="-1"
+          data-type="${v.value}"
+          class="dropdown-item"
+        >
+          ${v.text}
+        </a>
+      `)
+    })
+  }
+
+  function initTable(selector, actionCB = {}) {
+    // initial params
+    let params = { pageNum: 1, pageSize: 5, integralType: 0 }
+
+    // initial data
     let $table = $(selector)
+    let $tbody = $table.find('tbody')
+    buildRow(selector, params, $tbody)
+
     // rank mark
     let $rank_a = $table.find('a[data-rank]')
     $rank_a.on('click', function() {
@@ -37,29 +136,50 @@
       }
     })
 
-    // data
-    let $tbody = $table.find('tbody')
-    for (let i = 0; i < 5; i++) {
-      $tbody.append(buildRankRow(randFile(isStar), isStar))
-    }
-
     // limit
-    let $limit = $(`.result ${selector} + nav .limit select`)
+    let $nav = $table.siblings('nav')
+    let $limit = $nav.find('.limit select')
     $limit.on('change', function limit(e) {
-      let pageSize = parseInt(e.target.value)
-      $tbody.html('')
-      for (let i = 0; i < pageSize; i++) {
-        $tbody.append(buildRankRow(randFile(isStar), isStar))
+      params.pageNum = 1
+      params.pageSize = parseInt(e.target.value)
+      buildRow(selector, params, $tbody)
+    })
+
+    // page change
+    let $pagination = $nav.find('ul.pagination')
+    $pagination.on('click', '.page-item', function() {
+      let max = parseInt(
+        $pagination
+          .find('.page-item:not(.prev):not(.next)')
+          .last()
+          .text()
+      )
+      let $this = $(this)
+      let old = params.pageNum
+      if ($this.hasClass('prev')) {
+        params.pageNum = params.pageNum - 1 || 1
+      } else if ($this.hasClass('next')) {
+        params.pageNum = (params.pageNum + 1) % (max + 1) || max
+      } else if ($this.hasClass('else')) {
+        // do nothing
+      } else {
+        params.pageNum = parseInt($this.text()) || 1
+      }
+      if (old !== params.pageNum) {
+        buildRow(selector, params, $tbody)
       }
     })
 
     // click
-    $tbody.on('click', 'tr', function detail(e) {
-      let tag = e.target.tagName
-      if (/tr|td/i.test(tag)) {
-        // prettier-ignore
-        let id = $(this).closest('tr').attr('data-id')
-        let $form = $(`
+    if (!/bonus/i.test(selector)) {
+      $tbody.on('click', 'tr', function detail(e) {
+        let tag = e.target.tagName
+        if (/tr|td/i.test(tag)) {
+          // prettier-ignore
+          let $tr = $(this).closest('tr')
+          let id = $tr.attr('data-id')
+          let type = $tr.attr('data-type')
+          let $form = $(`
           <form
             action="fileData/fileDataDetail"
             method="post"
@@ -68,103 +188,61 @@
             style="display:none"
           >
             <input name="fileDataId" value="${id}" />
-            <input name="fileDataType" value="1" />
+            <input name="fileDataType" value="${type}" />
           </form>
         `)
-        $(document.body).append($form)
-        $form.submit().remove()
-      }
-    })
-    if (isStar) {
-      $('#downloadModal #downloadBtn').on('click', function download() {
-        $('#downloadModal').modal('hide')
+          $(document.body).append($form)
+          $form.submit().remove()
+        }
       })
-      $tbody
-        .on('click', 'button[data-action=star]', function star() {
-          let $target = $(this)
-          let action = $target.attr('data-toggle')
-          const TOAST_OPTION = {
-            icon: 'success',
-            position: 'bottom-right',
-            allowToastClose: false,
-            stack: false,
-            loader: false,
-            hideAfter: 2000,
-            textAlign: 'center'
-          }
-          if (action === 'star') {
-            $target
-              .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
-              .children('.material-icons')
-              .text('star')
-            $.toast({
-              heading: '收藏成功',
-              ...TOAST_OPTION
-            })
-          } else if (action === 'unstar') {
-            $target
-              .attr({ 'data-toggle': 'star', title: '收藏' })
-              .children('.material-icons')
-              .text('star_border')
-            $.toast({
-              heading: '已取消收藏',
-              ...TOAST_OPTION
-            })
-          }
-        })
-        .on('click', 'button[data-action=download]', function download() {
-          let $tr = $(this).closest('tr')
-          // TODO use obj.id
-          let bonusStr = $tr.find('td:nth-child(8)').text()
-          if (parseInt(bonusStr) > 0) {
-            $('#downloadModal').modal()
-          }
-        })
-    }
-  }
-
-  function initTableBonus() {
-    // data
-    let $tbody = $('#table_bonus tbody')
-    for (let i = 0; i < 5; i++) {
-      $tbody.append(buildBonusRow(randBonus()))
     }
 
-    // limit
-    let $limit = $('.result #table_bonus + nav .limit select')
-    $limit.on('change', function limit(e) {
-      let pageSize = parseInt(e.target.value)
-      $tbody.html('')
-      for (let i = 0; i < pageSize; i++) {
-        $tbody.append(buildBonusRow(randBonus()))
+    // td-actions
+    if (/star/i.test(selector)) {
+      for (let key in actionCB) {
+        if (typeof actionCB[key] === 'function') {
+          $tbody.on('click', `button[data-action=${key}]`, actionCB[key])
+        }
       }
-    })
+    }
+
+    // dropdown
+    if (/bonus/i.test(selector)) {
+      $table.find('.dropdown').on('click', '.dropdown-item', function() {
+        params.integralType = $(this).attr('data-type')
+        buildRow(selector, params, $tbody)
+      })
+    }
   }
 
-  function buildRankRow(obj, isStar) {
-    let action = `
-      <td class="td-actions text-right">
-        <button
-          data-action="star"
-          data-toggle="${obj.fav ? 'unstar' : 'star'}"
-          type="button"
-          class="btn btn-warning"
-          title="${obj.fav ? '取消' : ''}收藏"
-        >
-          <i class="material-icons">star${obj.fav ? '' : '_border'}</i>
-        </button>
-        <button
-          data-action="download"
-          type="button"
-          class="btn btn-success"
-          title="下载"
-        >
-          <i class="material-icons">get_app</i>
-        </button>
-      </td>
-    `
+  function buildRow(selector, data, $tbody) {
+    if (/upload/i.test(selector)) {
+      $tbody.html('')
+      getUploads(
+        data,
+        res => res.map(v => $tbody.append(buildUpload(v))),
+        page => buildPage(selector, page)
+      )
+    } else if (/star/i.test(selector)) {
+      $tbody.html('')
+      getStars(
+        data,
+        res => res.map(v => $tbody.append(buildStar(v))),
+        page => buildPage(selector, page)
+      )
+    } else if (/bonus/i.test(selector)) {
+      $tbody.html('')
+      getBonus(
+        data,
+        res => res.map(v => $tbody.append(buildBonus(v))),
+        page => buildPage(selector, page)
+      )
+    }
+  }
+
+  function buildUpload(obj) {
     return `
-      <tr data-id="${obj.id}">
+      <tr data-id="${obj.id}" data-type="${obj.type}">
         <td
           class="text-left"
           title="${obj.title}"
@@ -173,49 +251,56 @@
         </td>
         <td>${obj.date}</td>
         <td>${obj.size}</td>
-        <td>${obj.type}</td>
+        <td>${obj.typeStr}</td>
         <td>${obj.cate}</td>
         <td>${obj.brand}</td>
         <td>${obj.state}</td>
-        ${isStar ? `<td>${obj.bonus}</td>` : ''}
         <td class="text-right">${obj.download}</td>
-        ${isStar ? action : ''}
       </tr>
     `
   }
 
-  function randFile(isStar) {
-    const titles = [
-      '常见react面试题汇总（适合中级前端）',
-      'SSM主流框架入门与综合项目实战',
-      'Java开发企业级权限管理系统',
-      'Linux随机密码'
-    ]
-    const dates = ['2019-05-09', '2019-05-08', '2019-05-07']
-    const cates = ['电脑', '空调', '热水器', '冰箱']
-    const brands = ['海尔', '格力', '美的', '西门子', '三星', '松下']
-    const states = ['已解析', '未解析']
-    const objs = [
-      { type: '原始文件', bonus: 0 },
-      { type: '解析文件', bonus: 5 }
-    ]
-    let obj = rand(objs)
-    return {
-      id: parseInt(Math.random() * 100),
-      title: rand(titles),
-      date: rand(dates),
-      size: (Math.random() * 100).toFixed(2) + 'MB',
-      type: isStar ? obj.type : '原始文件',
-      cate: rand(cates),
-      brand: rand(brands),
-      state: rand(states),
-      bonus: obj.bonus,
-      download: parseInt(Math.random() * 100),
-      fav: true
-    }
+  function buildStar(obj) {
+    return `
+      <tr data-id="${obj.id}" data-type="${obj.type}">
+        <td
+          class="text-left"
+          title="${obj.title}"
+        >
+          <div class="text-ellipsis">${obj.title}</div>
+        </td>
+        <td>${obj.date}</td>
+        <td>${obj.size}</td>
+        <td>${obj.typeStr}</td>
+        <td>${obj.cate}</td>
+        <td>${obj.brand}</td>
+        <td>${obj.state}</td>
+        <td>${obj.bonus}</td>
+        <td class="text-right">${obj.download}</td>
+        <td class="td-actions text-right">
+          <button
+            data-action="star"
+            data-toggle="${obj.fav ? 'unstar' : 'star'}"
+            type="button"
+            class="btn btn-warning"
+            title="${obj.fav ? '取消' : ''}收藏"
+          >
+            <i class="material-icons">star${obj.fav ? '' : '_border'}</i>
+          </button>
+          <button
+            data-action="download"
+            type="button"
+            class="btn btn-success"
+            title="下载"
+          >
+            <i class="material-icons">get_app</i>
+          </button>
+        </td>
+      </tr>
+    `
   }
 
-  function buildBonusRow(obj) {
+  function buildBonus(obj) {
     return `
       <tr>
         <td>${obj.time}</td>
@@ -226,33 +311,122 @@
     `
   }
 
-  function randBonus() {
-    const timeArr = [
-      '2019-05-21 15:47:12',
-      '2019-05-21 12:30:13',
-      '2019-05-21 08:19:53'
-    ]
-    const titles = [
-      '常见react面试题汇总（适合中级前端）',
-      'SSM主流框架入门与综合项目实战',
-      'Java开发企业级权限管理系统',
-      'Linux随机密码'
-    ]
-    // prettier-ignore
-    const types = [
-      { type: '文件上传', remark: `上传文件"${rand(titles)}"`, bonus: 2, operand: '+' },
-      { type: '文件被收藏', remark: `文件"${rand(titles)}"被用户收藏`, bonus: 1, operand: '+' },
-      { type: '下载文件', remark: `下载文件"${rand(titles)}"`, bonus: 5, operand: '-' },
-      { type: '文件入库', remark: `文件"${rand(titles)}"成功入库`, bonus: 1, operand: '+' },
-      { type: '评论文件', remark: `评论文件"${rand(titles)}"`, bonus: 1, operand: '+' }
-    ]
-    return {
-      time: rand(timeArr),
-      ...rand(types)
+  function buildPage(selector, options) {
+    let $pagination = $(selector)
+      .siblings('nav')
+      .find('ul.pagination')
+    $pagination.find('li.page-item:not(.prev):not(.next)').remove()
+    let $next = $pagination.find('.page-item.next')
+    let max = options.pages
+    let n = options.pageNum
+    if (max <= 10) {
+      for (let i = 1; i <= max; ++i) {
+        $(page(i, n)).insertBefore($next)
+      }
+    } else {
+      if (n <= 3) {
+        // 1, 2, 3, ..., max
+        $(page(1, n)).insertBefore($next)
+        $(page(2, n)).insertBefore($next)
+        $(page(3, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(max, n)).insertBefore($next)
+      } else if (n >= max - 2) {
+        // 1, ..., max-2, max-1, max
+        $(page(1, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(max - 2, n)).insertBefore($next)
+        $(page(max - 1, n)).insertBefore($next)
+        $(page(max, n)).insertBefore($next)
+      } else {
+        // 1, ..., n-1, n, n+1, ..., max
+        $(page(1, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(n - 1, n)).insertBefore($next)
+        $(page(n, n)).insertBefore($next)
+        $(page(n + 1, n)).insertBefore($next)
+        $(page('...', n)).insertBefore($next)
+        $(page(max, n)).insertBefore($next)
+      }
+    }
+
+    function page(i, cur) {
+      // prettier-ignore
+      return `
+        <li class="page-item ${
+          cur === i ? 'active' : ''
+        } ${
+          i === '...' ? 'else' : ''
+        }">
+          <a class="page-link">${i}</a>
+        </li>
+      `
     }
   }
 
-  function rand(arr) {
-    return arr[(Math.random() * arr.length) | 0]
+  function getUploads(obj, buildFunc, pageFunc) {
+    $.post('account/queryMyUploads', obj, function done(res) {
+      handleResult(res, function(data) {
+        let { pageNum, total, pages, list } = data
+        let pageObj = { pageNum, total, pages }
+        let objs = list.map(v => ({
+          id: v.fileDataId,
+          title: v.fileName,
+          date: v.uploadTimeDesc,
+          size: v.fileSize + ' MB',
+          type: v.fileDataType,
+          typeStr: v.fileDataTypeDesc,
+          cate: v.classTwoDesc,
+          brand: v.brandDesc,
+          state: v.fileDataStatusDesc,
+          download: v.downloadCount
+        }))
+        typeof buildFunc === 'function' && buildFunc(objs)
+        typeof pageFunc === 'function' && pageFunc(pageObj)
+      })
+    })
+  }
+
+  function getStars(obj, buildFunc, pageFunc) {
+    $.post('account/queryMyFavorites', obj, function done(res) {
+      handleResult(res, function(data) {
+        let { pageNum, total, pages, list } = data
+        let pageObj = { pageNum, total, pages }
+        let objs = list.map(v => ({
+          id: v.fileDataId,
+          title: v.fileName,
+          date: v.dataTimeDesc,
+          size: v.fileSize + ' MB',
+          type: v.fileDataType,
+          typeStr: v.fileDataTypeDesc,
+          cate: v.classTwoDesc,
+          brand: v.brandDesc,
+          state: v.fileDataStatusDesc,
+          bonus: v.requiredIntegral,
+          download: v.downloadCount,
+          fav: true
+        }))
+        typeof buildFunc === 'function' && buildFunc(objs)
+        typeof pageFunc === 'function' && pageFunc(pageObj)
+      })
+    })
+  }
+
+  function getBonus(obj, buildFunc, pageFunc) {
+    $.post('account/queryMyIntegrals', obj, function done(res) {
+      handleResult(res, function(data) {
+        let { pageNum, total, pages, list } = data
+        let pageObj = { pageNum, total, pages }
+        let objs = list.map(v => ({
+          time: v.addTimeDesc,
+          type: v.integralTypeDesc,
+          remark: v.description,
+          bonus: v.integral,
+          operand: parseInt(v.inOutType) === 1 ? '+' : '-'
+        }))
+        typeof buildFunc === 'function' && buildFunc(objs)
+        typeof pageFunc === 'function' && pageFunc(pageObj)
+      })
+    })
   }
 })()

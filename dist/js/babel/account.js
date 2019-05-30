@@ -110,7 +110,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       $modal.find('.modal-title').text('新增角色');
       $modal.find('input#name').val('');
-      $modal.find('select#rank').get(0).selectedIndex = 0;
       $modal.find('input#desc').val(''); // auth checkboxes
 
       $modal.find('.form-check-input').prop('checked', false); // show
@@ -168,8 +167,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var params = {
       pageNum: 1,
       pageSize: 5,
-      keyword: '',
-      disc: '' // initial data
+      keyword: '' // initial data
 
     };
     var $table = $(selector);
@@ -214,7 +212,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     } else if (/role/i.test(selector)) {
       $search.on('change', '.search-box', function () {
         // prettier-ignore
-        params.disc = $(this).val().trim();
+        params.keyword = $(this).val().trim();
       });
     } else if (/bonus/i.test(selector)) {// TODO
     }

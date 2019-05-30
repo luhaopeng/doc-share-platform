@@ -114,7 +114,6 @@
       // basic inputs
       $modal.find('.modal-title').text('新增角色')
       $modal.find('input#name').val('')
-      $modal.find('select#rank').get(0).selectedIndex = 0
       $modal.find('input#desc').val('')
       // auth checkboxes
       $modal.find('.form-check-input').prop('checked', false)
@@ -175,7 +174,7 @@
 
   function initTable(selector, actionCB = {}) {
     // initial params
-    let params = { pageNum: 1, pageSize: 5, keyword: '', disc: '' }
+    let params = { pageNum: 1, pageSize: 5, keyword: '' }
 
     // initial data
     let $table = $(selector)
@@ -226,7 +225,7 @@
     } else if (/role/i.test(selector)) {
       $search.on('change', '.search-box', function() {
         // prettier-ignore
-        params.disc = $(this).val().trim()
+        params.keyword = $(this).val().trim()
       })
     } else if (/bonus/i.test(selector)) {
       // TODO
