@@ -194,9 +194,6 @@
       $cardBody.append(otherLink);
       var detail = '';
       other.map(function (obj) {
-        total += obj.typeNum;
-      });
-      other.map(function (obj) {
         detail += "\n          ".concat(obj.name, "\n          ").concat((parseInt(obj.typeNum) / total * 100).toFixed(), "%\n          <br />\n        ");
       });
       $cardBody.find('.other').popover({

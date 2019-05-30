@@ -228,9 +228,6 @@
       $cardBody.append(otherLink)
       let detail = ''
       other.map(obj => {
-        total += obj.typeNum
-      })
-      other.map(obj => {
         detail += `
           ${obj.name}
           ${((parseInt(obj.typeNum) / total) * 100).toFixed()}%
