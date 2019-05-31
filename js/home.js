@@ -205,17 +205,17 @@
           let id = $tr.attr('data-id')
           let type = $tr.attr('data-type')
           let $form = $(`
-          <form
-            action="fileData/fileDataDetail"
-            method="post"
-            target="_blank"
-            rel="noopener noreferrer"
-            style="display:none"
-          >
-            <input name="fileDataId" value="${id}" />
-            <input name="fileDataType" value="${type}" />
-          </form>
-        `)
+            <form
+              action="fileData/fileDataDetail"
+              method="post"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="display:none;"
+            >
+              <input name="fileDataId" value="${id}" />
+              <input name="fileDataType" value="${type}" />
+            </form>
+          `)
           $(document.body).append($form)
           $form.submit().remove()
         }

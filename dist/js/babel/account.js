@@ -14,15 +14,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     stack: false,
     loader: false,
     hideAfter: 2000,
-    textAlign: 'center' // initial params
-
-  };
-  var params = {
-    pageNum: 1,
-    pageSize: 5,
-    keyword: '',
-    entName: '',
-    account: ''
+    textAlign: 'center'
   };
   $(function () {
     initModalBtn();
@@ -244,7 +236,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
   }
 
-  function initSearchComplete() {
+  function initSearchComplete(change) {
     $.post('main/queryAllEnt', function (res) {
       handleResult(res, function (data) {
         var companys = data.map(function (v) {
@@ -252,10 +244,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         });
         $('#searchCompany').autocomplete({
           lookup: companys,
-          onSelect: function onSelect() {
-            // prettier-ignore
-            params.entName = $(this).val().trim();
-          }
+          onSelect: change
         });
       });
     });
@@ -263,7 +252,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
   function initTable(selector) {
     var actionCB = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    // initial data
+    // initial params
+    var params = {
+      pageNum: 1,
+      pageSize: 5,
+      keyword: '',
+      entName: '',
+      account: '' // initial data
+
+    };
     var $table = $(selector);
     var $tbody = $table.find('tbody');
     buildRow(selector, params, $tbody); // limit
@@ -296,6 +293,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
     }); // search
 
+    initSearchComplete(function () {
+      // prettier-ignore
+      params.entName = $(this).val().trim();
+    });
     var $search = $(selector).siblings('.search');
 
     if (/user/i.test(selector)) {
@@ -399,7 +400,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function buildRole(obj) {
-    return "\n      <tr data-id=".concat(obj.id, ">\n        <td>").concat(obj.name, "</td>\n        <td>").concat(obj.desc, "</td>\n        <td>").concat(obj.creator, "</td>\n        <td>").concat(obj.time, "</td>\n        <td class=\"td-actions\">\n          <button\n            data-action=\"edit\"\n            type=\"button\"\n            class=\"btn btn-info\"\n            title=\"\u4FEE\u6539\"\n            ").concat(obj.disabled ? 'disabled' : '', "\n          >\n            <i class=\"material-icons\">edit</i>\n          </button>\n          <button\n            data-action=\"delete\"\n            type=\"button\"\n            class=\"btn btn-danger\"\n            title=\"\u5220\u9664\"\n            ").concat(obj.disabled ? 'disabled' : '', "\n          >\n            <i class=\"material-icons\">delete</i>\n          </button>\n        </td>\n      </tr>\n    ");
+    return "\n      <tr data-id=".concat(obj.id, ">\n        <td>").concat(obj.name, "</td>\n        <td>").concat(obj.desc, "</td>\n        <td>").concat(obj.creator, "</td>\n        <td>").concat(obj.time, "</td>\n        <td class=\"td-actions\">\n          <button\n            data-action=\"edit\"\n            type=\"button\"\n            class=\"btn btn-info\"\n            title=\"\u4FEE\u6539\"\n          >\n            <i class=\"material-icons\">edit</i>\n          </button>\n          <button\n            data-action=\"delete\"\n            type=\"button\"\n            class=\"btn btn-danger\"\n            title=\"").concat(obj.disabled ? '角色已分配，无法删除' : '删除', "\"\n            ").concat(obj.disabled ? 'disabled' : '', "\n          >\n            <i class=\"material-icons\">delete</i>\n          </button>\n        </td>\n      </tr>\n    ");
   }
 
   function buildBonus(obj) {

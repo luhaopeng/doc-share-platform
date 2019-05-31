@@ -179,7 +179,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           var $tr = $(this).closest('tr');
           var id = $tr.attr('data-id');
           var type = $tr.attr('data-type');
-          var $form = $("\n          <form\n            action=\"fileData/fileDataDetail\"\n            method=\"post\"\n            target=\"_blank\"\n            rel=\"noopener noreferrer\"\n            style=\"display:none\"\n          >\n            <input name=\"fileDataId\" value=\"".concat(id, "\" />\n            <input name=\"fileDataType\" value=\"").concat(type, "\" />\n          </form>\n        "));
+          var $form = $("\n            <form\n              action=\"fileData/fileDataDetail\"\n              method=\"post\"\n              target=\"_blank\"\n              rel=\"noopener noreferrer\"\n              style=\"display:none;\"\n            >\n              <input name=\"fileDataId\" value=\"".concat(id, "\" />\n              <input name=\"fileDataType\" value=\"").concat(type, "\" />\n            </form>\n          "));
           $(document.body).append($form);
           $form.submit().remove();
         }

@@ -9,15 +9,6 @@
     textAlign: 'center'
   }
 
-  // initial params
-  let params = {
-    pageNum: 1,
-    pageSize: 5,
-    keyword: '',
-    entName: '',
-    account: ''
-  }
-
   $(function() {
     initModalBtn()
     initUserModal()
@@ -236,22 +227,28 @@
     })
   }
 
-  function initSearchComplete() {
+  function initSearchComplete(change) {
     $.post('main/queryAllEnt', function(res) {
       handleResult(res, function(data) {
         let companys = data.map(v => v.name)
         $('#searchCompany').autocomplete({
           lookup: companys,
-          onSelect: function() {
-            // prettier-ignore
-            params.entName = $(this).val().trim()
-          }
+          onSelect: change
         })
       })
     })
   }
 
   function initTable(selector, actionCB = {}) {
+    // initial params
+    let params = {
+      pageNum: 1,
+      pageSize: 5,
+      keyword: '',
+      entName: '',
+      account: ''
+    }
+
     // initial data
     let $table = $(selector)
     let $tbody = $table.find('tbody')
@@ -292,6 +289,10 @@
     })
 
     // search
+    initSearchComplete(function() {
+      // prettier-ignore
+      params.entName = $(this).val().trim()
+    })
     let $search = $(selector).siblings('.search')
     if (/user/i.test(selector)) {
       $search.on('change', '.search-box', function() {
@@ -433,7 +434,6 @@
             type="button"
             class="btn btn-info"
             title="修改"
-            ${obj.disabled ? 'disabled' : ''}
           >
             <i class="material-icons">edit</i>
           </button>
@@ -441,7 +441,7 @@
             data-action="delete"
             type="button"
             class="btn btn-danger"
-            title="删除"
+            title="${obj.disabled ? '角色已分配，无法删除' : '删除'}"
             ${obj.disabled ? 'disabled' : ''}
           >
             <i class="material-icons">delete</i>
