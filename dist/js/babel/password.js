@@ -16,11 +16,21 @@
       };
       $.post('frame/doForgetPassword', params, function (res) {
         if (!res.ret) {
+          var countDown = function countDown() {
+            if (--sec === 0) {
+              window.location.href = 'frame/login';
+            } else {
+              buildAlert($wrapper, {
+                className: 'alert-success',
+                msg: "\u4FEE\u6539\u6210\u529F!\uFF08".concat(sec, "\u79D2\u540E\u524D\u5F80\u767B\u5F55\uFF09")
+              });
+              setTimeout(countDown, 1000);
+            }
+          };
+
           // success
-          buildAlert($wrapper, {
-            className: 'alert-success',
-            msg: '修改成功!'
-          });
+          var sec = 4;
+          countDown();
         } else {
           // fail
           buildAlert($wrapper, {

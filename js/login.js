@@ -25,10 +25,19 @@
       $.post('frame/doRegister', params, function(res) {
         if (!res.ret) {
           // success
-          buildAlert($signUp, {
-            className: 'alert-success',
-            msg: '注册成功!'
-          })
+          let sec = 4
+          countDown()
+          function countDown() {
+            if (--sec === 0) {
+              window.location.href = 'frame/login'
+            } else {
+              buildAlert($signUp, {
+                className: 'alert-success',
+                msg: `注册成功!（${sec}秒后前往登录）`
+              })
+              setTimeout(countDown, 1000)
+            }
+          }
         } else {
           // fail
           buildAlert($signUp, {

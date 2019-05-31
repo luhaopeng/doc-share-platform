@@ -28,11 +28,21 @@
       };
       $.post('frame/doRegister', params, function (res) {
         if (!res.ret) {
+          var countDown = function countDown() {
+            if (--sec === 0) {
+              window.location.href = 'frame/login';
+            } else {
+              buildAlert($signUp, {
+                className: 'alert-success',
+                msg: "\u6CE8\u518C\u6210\u529F!\uFF08".concat(sec, "\u79D2\u540E\u524D\u5F80\u767B\u5F55\uFF09")
+              });
+              setTimeout(countDown, 1000);
+            }
+          };
+
           // success
-          buildAlert($signUp, {
-            className: 'alert-success',
-            msg: '注册成功!'
-          });
+          var sec = 4;
+          countDown();
         } else {
           // fail
           buildAlert($signUp, {
