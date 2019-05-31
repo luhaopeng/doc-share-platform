@@ -189,7 +189,7 @@
     var $cardBody = $('.card p.chart-pie-2');
     $cardBody.html(desc);
 
-    if (other instanceof Array) {
+    if (other.length) {
       var otherLink = "\n        <a\n          class=\"other\"\n          tabindex=\"0\"\n          title=\"\u5176\u4ED6\"\n          data-trigger=\"hover\"\n        >\n          ".concat(otherName, "\n          <span>\n            ").concat((parseInt(otherNum) / total * 100).toFixed(), "%\n          </span>\n        </a>\n      ");
       $cardBody.append(otherLink);
       var detail = '';

@@ -246,6 +246,7 @@
           let { pageNum, total, pages, list } = data
           // build list
           $commentDiv.find('.card-title').text(`评论（${list.length}）`)
+          $comment.html('')
           list.map(v => {
             $comment.append(
               buildComment({

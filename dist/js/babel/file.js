@@ -213,6 +213,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               list = data.list; // build list
 
           $commentDiv.find('.card-title').text("\u8BC4\u8BBA\uFF08".concat(list.length, "\uFF09"));
+          $comment.html('');
           list.map(function (v) {
             $comment.append(buildComment({
               user: v.account,

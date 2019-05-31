@@ -211,7 +211,7 @@
     })
     let $cardBody = $('.card p.chart-pie-2')
     $cardBody.html(desc)
-    if (other instanceof Array) {
+    if (other.length) {
       let otherLink = `
         <a
           class="other"
