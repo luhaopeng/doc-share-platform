@@ -23,13 +23,10 @@
         let id = $tr.attr('data-id')
         let type = $tr.attr('data-type')
         let action = $target.attr('data-toggle')
+        $.toast().reset('all')
         if (action === 'star') {
           starFile(
-            {
-              fileDataId: id,
-              fileDataType: type,
-              opsFavoritesType: 1
-            },
+            { fileDataId: id, fileDataType: type, opsFavoritesType: 1 },
             function() {
               $target
                 .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
@@ -43,11 +40,7 @@
           )
         } else if (action === 'unstar') {
           starFile(
-            {
-              fileDataId: id,
-              fileDataType: type,
-              opsFavoritesType: 2
-            },
+            { fileDataId: id, fileDataType: type, opsFavoritesType: 2 },
             function() {
               $target
                 .attr({ 'data-toggle': 'star', title: '收藏' })

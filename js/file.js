@@ -34,6 +34,7 @@
         hideAfter: 2000,
         textAlign: 'center'
       }
+      $.toast().reset('all')
       if (action === 'star') {
         $target
           .attr({ 'data-toggle': 'unstar', title: '取消收藏' })

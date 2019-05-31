@@ -13,6 +13,7 @@ function handleResult(res, callback) {
   if (!res.ret) {
     typeof callback === 'function' && callback(res.data)
   } else {
+    $.toast().reset('all')
     $.toast({
       heading: '出错了',
       text: res.msg,
@@ -22,6 +23,6 @@ function handleResult(res, callback) {
       stack: false,
       loader: false,
       hideAfter: false
-    }).reset('all')
+    })
   }
 }

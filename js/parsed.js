@@ -294,13 +294,10 @@
           hideAfter: 2000,
           textAlign: 'center'
         }
+        $.toast().reset('all')
         if (action === 'star') {
           starFile(
-            {
-              fileDataId: id,
-              fileDataType: 2,
-              opsFavoritesType: 1
-            },
+            { fileDataId: id, fileDataType: 2, opsFavoritesType: 1 },
             function() {
               $target
                 .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
@@ -314,11 +311,7 @@
           )
         } else if (action === 'unstar') {
           starFile(
-            {
-              fileDataId: id,
-              fileDataType: 2,
-              opsFavoritesType: 2
-            },
+            { fileDataId: id, fileDataType: 2, opsFavoritesType: 2 },
             function() {
               $target
                 .attr({ 'data-toggle': 'star', title: '收藏' })

@@ -30,6 +30,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var id = $tr.attr('data-id');
         var type = $tr.attr('data-type');
         var action = $target.attr('data-toggle');
+        $.toast().reset('all');
 
         if (action === 'star') {
           starFile({

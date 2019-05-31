@@ -270,6 +270,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         hideAfter: 2000,
         textAlign: 'center'
       };
+      $.toast().reset('all');
 
       if (action === 'star') {
         starFile({
