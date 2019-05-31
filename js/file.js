@@ -66,7 +66,7 @@
       }
     })
 
-    $('.card ul.author .download').on('click', function showModal() {
+    $('.card ul.author').on('click', '.download', function showModal() {
       // prettier-ignore
       let $downloadModal = $('#downloadModal')
       // prettier-ignore

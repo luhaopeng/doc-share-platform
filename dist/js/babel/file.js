@@ -66,7 +66,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         });
       }
     });
-    $('.card ul.author .download').on('click', function showModal() {
+    $('.card ul.author').on('click', '.download', function showModal() {
       // prettier-ignore
       var $downloadModal = $('#downloadModal'); // prettier-ignore
 
