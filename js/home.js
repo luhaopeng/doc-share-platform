@@ -55,12 +55,23 @@
         }
       },
       download: function download() {
+        // prettier-ignore
         let $tr = $(this).closest('tr')
-        // TODO use obj.id
-        let bonusStr = $tr.find('td:nth-child(8)').text()
-        if (parseInt(bonusStr) > 0) {
-          $('#downloadModal').modal()
-        }
+        let id = $tr.attr('data-id')
+        let type = $tr.attr('data-type')
+        let $downloadModal = $('#downloadModal')
+        downloadCheck({ fileDataId: id, fileDataType: type }, function(data) {
+          if (parseInt(data.requiredIntegral)) {
+            // confirm modal
+            $downloadModal.find('.modal-body').html(`
+              使用<b class="cost"> ${data.requiredIntegral} 积分</b>下载此文件？
+              当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
+            `)
+            $downloadModal.modal()
+          } else {
+            // TODO download
+          }
+        })
       }
     })
     initTable('#table_bonus')
@@ -441,6 +452,12 @@
         typeof buildFunc === 'function' && buildFunc(objs)
         typeof pageFunc === 'function' && pageFunc(pageObj)
       })
+    })
+  }
+
+  function downloadCheck(obj, done) {
+    $.post('fileData/checkFileDownload', obj, function(res) {
+      handleResult(res, done)
     })
   }
 

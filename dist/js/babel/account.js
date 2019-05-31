@@ -151,7 +151,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var name = $roleModal.find('#name').val().trim(); // prettier-ignore
 
       var desc = $roleModal.find('#desc').val().trim();
-      var auth = Array.from($roleModal.find('.authority .form-check-input')).map(function (v) {
+      var auth = Array.from($roleModal.find('.authority .form-check-input:checked')).map(function (v) {
         return $(v).attr('data-id');
       });
 
@@ -159,7 +159,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         addRole({
           disc: name,
           remark: desc,
-          moduleIdList: auth
+          list: auth
         }, $roleModal.find('.modal-body'), function () {
           buildRow('#table_role', params, $('#table_role tbody'));
           $roleModal.modal('hide');
@@ -170,7 +170,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           roleId: id,
           disc: name,
           remark: desc,
-          moduleIdList: auth
+          list: auth
         }, function () {
           buildRow('#table_role', params, $('#table_role tbody'));
           $roleModal.modal('hide');

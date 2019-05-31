@@ -326,7 +326,16 @@
         }
       })
       .on('click', 'button[data-action=download]', function download() {
-        $('#downloadModal').modal()
+        // prettier-ignore
+        let id = $(this).closest('tr').attr('data-id')
+        let $downloadModal = $('#downloadModal')
+        downloadCheck({ fileDataId: id, fileDataType: 2 }, function(data) {
+          $downloadModal.find('.modal-body').html(`
+            使用<b class="cost"> ${data.requiredIntegral} 积分</b>下载此文件？
+            当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
+          `)
+          $downloadModal.modal()
+        })
       })
   }
 
@@ -511,6 +520,12 @@
         let { pageNum, total, pages } = data
         buildPage({ pageNum, total, pages })
       })
+    })
+  }
+
+  function downloadCheck(obj, done) {
+    $.post('fileData/checkFileDownload', obj, function(res) {
+      handleResult(res, done)
     })
   }
 

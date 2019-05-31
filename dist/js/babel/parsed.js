@@ -302,7 +302,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         });
       }
     }).on('click', 'button[data-action=download]', function download() {
-      $('#downloadModal').modal();
+      // prettier-ignore
+      var id = $(this).closest('tr').attr('data-id');
+      var $downloadModal = $('#downloadModal');
+      downloadCheck({
+        fileDataId: id,
+        fileDataType: 2
+      }, function (data) {
+        $downloadModal.find('.modal-body').html("\n            \u4F7F\u7528<b class=\"cost\"> ".concat(data.requiredIntegral, " \u79EF\u5206</b>\u4E0B\u8F7D\u6B64\u6587\u4EF6\uFF1F\n            \u5F53\u524D\u79EF\u5206\u4F59\u989D\uFF1A<b class=\"remain\">").concat(data.currentIntegral, " \u79EF\u5206</b>\u3002\n          "));
+        $downloadModal.modal();
+      });
     });
   }
 
@@ -424,6 +433,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           pages: pages
         });
       });
+    });
+  }
+
+  function downloadCheck(obj, done) {
+    $.post('fileData/checkFileDownload', obj, function (res) {
+      handleResult(res, done);
     });
   }
 

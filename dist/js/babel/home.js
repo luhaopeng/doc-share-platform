@@ -63,13 +63,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }
       },
       download: function download() {
-        var $tr = $(this).closest('tr'); // TODO use obj.id
-
-        var bonusStr = $tr.find('td:nth-child(8)').text();
-
-        if (parseInt(bonusStr) > 0) {
-          $('#downloadModal').modal();
-        }
+        // prettier-ignore
+        var $tr = $(this).closest('tr');
+        var id = $tr.attr('data-id');
+        var type = $tr.attr('data-type');
+        var $downloadModal = $('#downloadModal');
+        downloadCheck({
+          fileDataId: id,
+          fileDataType: type
+        }, function (data) {
+          if (parseInt(data.requiredIntegral)) {
+            // confirm modal
+            $downloadModal.find('.modal-body').html("\n              \u4F7F\u7528<b class=\"cost\"> ".concat(data.requiredIntegral, " \u79EF\u5206</b>\u4E0B\u8F7D\u6B64\u6587\u4EF6\uFF1F\n              \u5F53\u524D\u79EF\u5206\u4F59\u989D\uFF1A<b class=\"remain\">").concat(data.currentIntegral, " \u79EF\u5206</b>\u3002\n            "));
+            $downloadModal.modal();
+          } else {// TODO download
+          }
+        });
       }
     });
     initTable('#table_bonus');
@@ -372,6 +381,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         typeof buildFunc === 'function' && buildFunc(objs);
         typeof pageFunc === 'function' && pageFunc(pageObj);
       });
+    });
+  }
+
+  function downloadCheck(obj, done) {
+    $.post('fileData/checkFileDownload', obj, function (res) {
+      handleResult(res, done);
     });
   }
 

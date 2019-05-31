@@ -144,11 +144,11 @@
       // prettier-ignore
       let desc = $roleModal.find('#desc').val().trim()
       let auth = Array.from(
-        $roleModal.find('.authority .form-check-input')
+        $roleModal.find('.authority .form-check-input:checked')
       ).map(v => $(v).attr('data-id'))
       if ($roleModal.data('action') === 'add') {
         addRole(
-          { disc: name, remark: desc, moduleIdList: auth },
+          { disc: name, remark: desc, list: auth },
           $roleModal.find('.modal-body'),
           function() {
             buildRow('#table_role', params, $('#table_role tbody'))
@@ -158,7 +158,7 @@
       } else if ($roleModal.data('action') === 'edit') {
         let id = $roleModal.data('id')
         editRole(
-          { roleId: id, disc: name, remark: desc, moduleIdList: auth },
+          { roleId: id, disc: name, remark: desc, list: auth },
           function() {
             buildRow('#table_role', params, $('#table_role tbody'))
             $roleModal.modal('hide')
