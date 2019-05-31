@@ -36,35 +36,60 @@
       }
       $.toast().reset('all')
       if (action === 'star') {
-        $target
-          .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
-          .children('.material-icons')
-          .text('star')
-        $.toast({
-          heading: '收藏成功',
-          ...TOAST_OPTION
-        })
+        starFile(
+          { fileDataId: fileId, fileDataType: fileType, opsFavoritesType: 1 },
+          function() {
+            $target
+              .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
+              .children('.material-icons')
+              .text('star')
+            $.toast({
+              heading: '收藏成功',
+              ...TOAST_OPTION
+            })
+          }
+        )
       } else if (action === 'unstar') {
-        $target
-          .attr({ 'data-toggle': 'star', title: '收藏' })
-          .children('.material-icons')
-          .text('star_border')
-        $.toast({
-          heading: '已取消收藏',
-          ...TOAST_OPTION
-        })
+        starFile(
+          { fileDataId: fileId, fileDataType: fileType, opsFavoritesType: 2 },
+          function() {
+            $target
+              .attr({ 'data-toggle': 'star', title: '收藏' })
+              .children('.material-icons')
+              .text('star_border')
+            $.toast({
+              heading: '已取消收藏',
+              ...TOAST_OPTION
+            })
+          }
+        )
       }
     })
 
-    if (fileType === 2) {
-      $('.card ul.author .download').on('click', function showModal() {
-        $('#downloadModal').modal()
-      })
+    $('.card ul.author .download').on('click', function showModal() {
+      // prettier-ignore
+      let $downloadModal = $('#downloadModal')
+      // prettier-ignore
+      downloadCheck(
+        { fileDataId: fileId, fileDataType: fileType },
+        function(data) {
+          if (parseInt(data.requiredIntegral)) {
+            // confirm modal
+            $downloadModal.find('.modal-body').html(`
+              使用<b class="cost"> ${data.requiredIntegral} 积分</b>下载此文件？
+              当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
+            `)
+            $downloadModal.modal()
+          } else {
+            // TODO download
+          }
+        }
+      )
+    })
 
-      $('#downloadModal #downloadBtn').on('click', function download() {
-        $('#downloadModal').modal('hide')
-      })
-    }
+    $('#downloadModal #downloadBtn').on('click', function download() {
+      $('#downloadModal').modal('hide')
+    })
 
     getDetailData()
 
@@ -173,13 +198,18 @@
     let $textarea = $publish.find('textarea')
     let $send = $publish.find('button.send')
     $send.on('click', function send() {
-      let comment = {
-        user: '张腾',
-        time: moment().format('YYYY-MM-DD HH:mm:ss'),
-        content: $textarea.val().trim()
-      }
-      $comment.prepend(buildComment(comment))
-      $textarea.val('')
+      comment(
+        {
+          fileDataId: fileId,
+          fileDataType: fileType,
+          content: $textarea.val().trim()
+        },
+        function() {
+          $textarea.val('')
+          params.pageNum = 1
+          getCommentData(params)
+        }
+      )
     })
 
     // page change
@@ -296,5 +326,23 @@
         `
       }
     }
+  }
+
+  function starFile(obj, done) {
+    $.post('account/doFavorites', obj, function(res) {
+      handleResult(res, done)
+    })
+  }
+
+  function downloadCheck(obj, done) {
+    $.post('fileData/checkFileDownload', obj, function(res) {
+      handleResult(res, done)
+    })
+  }
+
+  function comment(obj, done) {
+    $.post('account/doComment', obj, function(res) {
+      handleResult(res, done)
+    })
   }
 })()

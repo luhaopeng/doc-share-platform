@@ -37,33 +37,54 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       $.toast().reset('all');
 
       if (action === 'star') {
-        $target.attr({
-          'data-toggle': 'unstar',
-          title: '取消收藏'
-        }).children('.material-icons').text('star');
-        $.toast(_objectSpread({
-          heading: '收藏成功'
-        }, TOAST_OPTION));
+        starFile({
+          fileDataId: fileId,
+          fileDataType: fileType,
+          opsFavoritesType: 1
+        }, function () {
+          $target.attr({
+            'data-toggle': 'unstar',
+            title: '取消收藏'
+          }).children('.material-icons').text('star');
+          $.toast(_objectSpread({
+            heading: '收藏成功'
+          }, TOAST_OPTION));
+        });
       } else if (action === 'unstar') {
-        $target.attr({
-          'data-toggle': 'star',
-          title: '收藏'
-        }).children('.material-icons').text('star_border');
-        $.toast(_objectSpread({
-          heading: '已取消收藏'
-        }, TOAST_OPTION));
+        starFile({
+          fileDataId: fileId,
+          fileDataType: fileType,
+          opsFavoritesType: 2
+        }, function () {
+          $target.attr({
+            'data-toggle': 'star',
+            title: '收藏'
+          }).children('.material-icons').text('star_border');
+          $.toast(_objectSpread({
+            heading: '已取消收藏'
+          }, TOAST_OPTION));
+        });
       }
     });
+    $('.card ul.author .download').on('click', function showModal() {
+      // prettier-ignore
+      var $downloadModal = $('#downloadModal'); // prettier-ignore
 
-    if (fileType === 2) {
-      $('.card ul.author .download').on('click', function showModal() {
-        $('#downloadModal').modal();
+      downloadCheck({
+        fileDataId: fileId,
+        fileDataType: fileType
+      }, function (data) {
+        if (parseInt(data.requiredIntegral)) {
+          // confirm modal
+          $downloadModal.find('.modal-body').html("\n              \u4F7F\u7528<b class=\"cost\"> ".concat(data.requiredIntegral, " \u79EF\u5206</b>\u4E0B\u8F7D\u6B64\u6587\u4EF6\uFF1F\n              \u5F53\u524D\u79EF\u5206\u4F59\u989D\uFF1A<b class=\"remain\">").concat(data.currentIntegral, " \u79EF\u5206</b>\u3002\n            "));
+          $downloadModal.modal();
+        } else {// TODO download
+        }
       });
-      $('#downloadModal #downloadBtn').on('click', function download() {
-        $('#downloadModal').modal('hide');
-      });
-    }
-
+    });
+    $('#downloadModal #downloadBtn').on('click', function download() {
+      $('#downloadModal').modal('hide');
+    });
     getDetailData();
 
     function getDetailData() {
@@ -150,13 +171,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var $textarea = $publish.find('textarea');
     var $send = $publish.find('button.send');
     $send.on('click', function send() {
-      var comment = {
-        user: '张腾',
-        time: moment().format('YYYY-MM-DD HH:mm:ss'),
+      comment({
+        fileDataId: fileId,
+        fileDataType: fileType,
         content: $textarea.val().trim()
-      };
-      $comment.prepend(buildComment(comment));
-      $textarea.val('');
+      }, function () {
+        $textarea.val('');
+        params.pageNum = 1;
+        getCommentData(params);
+      });
     }); // page change
 
     var $pagination = $commentDiv.find('ul.pagination');
@@ -254,5 +277,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return "\n          <li class=\"page-item ".concat(cur === i ? 'active' : '', " ").concat(i === '...' ? 'else' : '', "\">\n            <a class=\"page-link\">").concat(i, "</a>\n          </li>\n        ");
       }
     }
+  }
+
+  function starFile(obj, done) {
+    $.post('account/doFavorites', obj, function (res) {
+      handleResult(res, done);
+    });
+  }
+
+  function downloadCheck(obj, done) {
+    $.post('fileData/checkFileDownload', obj, function (res) {
+      handleResult(res, done);
+    });
+  }
+
+  function comment(obj, done) {
+    $.post('account/doComment', obj, function (res) {
+      handleResult(res, done);
+    });
   }
 })();
