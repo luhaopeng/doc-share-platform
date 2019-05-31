@@ -281,6 +281,8 @@
     })
     $tbody.on('click', 'button[data-action=star]', function star() {
       let $target = $(this)
+      let $tr = $target.closest('tr')
+      let id = $tr.attr('data-id')
       let action = $target.attr('data-toggle')
       const TOAST_OPTION = {
         icon: 'success',
@@ -292,23 +294,41 @@
         textAlign: 'center'
       }
       if (action === 'star') {
-        $target
-          .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
-          .children('.material-icons')
-          .text('star')
-        $.toast({
-          heading: '收藏成功',
-          ...TOAST_OPTION
-        })
+        starFile(
+          {
+            fileDataId: id,
+            fileDataType: 1,
+            opsFavoritesType: 1
+          },
+          function() {
+            $target
+              .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
+              .children('.material-icons')
+              .text('star')
+            $.toast({
+              heading: '收藏成功',
+              ...TOAST_OPTION
+            })
+          }
+        )
       } else if (action === 'unstar') {
-        $target
-          .attr({ 'data-toggle': 'star', title: '收藏' })
-          .children('.material-icons')
-          .text('star_border')
-        $.toast({
-          heading: '已取消收藏',
-          ...TOAST_OPTION
-        })
+        starFile(
+          {
+            fileDataId: id,
+            fileDataType: 1,
+            opsFavoritesType: 2
+          },
+          function() {
+            $target
+              .attr({ 'data-toggle': 'star', title: '收藏' })
+              .children('.material-icons')
+              .text('star_border')
+            $.toast({
+              heading: '已取消收藏',
+              ...TOAST_OPTION
+            })
+          }
+        )
       }
     })
   }
@@ -494,6 +514,12 @@
         let { pageNum, total, pages } = data
         buildPage({ pageNum, total, pages })
       })
+    })
+  }
+
+  function starFile(obj, done) {
+    $.post('account/doFavorites', obj, function(res) {
+      handleResult(res, done)
     })
   }
 })()

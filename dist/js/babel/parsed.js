@@ -258,6 +258,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
     $tbody.on('click', 'button[data-action=star]', function star() {
       var $target = $(this);
+      var $tr = $target.closest('tr');
+      var id = $tr.attr('data-id');
       var action = $target.attr('data-toggle');
       var TOAST_OPTION = {
         icon: 'success',
@@ -270,21 +272,33 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       };
 
       if (action === 'star') {
-        $target.attr({
-          'data-toggle': 'unstar',
-          title: '取消收藏'
-        }).children('.material-icons').text('star');
-        $.toast(_objectSpread({
-          heading: '收藏成功'
-        }, TOAST_OPTION));
+        starFile({
+          fileDataId: id,
+          fileDataType: 2,
+          opsFavoritesType: 1
+        }, function () {
+          $target.attr({
+            'data-toggle': 'unstar',
+            title: '取消收藏'
+          }).children('.material-icons').text('star');
+          $.toast(_objectSpread({
+            heading: '收藏成功'
+          }, TOAST_OPTION));
+        });
       } else if (action === 'unstar') {
-        $target.attr({
-          'data-toggle': 'star',
-          title: '收藏'
-        }).children('.material-icons').text('star_border');
-        $.toast(_objectSpread({
-          heading: '已取消收藏'
-        }, TOAST_OPTION));
+        starFile({
+          fileDataId: id,
+          fileDataType: 2,
+          opsFavoritesType: 2
+        }, function () {
+          $target.attr({
+            'data-toggle': 'star',
+            title: '收藏'
+          }).children('.material-icons').text('star_border');
+          $.toast(_objectSpread({
+            heading: '已取消收藏'
+          }, TOAST_OPTION));
+        });
       }
     }).on('click', 'button[data-action=download]', function download() {
       $('#downloadModal').modal();
@@ -409,6 +423,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           pages: pages
         });
       });
+    });
+  }
+
+  function starFile(obj, done) {
+    $.post('account/doFavorites', obj, function (res) {
+      handleResult(res, done);
     });
   }
 })();
