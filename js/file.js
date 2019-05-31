@@ -80,15 +80,17 @@
               当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
             `)
             $downloadModal.modal()
+            $downloadModal.on('click', '#downloadBtn', function() {
+              // download
+              download({ fileDataId: fileId, fileDataType: fileType })
+              $downloadModal.modal('hide')
+            })
           } else {
-            // TODO download
+            // download
+            download({ fileDataId: fileId, fileDataType: fileType })
           }
         }
       )
-    })
-
-    $('#downloadModal #downloadBtn').on('click', function download() {
-      $('#downloadModal').modal('hide')
     })
 
     getDetailData()
@@ -339,6 +341,11 @@
     $.post('fileData/checkFileDownload', obj, function(res) {
       handleResult(res, done)
     })
+  }
+
+  function download(obj) {
+    let url = $('base').attr('href') + 'fileData/doFileDownload'
+    $.fileDownload(url, { httpMethod: 'POST', data: obj })
   }
 
   function comment(obj, done) {

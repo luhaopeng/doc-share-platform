@@ -301,6 +301,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           }, TOAST_OPTION));
         });
       }
+    }).on('click', 'button[data-action=download]', function () {
+      // prettier-ignore
+      var id = $(this).closest('tr').attr('data-id');
+      downloadCheck({
+        fileDataId: id,
+        fileDataType: 1
+      }, function () {
+        download({
+          fileDataId: id,
+          fileDataType: 1
+        });
+      });
     });
   }
 
@@ -422,6 +434,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           pages: pages
         });
       });
+    });
+  }
+
+  function downloadCheck(obj, done) {
+    $.post('fileData/checkFileDownload', obj, function (res) {
+      handleResult(res, done);
+    });
+  }
+
+  function download(obj) {
+    var url = $('base').attr('href') + 'fileData/doFileDownload';
+    $.fileDownload(url, {
+      httpMethod: 'POST',
+      data: obj
     });
   }
 

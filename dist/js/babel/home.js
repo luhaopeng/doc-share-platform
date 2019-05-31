@@ -18,9 +18,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   };
   $(function () {
     $('[data-toggle="popover"]').popover();
-    $('#downloadModal #downloadBtn').on('click', function download() {
-      $('#downloadModal').modal('hide');
-    });
     initUserInfo();
     initTable('#table_upload');
     initTable('#table_star', {
@@ -62,7 +59,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           });
         }
       },
-      download: function download() {
+      download: function (_download) {
+        function download() {
+          return _download.apply(this, arguments);
+        }
+
+        download.toString = function () {
+          return _download.toString();
+        };
+
+        return download;
+      }(function () {
         // prettier-ignore
         var $tr = $(this).closest('tr');
         var id = $tr.attr('data-id');
@@ -76,10 +83,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             // confirm modal
             $downloadModal.find('.modal-body').html("\n              \u4F7F\u7528<b class=\"cost\"> ".concat(data.requiredIntegral, " \u79EF\u5206</b>\u4E0B\u8F7D\u6B64\u6587\u4EF6\uFF1F\n              \u5F53\u524D\u79EF\u5206\u4F59\u989D\uFF1A<b class=\"remain\">").concat(data.currentIntegral, " \u79EF\u5206</b>\u3002\n            "));
             $downloadModal.modal();
-          } else {// TODO download
+            $downloadModal.on('click', '#downloadBtn', function () {
+              // download
+              download({
+                fileDataId: id,
+                fileDataType: type
+              });
+              $downloadModal.modal('hide');
+            });
+          } else {
+            // download
+            download({
+              fileDataId: id,
+              fileDataType: type
+            });
           }
         });
-      }
+      })
     });
     initTable('#table_bonus');
     initDropdown();

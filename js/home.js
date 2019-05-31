@@ -11,9 +11,6 @@
 
   $(function() {
     $('[data-toggle="popover"]').popover()
-    $('#downloadModal #downloadBtn').on('click', function download() {
-      $('#downloadModal').modal('hide')
-    })
     initUserInfo()
     initTable('#table_upload')
     initTable('#table_star', {
@@ -54,7 +51,7 @@
           )
         }
       },
-      download: function download() {
+      download: function() {
         // prettier-ignore
         let $tr = $(this).closest('tr')
         let id = $tr.attr('data-id')
@@ -68,8 +65,14 @@
               当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
             `)
             $downloadModal.modal()
+            $downloadModal.on('click', '#downloadBtn', function() {
+              // download
+              download({ fileDataId: id, fileDataType: type })
+              $downloadModal.modal('hide')
+            })
           } else {
-            // TODO download
+            // download
+            download({ fileDataId: id, fileDataType: type })
           }
         })
       }

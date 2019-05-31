@@ -78,12 +78,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           // confirm modal
           $downloadModal.find('.modal-body').html("\n              \u4F7F\u7528<b class=\"cost\"> ".concat(data.requiredIntegral, " \u79EF\u5206</b>\u4E0B\u8F7D\u6B64\u6587\u4EF6\uFF1F\n              \u5F53\u524D\u79EF\u5206\u4F59\u989D\uFF1A<b class=\"remain\">").concat(data.currentIntegral, " \u79EF\u5206</b>\u3002\n            "));
           $downloadModal.modal();
-        } else {// TODO download
+          $downloadModal.on('click', '#downloadBtn', function () {
+            // download
+            download({
+              fileDataId: fileId,
+              fileDataType: fileType
+            });
+            $downloadModal.modal('hide');
+          });
+        } else {
+          // download
+          download({
+            fileDataId: fileId,
+            fileDataType: fileType
+          });
         }
       });
-    });
-    $('#downloadModal #downloadBtn').on('click', function download() {
-      $('#downloadModal').modal('hide');
     });
     getDetailData();
 
@@ -289,6 +299,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   function downloadCheck(obj, done) {
     $.post('fileData/checkFileDownload', obj, function (res) {
       handleResult(res, done);
+    });
+  }
+
+  function download(obj) {
+    var url = $('base').attr('href') + 'fileData/doFileDownload';
+    $.fileDownload(url, {
+      httpMethod: 'POST',
+      data: obj
     });
   }
 

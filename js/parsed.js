@@ -325,7 +325,7 @@
           )
         }
       })
-      .on('click', 'button[data-action=download]', function download() {
+      .on('click', 'button[data-action=download]', function() {
         // prettier-ignore
         let id = $(this).closest('tr').attr('data-id')
         let $downloadModal = $('#downloadModal')
@@ -335,6 +335,10 @@
             当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
           `)
           $downloadModal.modal()
+          $downloadModal.on('click', '#downloadBtn', function() {
+            download({ fileDataId: id, fileDataType: 2 })
+            $downloadModal.modal('hide')
+          })
         })
       })
   }
@@ -527,6 +531,11 @@
     $.post('fileData/checkFileDownload', obj, function(res) {
       handleResult(res, done)
     })
+  }
+
+  function download(obj) {
+    let url = $('base').attr('href') + 'fileData/doFileDownload'
+    $.fileDownload(url, { httpMethod: 'POST', data: obj })
   }
 
   function starFile(obj, done) {
