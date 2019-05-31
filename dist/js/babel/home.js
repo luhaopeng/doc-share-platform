@@ -26,24 +26,39 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     initTable('#table_star', {
       star: function star() {
         var $target = $(this);
+        var $tr = $target.closest('tr');
+        var id = $tr.attr('data-id');
+        var type = $tr.attr('data-type');
         var action = $target.attr('data-toggle');
 
         if (action === 'star') {
-          $target.attr({
-            'data-toggle': 'unstar',
-            title: '取消收藏'
-          }).children('.material-icons').text('star');
-          $.toast(_objectSpread({
-            heading: '收藏成功'
-          }, TOAST_OPTION));
+          starFile({
+            fileDataId: id,
+            fileDataType: type,
+            opsFavoritesType: 1
+          }, function () {
+            $target.attr({
+              'data-toggle': 'unstar',
+              title: '取消收藏'
+            }).children('.material-icons').text('star');
+            $.toast(_objectSpread({
+              heading: '收藏成功'
+            }, TOAST_OPTION));
+          });
         } else if (action === 'unstar') {
-          $target.attr({
-            'data-toggle': 'star',
-            title: '收藏'
-          }).children('.material-icons').text('star_border');
-          $.toast(_objectSpread({
-            heading: '已取消收藏'
-          }, TOAST_OPTION));
+          starFile({
+            fileDataId: id,
+            fileDataType: type,
+            opsFavoritesType: 2
+          }, function () {
+            $target.attr({
+              'data-toggle': 'star',
+              title: '收藏'
+            }).children('.material-icons').text('star_border');
+            $.toast(_objectSpread({
+              heading: '已取消收藏'
+            }, TOAST_OPTION));
+          });
         }
       },
       download: function download() {
@@ -356,6 +371,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         typeof buildFunc === 'function' && buildFunc(objs);
         typeof pageFunc === 'function' && pageFunc(pageObj);
       });
+    });
+  }
+
+  function starFile(obj, done) {
+    $.post('account/doFavorites', obj, function (res) {
+      handleResult(res, done);
     });
   }
 })();

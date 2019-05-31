@@ -24,6 +24,6 @@ function handleResult(res, callback) {
       stack: false,
       loader: false,
       hideAfter: false
-    });
+    }).reset('all');
   }
 }
