@@ -9,6 +9,15 @@
     textAlign: 'center'
   }
 
+  // initial params
+  let params = {
+    pageNum: 1,
+    pageSize: 5,
+    keyword: '',
+    entName: '',
+    account: ''
+  }
+
   $(function() {
     initModalBtn()
     initUserModal()
@@ -17,28 +26,39 @@
     initTable('#table_user', {
       ban: function ban() {
         let $target = $(this)
+        let $tr = $target.closest('tr')
+        let account = $tr.attr('data-account')
         let action = $target.attr('data-toggle')
+        $.toast().reset('all')
         if (action === 'ban') {
-          $target
-            .attr({ 'data-toggle': 'recover', title: '恢复登录' })
-            .addClass('btn-success')
-            .removeClass('btn-danger')
-            .children('.material-icons')
-            .text('replay')
-          $.toast({
-            heading: '已禁用',
-            ...TOAST_OPTION
+          banUser({ account, status: 2 }, function() {
+            $target
+              .attr({ 'data-toggle': 'recover', title: '恢复登录' })
+              .addClass('btn-success')
+              .removeClass('btn-danger')
+              .children('.material-icons')
+              .text('replay')
+            $.toast({
+              heading: '已禁用',
+              ...TOAST_OPTION
+            })
+            // reload
+            buildRow('#table_user', params, $('#table_user tbody'))
           })
         } else if (action === 'recover') {
-          $target
-            .attr({ 'data-toggle': 'ban', title: '限制登录' })
-            .addClass('btn-danger')
-            .removeClass('btn-success')
-            .children('.material-icons')
-            .text('not_interested')
-          $.toast({
-            heading: '已恢复',
-            ...TOAST_OPTION
+          banUser({ account, status: 1 }, function() {
+            $target
+              .attr({ 'data-toggle': 'ban', title: '限制登录' })
+              .addClass('btn-danger')
+              .removeClass('btn-success')
+              .children('.material-icons')
+              .text('not_interested')
+            $.toast({
+              heading: '已恢复',
+              ...TOAST_OPTION
+            })
+            // reload
+            buildRow('#table_user', params, $('#table_user tbody'))
           })
         }
       },
@@ -49,6 +69,7 @@
         let roleid = $tr.attr('data-role')
 
         let $modal = $('#changeRoleModal')
+        $modal.data('action', 'edit')
         // basic inputs
         $modal.find('.modal-title').text('修改角色')
         // prettier-ignore
@@ -60,23 +81,32 @@
     })
     initTable('#table_role', {
       edit: function edit() {
+        // prettier-ignore
+        let id = $(this).closest('tr').attr('data-id')
         let $modal = $('#editRoleModal')
-        // basic inputs
+        $modal.data('action', 'edit')
         $modal.find('.modal-title').text('修改角色')
-        $modal.find('input#name').val('企业用户')
-        $modal.find('select#rank').val('usr')
-        $modal.find('input#desc').val('普通用户')
-        $modal.modal()
-        // auth checkboxes
-        $modal.find('.form-check-input').prop('checked', false)
-        $modal
-          .find('input[name=origin], input[name=parsed]')
-          .prop('checked', true)
-        // show
-        $modal.modal()
+        getRole({ roleId: id }, function(data) {
+          // basic inputs
+          $modal.data('id', id)
+          $modal.find('input#name').val(data.disc)
+          $modal.find('input#desc').val(data.remark)
+          // auth checkboxes
+          $modal.find('.form-check-input').prop('checked', false)
+          data.moduleIdList.map(v => {
+            $modal
+              .find(`.authority input[data-id="${v}"]`)
+              .prop('checked', true)
+          })
+          // show
+          $modal.modal()
+        })
       },
       delete: function del() {
-        $('#deleteRoleModal').modal()
+        // prettier-ignore
+        let id = $(this).closest('tr').attr('data-id')
+        // prettier-ignore
+        $('#deleteRoleModal').data('id', id).modal()
       }
     })
     initTable('#table_bonus')
@@ -84,23 +114,73 @@
 
   function initModalBtn() {
     // user
-    $('#changeRoleModal .submit').on('click', function change() {
-      $('#changeRoleModal').modal('hide')
+    let $userModal = $('#changeRoleModal')
+    $userModal.on('click', '.submit', function change() {
+      // prettier-ignore
+      let account = $userModal.find('#user').val().trim()
+      let roleId = $userModal.find('#role').val()
+      if ($userModal.data('action') === 'add') {
+        addUser(
+          { account, roleId },
+          $userModal.find('.modal-body'),
+          function() {
+            buildRow('#table_user', params, $('#table_user tbody'))
+            $userModal.modal('hide')
+          }
+        )
+      } else if ($userModal.data('action') === 'edit') {
+        editUser({ account, roleId }, function() {
+          buildRow('#table_user', params, $('#table_user tbody'))
+          $userModal.modal('hide')
+        })
+      }
     })
 
     // role
-    $('#editRoleModal .submit').on('click', function edit() {
-      $('#editRoleModal').modal('hide')
+    let $roleModal = $('#editRoleModal')
+    $roleModal.on('click', '.submit', function edit() {
+      // prettier-ignore
+      let name = $roleModal.find('#name').val().trim()
+      // prettier-ignore
+      let desc = $roleModal.find('#desc').val().trim()
+      let auth = Array.from(
+        $roleModal.find('.authority .form-check-input')
+      ).map(v => $(v).attr('data-id'))
+      if ($roleModal.data('action') === 'add') {
+        addRole(
+          { disc: name, remark: desc, moduleIdList: auth },
+          $roleModal.find('.modal-body'),
+          function() {
+            buildRow('#table_role', params, $('#table_role tbody'))
+            $roleModal.modal('hide')
+          }
+        )
+      } else if ($roleModal.data('action') === 'edit') {
+        let id = $roleModal.data('id')
+        editRole(
+          { roleId: id, disc: name, remark: desc, moduleIdList: auth },
+          function() {
+            buildRow('#table_role', params, $('#table_role tbody'))
+            $roleModal.modal('hide')
+          }
+        )
+      }
     })
 
     // delete
-    $('#deleteRoleModal .submit').on('click', function del() {
-      $('#deleteRoleModal').modal('hide')
+    let $delModal = $('#deleteRoleModal')
+    $delModal.on('click', '.submit', function del() {
+      let id = $delModal.data('id')
+      delRole({ roleId: id }, function() {
+        buildRow('#table_role', params, $('#table_role tbody'))
+        $delModal.modal('hide')
+      })
     })
 
     // add
     $('#users .search .add').on('click', function add() {
       let $modal = $('#changeRoleModal')
+      $modal.data('action', 'add')
       // basic inputs
       $modal.find('.modal-title').text('新增用户')
       // prettier-ignore
@@ -111,6 +191,7 @@
     })
     $('#roles .search .add').on('click', function add() {
       let $modal = $('#editRoleModal')
+      $modal.data('action', 'add')
       // basic inputs
       $modal.find('.modal-title').text('新增角色')
       $modal.find('input#name').val('')
@@ -141,40 +222,36 @@
 
   function initRoleModal() {
     let $authority = $('#editRoleModal .authority')
-    const auths = [
-      {
-        name: 'admin',
-        label: '首页'
-      },
-      {
-        name: 'origin',
-        label: '原始文件库'
-      },
-      {
-        name: 'parsed',
-        label: '解析文件库'
-      },
-      {
-        name: 'account',
-        label: '账号管理'
-      }
-    ]
-    auths.map(obj => $authority.append(buildAuth(obj)))
+    $.post('sys/queryPermissions', function(res) {
+      handleResult(res, function(data) {
+        data.map(v => {
+          $authority.append(
+            buildAuth({
+              id: v.moduleid,
+              label: v.disc
+            })
+          )
+        })
+      })
+    })
   }
 
   function initSearchComplete() {
     $.post('main/queryAllEnt', function(res) {
       handleResult(res, function(data) {
         let companys = data.map(v => v.name)
-        $('#searchCompany').autocomplete({ lookup: companys })
+        $('#searchCompany').autocomplete({
+          lookup: companys,
+          onSelect: function() {
+            // prettier-ignore
+            params.entName = $(this).val().trim()
+          }
+        })
       })
     })
   }
 
   function initTable(selector, actionCB = {}) {
-    // initial params
-    let params = { pageNum: 1, pageSize: 5, keyword: '' }
-
     // initial data
     let $table = $(selector)
     let $tbody = $table.find('tbody')
@@ -227,7 +304,17 @@
         params.keyword = $(this).val().trim()
       })
     } else if (/bonus/i.test(selector)) {
-      // TODO
+      $search
+        .on('change', '.search-box:first-child', function() {
+          // company
+          // prettier-ignore
+          params.entName = $(this).val().trim()
+        })
+        .on('change', '.search-box:nth-child(2)', function() {
+          // account
+          // prettier-ignore
+          params.account = $(this).val().trim()
+        })
     }
     $search
       .on('click', '.search-btn', function() {
@@ -236,7 +323,12 @@
       .on('keydown', '.search-box', function(e) {
         if (e.keyCode == 13) {
           // prettier-ignore
-          params.keyword = $(this).val().trim()
+          if (/bonus/i.test(selector)) {
+            let idx = $(this).index()
+            params[idx ? 'account' : 'entName'] = $(this).val().trim()
+          } else {
+            params.keyword = $(this).val().trim()
+          }
           buildRow(selector, params, $tbody)
         }
       })
@@ -341,6 +433,7 @@
             type="button"
             class="btn btn-info"
             title="修改"
+            ${obj.disabled ? 'disabled' : ''}
           >
             <i class="material-icons">edit</i>
           </button>
@@ -349,6 +442,7 @@
             type="button"
             class="btn btn-danger"
             title="删除"
+            ${obj.disabled ? 'disabled' : ''}
           >
             <i class="material-icons">delete</i>
           </button>
@@ -377,7 +471,7 @@
           <input
             class="form-check-input"
             type="checkbox"
-            name="${obj.name}"
+            data-id="${obj.id}"
           />
           ${obj.label}
           <span class="form-check-sign">
@@ -441,8 +535,40 @@
     }
   }
 
-  function getUsers(data, buildFunc, pageFunc) {
-    $.post('sys/queryUsers', data, function done(res) {
+  function buildAlert($wrapper, obj) {
+    let $msg = $wrapper.find('.alert')
+    if ($msg[0]) {
+      $msg
+        .removeClass('alert-warning')
+        .removeClass('alert-success')
+        .addClass(obj.className)
+        .show()
+        .find('span.msg')
+        .text(obj.msg)
+    } else {
+      $wrapper.prepend(`
+        <div
+          class="alert ${obj.className} alert-dismissible fade show"
+          role="alert"
+          style="display:block;"
+        >
+          <span class="msg">${obj.msg}</span>
+          <button
+            type="button"
+            class="close"
+            style="top:9px;"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+     `)
+    }
+  }
+
+  function getUsers(obj, buildFunc, pageFunc) {
+    $.post('sys/queryUsers', obj, function done(res) {
       handleResult(res, function(data) {
         let { pageNum, pageSize, total, pages, list } = data
         let pageObj = { pageNum, pageSize, total, pages }
@@ -462,8 +588,8 @@
     })
   }
 
-  function getRoles(data, buildFunc, pageFunc) {
-    $.post('sys/queryRoles', data, function done(res) {
+  function getRoles(obj, buildFunc, pageFunc) {
+    $.post('sys/queryRoles', obj, function done(res) {
       handleResult(res, function(data) {
         let { pageNum, pageSize, total, pages, list } = data
         let pageObj = { pageNum, pageSize, total, pages }
@@ -472,7 +598,8 @@
           name: v.disc,
           desc: v.remark,
           creator: v.creator,
-          time: v.createtime
+          time: v.createtime,
+          disabled: !!parseInt(v.occupied)
         }))
         typeof buildFunc === 'function' && buildFunc(objs)
         typeof pageFunc === 'function' && pageFunc(pageObj)
@@ -480,43 +607,83 @@
     })
   }
 
-  function getBonus(data, buildFunc) {
-    // TODO
-    let objs = [1, 2, 3, 4, 5].map(() => randBonus())
-    typeof buildFunc === 'function' && buildFunc(objs)
+  function getBonus(obj, buildFunc, pageFunc) {
+    $.post('sys/queryIntegralList', obj, function done(res) {
+      handleResult(res, function(data) {
+        let { pageNum, pageSize, total, pages, list } = data
+        let pageObj = { pageNum, pageSize, total, pages }
+        let objs = list.map(v => ({
+          time: v.dataTimeStr,
+          account: v.account,
+          company: v.entName,
+          type: v.typeStr,
+          operand: parseInt(v.inOutType) === 1 ? '+' : '-',
+          bonus: v.integral,
+          total: v.currentIntegral
+        }))
+        typeof buildFunc === 'function' && buildFunc(objs)
+        typeof pageFunc === 'function' && pageFunc(pageObj)
+      })
+    })
   }
 
-  function randBonus() {
-    const accounts = ['admin', '张腾', '小张', '张工']
-    const timeArr = [
-      '2019-05-21 15:47:12',
-      '2019-05-21 12:30:13',
-      '2019-05-21 08:19:53'
-    ]
-    const companys = [
-      '华立科技股份有限公司',
-      '威盛集团有限公司',
-      '江苏林洋能源有限公司',
-      '深圳市科陆电子科技股份有限公司'
-    ]
-    // prettier-ignore
-    const types = [
-      { type: '文件上传', bonus: 2, operand: '+' },
-      { type: '文件被收藏', bonus: 1, operand: '+' },
-      { type: '下载文件', bonus: 5, operand: '-' },
-      { type: '文件入库', bonus: 1, operand: '+' },
-      { type: '评论文件', bonus: 1, operand: '+' }
-    ]
-    return {
-      account: rand(accounts),
-      time: rand(timeArr),
-      company: rand(companys),
-      ...rand(types),
-      total: parseInt(Math.random() * 200)
-    }
+  function addUser(obj, $wrapper, done) {
+    $.post('sys/doAddUser', obj, function(res) {
+      if (res.ret) {
+        // fail
+        buildAlert($wrapper, {
+          className: 'alert-warning',
+          msg: res.msg
+        })
+      } else {
+        // success
+        typeof done === 'function' && done(res.data)
+      }
+    })
   }
 
-  function rand(arr) {
-    return arr[(Math.random() * arr.length) | 0]
+  function editUser(obj, done) {
+    $.post('sys/doUpdateUser', obj, function(res) {
+      handleResult(res, done)
+    })
+  }
+
+  function banUser(obj, done) {
+    $.post('sys/doUpdateUserStatus', obj, function(res) {
+      handleResult(res, done)
+    })
+  }
+
+  function addRole(obj, $wrapper, done) {
+    $.post('sys/doAddRole', obj, function(res) {
+      if (res.ret) {
+        // fail
+        buildAlert($wrapper, {
+          className: 'alert-warning',
+          msg: res.msg
+        })
+      } else {
+        // success
+        typeof done === 'function' && done(res.data)
+      }
+    })
+  }
+
+  function getRole(obj, done) {
+    $.post('sys/queryRoleDetail', obj, function(res) {
+      handleResult(res, done)
+    })
+  }
+
+  function editRole(obj, done) {
+    $.post('sys/doUpdateRole', obj, function(res) {
+      handleResult(res, done)
+    })
+  }
+
+  function delRole(obj, done) {
+    $.post('sys/doDeleteRole', obj, function(res) {
+      handleResult(res, done)
+    })
   }
 })()

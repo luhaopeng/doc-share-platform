@@ -14,7 +14,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     stack: false,
     loader: false,
     hideAfter: 2000,
-    textAlign: 'center'
+    textAlign: 'center' // initial params
+
+  };
+  var params = {
+    pageNum: 1,
+    pageSize: 5,
+    keyword: '',
+    entName: '',
+    account: ''
   };
   $(function () {
     initModalBtn();
@@ -24,24 +32,41 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     initTable('#table_user', {
       ban: function ban() {
         var $target = $(this);
+        var $tr = $target.closest('tr');
+        var account = $tr.attr('data-account');
         var action = $target.attr('data-toggle');
+        $.toast().reset('all');
 
         if (action === 'ban') {
-          $target.attr({
-            'data-toggle': 'recover',
-            title: '恢复登录'
-          }).addClass('btn-success').removeClass('btn-danger').children('.material-icons').text('replay');
-          $.toast(_objectSpread({
-            heading: '已禁用'
-          }, TOAST_OPTION));
+          banUser({
+            account: account,
+            status: 2
+          }, function () {
+            $target.attr({
+              'data-toggle': 'recover',
+              title: '恢复登录'
+            }).addClass('btn-success').removeClass('btn-danger').children('.material-icons').text('replay');
+            $.toast(_objectSpread({
+              heading: '已禁用'
+            }, TOAST_OPTION)); // reload
+
+            buildRow('#table_user', params, $('#table_user tbody'));
+          });
         } else if (action === 'recover') {
-          $target.attr({
-            'data-toggle': 'ban',
-            title: '限制登录'
-          }).addClass('btn-danger').removeClass('btn-success').children('.material-icons').text('not_interested');
-          $.toast(_objectSpread({
-            heading: '已恢复'
-          }, TOAST_OPTION));
+          banUser({
+            account: account,
+            status: 1
+          }, function () {
+            $target.attr({
+              'data-toggle': 'ban',
+              title: '限制登录'
+            }).addClass('btn-danger').removeClass('btn-success').children('.material-icons').text('not_interested');
+            $.toast(_objectSpread({
+              heading: '已恢复'
+            }, TOAST_OPTION)); // reload
+
+            buildRow('#table_user', params, $('#table_user tbody'));
+          });
         }
       },
       edit: function edit() {
@@ -49,7 +74,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var $tr = $this.closest('tr');
         var account = $tr.attr('data-account');
         var roleid = $tr.attr('data-role');
-        var $modal = $('#changeRoleModal'); // basic inputs
+        var $modal = $('#changeRoleModal');
+        $modal.data('action', 'edit'); // basic inputs
 
         $modal.find('.modal-title').text('修改角色'); // prettier-ignore
 
@@ -61,21 +87,32 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
     initTable('#table_role', {
       edit: function edit() {
-        var $modal = $('#editRoleModal'); // basic inputs
-
+        // prettier-ignore
+        var id = $(this).closest('tr').attr('data-id');
+        var $modal = $('#editRoleModal');
+        $modal.data('action', 'edit');
         $modal.find('.modal-title').text('修改角色');
-        $modal.find('input#name').val('企业用户');
-        $modal.find('select#rank').val('usr');
-        $modal.find('input#desc').val('普通用户');
-        $modal.modal(); // auth checkboxes
+        getRole({
+          roleId: id
+        }, function (data) {
+          // basic inputs
+          $modal.data('id', id);
+          $modal.find('input#name').val(data.disc);
+          $modal.find('input#desc').val(data.remark); // auth checkboxes
 
-        $modal.find('.form-check-input').prop('checked', false);
-        $modal.find('input[name=origin], input[name=parsed]').prop('checked', true); // show
+          $modal.find('.form-check-input').prop('checked', false);
+          data.moduleIdList.map(function (v) {
+            $modal.find(".authority input[data-id=\"".concat(v, "\"]")).prop('checked', true);
+          }); // show
 
-        $modal.modal();
+          $modal.modal();
+        });
       },
       "delete": function del() {
-        $('#deleteRoleModal').modal();
+        // prettier-ignore
+        var id = $(this).closest('tr').attr('data-id'); // prettier-ignore
+
+        $('#deleteRoleModal').data('id', id).modal();
       }
     });
     initTable('#table_bonus');
@@ -83,20 +120,78 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
   function initModalBtn() {
     // user
-    $('#changeRoleModal .submit').on('click', function change() {
-      $('#changeRoleModal').modal('hide');
+    var $userModal = $('#changeRoleModal');
+    $userModal.on('click', '.submit', function change() {
+      // prettier-ignore
+      var account = $userModal.find('#user').val().trim();
+      var roleId = $userModal.find('#role').val();
+
+      if ($userModal.data('action') === 'add') {
+        addUser({
+          account: account,
+          roleId: roleId
+        }, $userModal.find('.modal-body'), function () {
+          buildRow('#table_user', params, $('#table_user tbody'));
+          $userModal.modal('hide');
+        });
+      } else if ($userModal.data('action') === 'edit') {
+        editUser({
+          account: account,
+          roleId: roleId
+        }, function () {
+          buildRow('#table_user', params, $('#table_user tbody'));
+          $userModal.modal('hide');
+        });
+      }
     }); // role
 
-    $('#editRoleModal .submit').on('click', function edit() {
-      $('#editRoleModal').modal('hide');
+    var $roleModal = $('#editRoleModal');
+    $roleModal.on('click', '.submit', function edit() {
+      // prettier-ignore
+      var name = $roleModal.find('#name').val().trim(); // prettier-ignore
+
+      var desc = $roleModal.find('#desc').val().trim();
+      var auth = Array.from($roleModal.find('.authority .form-check-input')).map(function (v) {
+        return $(v).attr('data-id');
+      });
+
+      if ($roleModal.data('action') === 'add') {
+        addRole({
+          disc: name,
+          remark: desc,
+          moduleIdList: auth
+        }, $roleModal.find('.modal-body'), function () {
+          buildRow('#table_role', params, $('#table_role tbody'));
+          $roleModal.modal('hide');
+        });
+      } else if ($roleModal.data('action') === 'edit') {
+        var id = $roleModal.data('id');
+        editRole({
+          roleId: id,
+          disc: name,
+          remark: desc,
+          moduleIdList: auth
+        }, function () {
+          buildRow('#table_role', params, $('#table_role tbody'));
+          $roleModal.modal('hide');
+        });
+      }
     }); // delete
 
-    $('#deleteRoleModal .submit').on('click', function del() {
-      $('#deleteRoleModal').modal('hide');
+    var $delModal = $('#deleteRoleModal');
+    $delModal.on('click', '.submit', function del() {
+      var id = $delModal.data('id');
+      delRole({
+        roleId: id
+      }, function () {
+        buildRow('#table_role', params, $('#table_role tbody'));
+        $delModal.modal('hide');
+      });
     }); // add
 
     $('#users .search .add').on('click', function add() {
-      var $modal = $('#changeRoleModal'); // basic inputs
+      var $modal = $('#changeRoleModal');
+      $modal.data('action', 'add'); // basic inputs
 
       $modal.find('.modal-title').text('新增用户'); // prettier-ignore
 
@@ -106,7 +201,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       $modal.modal();
     });
     $('#roles .search .add').on('click', function add() {
-      var $modal = $('#editRoleModal'); // basic inputs
+      var $modal = $('#editRoleModal');
+      $modal.data('action', 'add'); // basic inputs
 
       $modal.find('.modal-title').text('新增角色');
       $modal.find('input#name').val('');
@@ -136,21 +232,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
   function initRoleModal() {
     var $authority = $('#editRoleModal .authority');
-    var auths = [{
-      name: 'admin',
-      label: '首页'
-    }, {
-      name: 'origin',
-      label: '原始文件库'
-    }, {
-      name: 'parsed',
-      label: '解析文件库'
-    }, {
-      name: 'account',
-      label: '账号管理'
-    }];
-    auths.map(function (obj) {
-      return $authority.append(buildAuth(obj));
+    $.post('sys/queryPermissions', function (res) {
+      handleResult(res, function (data) {
+        data.map(function (v) {
+          $authority.append(buildAuth({
+            id: v.moduleid,
+            label: v.disc
+          }));
+        });
+      });
     });
   }
 
@@ -161,7 +251,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           return v.name;
         });
         $('#searchCompany').autocomplete({
-          lookup: companys
+          lookup: companys,
+          onSelect: function onSelect() {
+            // prettier-ignore
+            params.entName = $(this).val().trim();
+          }
         });
       });
     });
@@ -169,13 +263,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
   function initTable(selector) {
     var actionCB = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    // initial params
-    var params = {
-      pageNum: 1,
-      pageSize: 5,
-      keyword: '' // initial data
-
-    };
+    // initial data
     var $table = $(selector);
     var $tbody = $table.find('tbody');
     buildRow(selector, params, $tbody); // limit
@@ -220,7 +308,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // prettier-ignore
         params.keyword = $(this).val().trim();
       });
-    } else if (/bonus/i.test(selector)) {// TODO
+    } else if (/bonus/i.test(selector)) {
+      $search.on('change', '.search-box:first-child', function () {
+        // company
+        // prettier-ignore
+        params.entName = $(this).val().trim();
+      }).on('change', '.search-box:nth-child(2)', function () {
+        // account
+        // prettier-ignore
+        params.account = $(this).val().trim();
+      });
     }
 
     $search.on('click', '.search-btn', function () {
@@ -228,7 +325,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }).on('keydown', '.search-box', function (e) {
       if (e.keyCode == 13) {
         // prettier-ignore
-        params.keyword = $(this).val().trim();
+        if (/bonus/i.test(selector)) {
+          var idx = $(this).index();
+          params[idx ? 'account' : 'entName'] = $(this).val().trim();
+        } else {
+          params.keyword = $(this).val().trim();
+        }
+
         buildRow(selector, params, $tbody);
       }
     }); // td-actions
@@ -296,7 +399,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function buildRole(obj) {
-    return "\n      <tr data-id=".concat(obj.id, ">\n        <td>").concat(obj.name, "</td>\n        <td>").concat(obj.desc, "</td>\n        <td>").concat(obj.creator, "</td>\n        <td>").concat(obj.time, "</td>\n        <td class=\"td-actions\">\n          <button\n            data-action=\"edit\"\n            type=\"button\"\n            class=\"btn btn-info\"\n            title=\"\u4FEE\u6539\"\n          >\n            <i class=\"material-icons\">edit</i>\n          </button>\n          <button\n            data-action=\"delete\"\n            type=\"button\"\n            class=\"btn btn-danger\"\n            title=\"\u5220\u9664\"\n          >\n            <i class=\"material-icons\">delete</i>\n          </button>\n        </td>\n      </tr>\n    ");
+    return "\n      <tr data-id=".concat(obj.id, ">\n        <td>").concat(obj.name, "</td>\n        <td>").concat(obj.desc, "</td>\n        <td>").concat(obj.creator, "</td>\n        <td>").concat(obj.time, "</td>\n        <td class=\"td-actions\">\n          <button\n            data-action=\"edit\"\n            type=\"button\"\n            class=\"btn btn-info\"\n            title=\"\u4FEE\u6539\"\n            ").concat(obj.disabled ? 'disabled' : '', "\n          >\n            <i class=\"material-icons\">edit</i>\n          </button>\n          <button\n            data-action=\"delete\"\n            type=\"button\"\n            class=\"btn btn-danger\"\n            title=\"\u5220\u9664\"\n            ").concat(obj.disabled ? 'disabled' : '', "\n          >\n            <i class=\"material-icons\">delete</i>\n          </button>\n        </td>\n      </tr>\n    ");
   }
 
   function buildBonus(obj) {
@@ -304,7 +407,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function buildAuth(obj) {
-    return "\n      <div class=\"form-check col-md-4\">\n        <label class=\"form-check-label\">\n          <input\n            class=\"form-check-input\"\n            type=\"checkbox\"\n            name=\"".concat(obj.name, "\"\n          />\n          ").concat(obj.label, "\n          <span class=\"form-check-sign\">\n            <span class=\"check\"></span>\n          </span>\n        </label>\n      </div>\n    ");
+    return "\n      <div class=\"form-check col-md-4\">\n        <label class=\"form-check-label\">\n          <input\n            class=\"form-check-input\"\n            type=\"checkbox\"\n            data-id=\"".concat(obj.id, "\"\n          />\n          ").concat(obj.label, "\n          <span class=\"form-check-sign\">\n            <span class=\"check\"></span>\n          </span>\n        </label>\n      </div>\n    ");
   }
 
   function buildPage(selector, options) {
@@ -351,8 +454,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   }
 
-  function getUsers(data, buildFunc, pageFunc) {
-    $.post('sys/queryUsers', data, function done(res) {
+  function buildAlert($wrapper, obj) {
+    var $msg = $wrapper.find('.alert');
+
+    if ($msg[0]) {
+      $msg.removeClass('alert-warning').removeClass('alert-success').addClass(obj.className).show().find('span.msg').text(obj.msg);
+    } else {
+      $wrapper.prepend("\n        <div\n          class=\"alert ".concat(obj.className, " alert-dismissible fade show\"\n          role=\"alert\"\n          style=\"display:block;\"\n        >\n          <span class=\"msg\">").concat(obj.msg, "</span>\n          <button\n            type=\"button\"\n            class=\"close\"\n            style=\"top:9px;\"\n            data-dismiss=\"alert\"\n            aria-label=\"Close\"\n          >\n            <span aria-hidden=\"true\">&times;</span>\n          </button>\n        </div>\n     "));
+    }
+  }
+
+  function getUsers(obj, buildFunc, pageFunc) {
+    $.post('sys/queryUsers', obj, function done(res) {
       handleResult(res, function (data) {
         var pageNum = data.pageNum,
             pageSize = data.pageSize,
@@ -383,8 +496,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
   }
 
-  function getRoles(data, buildFunc, pageFunc) {
-    $.post('sys/queryRoles', data, function done(res) {
+  function getRoles(obj, buildFunc, pageFunc) {
+    $.post('sys/queryRoles', obj, function done(res) {
       handleResult(res, function (data) {
         var pageNum = data.pageNum,
             pageSize = data.pageSize,
@@ -403,7 +516,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             name: v.disc,
             desc: v.remark,
             creator: v.creator,
-            time: v.createtime
+            time: v.createtime,
+            disabled: !!parseInt(v.occupied)
           };
         });
         typeof buildFunc === 'function' && buildFunc(objs);
@@ -412,50 +526,94 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
   }
 
-  function getBonus(data, buildFunc) {
-    // TODO
-    var objs = [1, 2, 3, 4, 5].map(function () {
-      return randBonus();
-    });
-    typeof buildFunc === 'function' && buildFunc(objs);
-  }
-
-  function randBonus() {
-    var accounts = ['admin', '张腾', '小张', '张工'];
-    var timeArr = ['2019-05-21 15:47:12', '2019-05-21 12:30:13', '2019-05-21 08:19:53'];
-    var companys = ['华立科技股份有限公司', '威盛集团有限公司', '江苏林洋能源有限公司', '深圳市科陆电子科技股份有限公司']; // prettier-ignore
-
-    var types = [{
-      type: '文件上传',
-      bonus: 2,
-      operand: '+'
-    }, {
-      type: '文件被收藏',
-      bonus: 1,
-      operand: '+'
-    }, {
-      type: '下载文件',
-      bonus: 5,
-      operand: '-'
-    }, {
-      type: '文件入库',
-      bonus: 1,
-      operand: '+'
-    }, {
-      type: '评论文件',
-      bonus: 1,
-      operand: '+'
-    }];
-    return _objectSpread({
-      account: rand(accounts),
-      time: rand(timeArr),
-      company: rand(companys)
-    }, rand(types), {
-      total: parseInt(Math.random() * 200)
+  function getBonus(obj, buildFunc, pageFunc) {
+    $.post('sys/queryIntegralList', obj, function done(res) {
+      handleResult(res, function (data) {
+        var pageNum = data.pageNum,
+            pageSize = data.pageSize,
+            total = data.total,
+            pages = data.pages,
+            list = data.list;
+        var pageObj = {
+          pageNum: pageNum,
+          pageSize: pageSize,
+          total: total,
+          pages: pages
+        };
+        var objs = list.map(function (v) {
+          return {
+            time: v.dataTimeStr,
+            account: v.account,
+            company: v.entName,
+            type: v.typeStr,
+            operand: parseInt(v.inOutType) === 1 ? '+' : '-',
+            bonus: v.integral,
+            total: v.currentIntegral
+          };
+        });
+        typeof buildFunc === 'function' && buildFunc(objs);
+        typeof pageFunc === 'function' && pageFunc(pageObj);
+      });
     });
   }
 
-  function rand(arr) {
-    return arr[Math.random() * arr.length | 0];
+  function addUser(obj, $wrapper, done) {
+    $.post('sys/doAddUser', obj, function (res) {
+      if (res.ret) {
+        // fail
+        buildAlert($wrapper, {
+          className: 'alert-warning',
+          msg: res.msg
+        });
+      } else {
+        // success
+        typeof done === 'function' && done(res.data);
+      }
+    });
+  }
+
+  function editUser(obj, done) {
+    $.post('sys/doUpdateUser', obj, function (res) {
+      handleResult(res, done);
+    });
+  }
+
+  function banUser(obj, done) {
+    $.post('sys/doUpdateUserStatus', obj, function (res) {
+      handleResult(res, done);
+    });
+  }
+
+  function addRole(obj, $wrapper, done) {
+    $.post('sys/doAddRole', obj, function (res) {
+      if (res.ret) {
+        // fail
+        buildAlert($wrapper, {
+          className: 'alert-warning',
+          msg: res.msg
+        });
+      } else {
+        // success
+        typeof done === 'function' && done(res.data);
+      }
+    });
+  }
+
+  function getRole(obj, done) {
+    $.post('sys/queryRoleDetail', obj, function (res) {
+      handleResult(res, done);
+    });
+  }
+
+  function editRole(obj, done) {
+    $.post('sys/doUpdateRole', obj, function (res) {
+      handleResult(res, done);
+    });
+  }
+
+  function delRole(obj, done) {
+    $.post('sys/doDeleteRole', obj, function (res) {
+      handleResult(res, done);
+    });
   }
 })();
