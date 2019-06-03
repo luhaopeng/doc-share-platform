@@ -171,30 +171,47 @@
                         maxlength="30"
                         placeholder="30个字符以内，需包含汉字"
                         autocomplete="off"
+                        name="docTitle"
+                        pattern=".*[\u4e00-\u9fa5]+.*"
+                        required
                       />
-                      <span class="required">*</span>
                     </div>
                   </div>
                   <h4 class="form-title">电器参数</h4>
                   <div class="form-row">
                     <div class="form-group col-md-4">
                       <label for="catLevel1">一级分类</label>
-                      <select id="catLevel1" class="form-control">
-                        <option>请选择分类...</option>
+                      <select
+                        id="catLevel1"
+                        name="catLevel1"
+                        class="form-control"
+                        required
+                      >
+                        <option value>请选择分类...</option>
                         <option value="ysj">压缩机</option>
                         <option value="zm">照明</option>
                       </select>
                     </div>
                     <div class="form-group col-md-4">
                       <label for="catLevel2">二级分类</label>
-                      <select id="catLevel2" class="form-control">
-                        <option>请选择一级分类...</option>
+                      <select
+                        id="catLevel2"
+                        name="catLevel2"
+                        class="form-control"
+                        required
+                      >
+                        <option value>请选择一级分类...</option>
                       </select>
                     </div>
                     <div class="form-group col-md-4">
                       <label for="brand">品牌</label>
-                      <select id="brand" class="form-control">
-                        <option>请选择品牌...</option>
+                      <select
+                        id="brand"
+                        name="brand"
+                        class="form-control"
+                        required
+                      >
+                        <option value>请选择品牌...</option>
                         <option>海尔</option>
                         <option>格力</option>
                         <option>美的</option>
@@ -205,54 +222,126 @@
                     </div>
                     <div class="form-group col-md-4">
                       <label for="model">型号</label>
-                      <input type="text" class="form-control" id="model" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="model"
+                        name="model"
+                        required
+                      />
                     </div>
                     <div class="form-group col-md-4">
                       <label for="modelAbbr">型号简称</label>
-                      <input type="text" class="form-control" id="modelAbbr" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="modelAbbr"
+                        name="modelAbbr"
+                        required
+                      />
                     </div>
                     <div class="form-group col-md-4">
                       <label for="specs">规格</label>
-                      <input type="text" class="form-control" id="specs" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="specs"
+                        name="specs"
+                        required
+                      />
                     </div>
                     <div class="form-group col-md-4">
                       <label for="mode">功能模式</label>
-                      <input type="text" class="form-control" id="mode" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="mode"
+                        name="mode"
+                        required
+                      />
                     </div>
                     <div class="form-group col-md-4">
                       <label for="volSt">额定电压</label>
-                      <input type="text" class="form-control" id="volSt" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="volSt"
+                        name="volSt"
+                        required
+                      />
                     </div>
                     <div class="form-group col-md-4">
                       <label for="curSt">额定电流</label>
-                      <input type="text" class="form-control" id="curSt" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="curSt"
+                        name="curSt"
+                        required
+                      />
                     </div>
                     <div class="form-group col-md-4">
                       <label for="powSt">额定功率</label>
-                      <input type="text" class="form-control" id="powSt" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="powSt"
+                        name="powSt"
+                        required
+                      />
                     </div>
                   </div>
                   <h4 class="form-title">采集设备信息</h4>
                   <div class="form-row">
                     <div class="form-group col-md-4">
                       <label for="collector">采集设备</label>
-                      <input type="text" class="form-control" id="collector" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="collector"
+                        name="collector"
+                        required
+                      />
                     </div>
                     <div class="form-group col-md-4">
                       <label for="brandColl">品牌</label>
-                      <input type="text" class="form-control" id="brandColl" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="brandColl"
+                        name="brandColl"
+                        required
+                      />
                     </div>
                     <div class="form-group col-md-4">
                       <label for="modelColl">型号</label>
-                      <input type="text" class="form-control" id="modelColl" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="modelColl"
+                        name="modelColl"
+                        required
+                      />
                     </div>
                     <div class="form-group col-md-4">
                       <label for="rateColl">采样率(kHz)</label>
-                      <input type="text" class="form-control" id="rateColl" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="rateColl"
+                        name="rateColl"
+                        required
+                      />
                     </div>
                     <div class="form-group col-md-4">
                       <label for="ratioColl">变比</label>
-                      <input type="text" class="form-control" id="ratioColl" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="ratioColl"
+                        name="ratioColl"
+                        required
+                      />
                     </div>
                     <div class="form-group col-md-4">
                       <label for="volUnit">电压单位</label>
@@ -261,6 +350,8 @@
                         class="form-control"
                         id="volUnit"
                         value="V"
+                        name="volUnit"
+                        required
                       />
                     </div>
                     <div class="form-group col-md-4">
@@ -270,6 +361,8 @@
                         class="form-control"
                         id="curUnit"
                         value="A"
+                        name="curUnit"
+                        required
                       />
                     </div>
                   </div>
@@ -280,6 +373,8 @@
                       class="form-control"
                       id="note"
                       rows="3"
+                      name="note"
+                      required
                     ></textarea>
                   </div>
                 </form>
@@ -335,6 +430,29 @@
                 >
                   开始上传
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="modal fade"
+        id="uploadModal"
+        tabindex="-1"
+        role="dialog"
+        data-backdrop="static"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">检测文档</h5>
+            </div>
+            <!-- prettier-ignore -->
+            <div class="modal-body">
+              <h4>文档检测中...</h4>
+              <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"></div>
               </div>
             </div>
           </div>

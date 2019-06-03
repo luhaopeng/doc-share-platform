@@ -12,24 +12,130 @@
   });
 
   function initUploader() {
+    var $modal = $('#uploadModal');
+    var $progress = $modal.find('.progress .progress-bar');
+    var $header = $modal.find('.modal-header .modal-title');
+    var $title = $modal.find('.modal-body h4');
+    var md5;
+    WebUploader.Uploader.register({
+      'before-send-file': function beforeSendFile(file) {
+        var task = new $.Deferred();
+        verifyForm({
+          md5: md5
+        }, function (res) {
+          var status = res.status,
+              data = res.data;
+
+          if (status === 1000) {
+            // form data check fail
+            task.reject();
+            validate();
+          } else {
+            if (status === 102) {
+              // partial
+              file.missChunks = data.missChunkList;
+            }
+
+            task.resolve();
+          }
+        });
+        return $.when(task);
+      },
+      'before-send': function beforeSend(block) {
+        var task = new $.Deferred();
+        var file = block.file;
+        var missChunks = file.missChunks;
+        var blockChunk = block.chunk;
+
+        if (missChunks && !missChunks.find(function (v) {
+          return blockChunk === v;
+        })) {
+          task.reject();
+        } else {
+          task.resolve();
+        }
+
+        return $.when(task);
+      }
+    });
+    var url = $('base').attr('href') + 'fileData/doFileUpload';
     uploader = new WebUploader.Uploader({
-      swf: '../lib/Uploader.swf',
-      // TODO
-      server: 'http://webuploader.duapp.com/server/fileupload.php',
+      server: url,
+      chunked: true,
+      fileSizeLimit: 3 * 1024 * 1024 * 1024,
+      fileSingleSizeLimit: 3 * 1024 * 1024 * 1024,
       pick: {
         id: '#pickBtn',
         multiple: false
+      },
+      formData: {
+        md5: '',
+        chunkSize: 5 * 1024 * 1024
       },
       accept: {
         mimeTypes: 'text/plain,application/matlab-mat'
       }
     });
     uploader.on('beforeFileQueued', function () {
-      uploader.reset();
-    }).on('fileQueued', function (file) {
-      $('.step-1 .cur-file').addClass('show').children('code').text(file.name); // enable btn
+      // single file once
+      uploader.reset(); // initialize
 
-      $('#navNext').removeAttr('disabled').removeAttr('title');
+      $progress.width('0').text('');
+      $header.text('检测文档');
+      $title.text('文档检测中...');
+      $modal.modal();
+    }).on('fileQueued', function (file) {
+      // md5
+      uploader.md5File(file, function (percentage) {
+        var width = (percentage * 100).toFixed() + '%';
+        $progress.width(width).text(width);
+      }).then(function (val) {
+        md5 = val;
+        verifyMd5({
+          md5: md5
+        }, function (res) {
+          $progress.width('100%').text('100%');
+
+          if (res.ret) {
+            $title.text('文档已上传过，请更换');
+          } else {
+            $title.text('可以上传！'); // file name
+
+            $('.step-1 .cur-file').addClass('show').children('code').text(file.name); // enable btn
+
+            $('#navNext').removeAttr('disabled').removeAttr('title');
+          } // hide modal
+
+
+          setTimeout(function () {
+            $modal.modal('hide');
+          }, 2000);
+        });
+      });
+    }).on('startUpload', function () {
+      // initialize
+      $progress.width('0').text('');
+      $header.text('上传文档');
+      $title.text('文档上传中...');
+      $modal.modal();
+    }).on('uploadBeforeSend', function (obj, data) {
+      data.md5 = md5;
+    }).on('uploadProgress', function (file, percentage) {
+      var width = (percentage * 100).toFixed() + '%';
+      $progress.width(width).text(width);
+    }).on('uploadSuccess', function () {
+      $title.text('上传成功！'); // hide modal
+
+      setTimeout(function () {
+        $modal.modal('hide');
+        next();
+      }, 2000);
+    }).on('uploadError', function () {
+      $title.text('上传失败，请稍后重试'); // hide modal
+
+      setTimeout(function () {
+        $modal.modal('hide');
+      }, 2000);
     });
   }
 
@@ -41,55 +147,108 @@
       }
     });
     $('#startUpload').on('click', function () {
-      // prettier-ignore
-      var $docTitle = $('#docTitle');
-      var title = $docTitle.val().trim();
-      var length = title.length;
-
-      if (length > 0 && length < 31 && /[\u4e00-\u9fa5]/.test(title)) {
-        next();
-      } else {
-        $docTitle.addClass('error').one('keydown', function () {
-          $docTitle.removeClass('error');
-        }).get(0).scrollIntoView({
-          block: 'end',
-          behavior: 'smooth'
-        });
+      if (!uploader.isInProgress()) {
+        validate() && uploader.upload();
       }
     });
   }
 
   function initSelect() {
-    var cat2 = {
-      ysj: [{
-        title: '空调',
-        value: 'kt'
-      }, {
-        title: '冰箱',
-        value: 'bx'
-      }, {
-        title: '净化器',
-        value: 'jhq'
-      }],
-      zm: [{
-        title: '台灯',
-        value: 'td'
-      }, {
-        title: '显示器',
-        value: 'xsq'
-      }]
-    };
+    // parse filter obj
+    var filterObj = JSON.parse(filterObjStr);
+    var brands = filterObj.BRAND.map(function (obj) {
+      return {
+        id: obj.value,
+        label: obj.name
+      };
+    });
+    var categories = filterObj.CLASS_ONE.map(function (obj) {
+      var children = obj.childrens.map(function (child) {
+        return {
+          id: child.value,
+          label: child.name
+        };
+      });
+      return {
+        id: obj.value,
+        label: obj.name,
+        children: children
+      };
+    }); // category level
+
+    var $level1 = $('#catLevel1');
     var $level2 = $('#catLevel2');
-    $('#catLevel1').on('change', function () {
+    $level1.html('<option value>请选择分类...</option>');
+    $level2.html('<option value>请选择一级分类...</option>');
+    categories.map(function (cat1) {
+      $level1.append("\n        <option value=\"".concat(cat1.id, "\">").concat(cat1.label, "</option>\n      "));
+    });
+    $level1.on('change', function () {
       $level2.html('');
       var val = $(this).val();
-      var options = cat2[val];
+      var options = categories.find(function (v) {
+        return v.id == val;
+      }).children;
 
-      if (options instanceof Array) {
-        options.map(function buildOption(v) {
-          $level2.append("<option value=\"".concat(v.value, "\">").concat(v.title, "</option>"));
+      if (options.length) {
+        options.map(function (v) {
+          $level2.append("<option value=\"".concat(v.id, "\">").concat(v.label, "</option>"));
         });
       }
+    }); // brand
+
+    var $brand = $('#brand');
+    $brand.html('<option value>请选择品牌...</option>');
+    brands.map(function (brand) {
+      $brand.append("\n        <option value=\"".concat(brand.id, "\">").concat(brand.label, "</option>\n      "));
+    });
+  }
+
+  function validate() {
+    var $form = $('.step.step-2 form');
+    $form.addClass('validate');
+    var $invalid = $form.find('.form-control:invalid');
+
+    if ($invalid.length > 0) {
+      $invalid.closest('.form-group').get(0).scrollIntoView({
+        block: 'start',
+        behavior: 'smooth'
+      });
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  function verifyMd5(obj, done) {
+    $.post('fileData/checkFileMD5', obj, done);
+  }
+
+  function verifyForm(obj, done) {
+    var form = $('.step.step-2 form').get(0);
+    var formData = {
+      fileName: form['docTitle'].value,
+      classOne: form['catLevel1'].value,
+      classTwo: form['catLevel2'].value,
+      brand: form['brand'].value,
+      model: form['model'].value,
+      modelAbbreviation: form['modelAbbr'].value,
+      standard: form['specs'].value,
+      ratedV: form['volSt'].value,
+      ratedI: form['curSt'].value,
+      ratedP: form['powSt'].value,
+      pattern: form['mode'].value,
+      equipment: form['collector'].value,
+      equipmentBrand: form['brandColl'].value,
+      equipmentModel: form['modelColl'].value,
+      samplingRate: form['rateColl'].value,
+      variableRatio: form['ratioColl'].value,
+      unitV: form['volUnit'].value,
+      unitI: form['curUnit'].value,
+      remark: form['note'].value
+    };
+    $.post('fileData/checkFileUpload', Object.assign({}, formData, obj), function (res) {
+      handleResult(res, done);
     });
   }
 

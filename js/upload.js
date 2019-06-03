@@ -9,13 +9,57 @@
   })
 
   function initUploader() {
+    let $modal = $('#uploadModal')
+    let $progress = $modal.find('.progress .progress-bar')
+    let $header = $modal.find('.modal-header .modal-title')
+    let $title = $modal.find('.modal-body h4')
+    let md5
+    WebUploader.Uploader.register({
+      'before-send-file': function(file) {
+        let task = new $.Deferred()
+        verifyForm({ md5 }, function(res) {
+          let { status, data } = res
+          if (status === 1000) {
+            // form data check fail
+            task.reject()
+            validate()
+          } else {
+            if (status === 102) {
+              // partial
+              file.missChunks = data.missChunkList
+            }
+            task.resolve()
+          }
+        })
+        return $.when(task)
+      },
+      'before-send': function(block) {
+        let task = new $.Deferred()
+        let file = block.file
+        let missChunks = file.missChunks
+        let blockChunk = block.chunk
+        if (missChunks && !missChunks.find(v => blockChunk === v)) {
+          task.reject()
+        } else {
+          task.resolve()
+        }
+        return $.when(task)
+      }
+    })
+
+    let url = $('base').attr('href') + 'fileData/doFileUpload'
     uploader = new WebUploader.Uploader({
-      swf: '../lib/Uploader.swf',
-      // TODO
-      server: 'http://webuploader.duapp.com/server/fileupload.php',
+      server: url,
+      chunked: true,
+      fileSizeLimit: 3 * 1024 * 1024 * 1024,
+      fileSingleSizeLimit: 3 * 1024 * 1024 * 1024,
       pick: {
         id: '#pickBtn',
         multiple: false
+      },
+      formData: {
+        md5: '',
+        chunkSize: 5 * 1024 * 1024
       },
       accept: {
         mimeTypes: 'text/plain,application/matlab-mat'
@@ -23,17 +67,74 @@
     })
     uploader
       .on('beforeFileQueued', function() {
+        // single file once
         uploader.reset()
+        // initialize
+        $progress.width('0').text('')
+        $header.text('检测文档')
+        $title.text('文档检测中...')
+        $modal.modal()
       })
       .on('fileQueued', function(file) {
-        $('.step-1 .cur-file')
-          .addClass('show')
-          .children('code')
-          .text(file.name)
-        // enable btn
-        $('#navNext')
-          .removeAttr('disabled')
-          .removeAttr('title')
+        // md5
+        uploader
+          .md5File(file, function(percentage) {
+            let width = (percentage * 100).toFixed() + '%'
+            $progress.width(width).text(width)
+          })
+          .then(function(val) {
+            md5 = val
+            verifyMd5({ md5 }, function(res) {
+              $progress.width('100%').text('100%')
+              if (res.ret) {
+                $title.text('文档已上传过，请更换')
+              } else {
+                $title.text('可以上传！')
+                // file name
+                $('.step-1 .cur-file')
+                  .addClass('show')
+                  .children('code')
+                  .text(file.name)
+                // enable btn
+                $('#navNext')
+                  .removeAttr('disabled')
+                  .removeAttr('title')
+              }
+              // hide modal
+              setTimeout(() => {
+                $modal.modal('hide')
+              }, 2000)
+            })
+          })
+      })
+      .on('startUpload', function() {
+        // initialize
+        $progress.width('0').text('')
+        $header.text('上传文档')
+        $title.text('文档上传中...')
+        $modal.modal()
+      })
+      .on('uploadBeforeSend', function(obj, data) {
+        data.md5 = md5
+      })
+      .on('uploadProgress', function(file, percentage) {
+        let width = (percentage * 100).toFixed() + '%'
+        $progress.width(width).text(width)
+      })
+      .on('uploadSuccess', function() {
+        $title.text('上传成功！')
+        // hide modal
+        setTimeout(() => {
+          $modal.modal('hide')
+          next()
+        }, 2000)
+      })
+      .on('uploadError', function() {
+        $title.text('上传失败，请稍后重试')
+        // hide modal
+        setTimeout(() => {
+          $modal.modal('hide')
+        }, 2000)
       })
   }
 
@@ -45,62 +146,109 @@
       }
     })
     $('#startUpload').on('click', function() {
-      // prettier-ignore
-      let $docTitle = $('#docTitle')
-      let title = $docTitle.val().trim()
-      let { length } = title
-      if (length > 0 && length < 31 && /[\u4e00-\u9fa5]/.test(title)) {
-        next()
-      } else {
-        $docTitle
-          .addClass('error')
-          .one('keydown', function() {
-            $docTitle.removeClass('error')
-          })
-          .get(0)
-          .scrollIntoView({ block: 'end', behavior: 'smooth' })
+      if (!uploader.isInProgress()) {
+        validate() && uploader.upload()
       }
     })
   }
 
   function initSelect() {
-    const cat2 = {
-      ysj: [
-        {
-          title: '空调',
-          value: 'kt'
-        },
-        {
-          title: '冰箱',
-          value: 'bx'
-        },
-        {
-          title: '净化器',
-          value: 'jhq'
-        }
-      ],
-      zm: [
-        {
-          title: '台灯',
-          value: 'td'
-        },
-        {
-          title: '显示器',
-          value: 'xsq'
-        }
-      ]
-    }
+    // parse filter obj
+    let filterObj = JSON.parse(filterObjStr)
+    let brands = filterObj.BRAND.map(obj => ({
+      id: obj.value,
+      label: obj.name
+    }))
+    let categories = filterObj.CLASS_ONE.map(obj => {
+      let children = obj.childrens.map(child => ({
+        id: child.value,
+        label: child.name
+      }))
+      return {
+        id: obj.value,
+        label: obj.name,
+        children
+      }
+    })
+    // category level
+    let $level1 = $('#catLevel1')
     let $level2 = $('#catLevel2')
-    $('#catLevel1').on('change', function() {
+    $level1.html('<option value>请选择分类...</option>')
+    $level2.html('<option value>请选择一级分类...</option>')
+    categories.map(cat1 => {
+      $level1.append(`
+        <option value="${cat1.id}">${cat1.label}</option>
+      `)
+    })
+    $level1.on('change', function() {
       $level2.html('')
       let val = $(this).val()
-      let options = cat2[val]
-      if (options instanceof Array) {
-        options.map(function buildOption(v) {
-          $level2.append(`<option value="${v.value}">${v.title}</option>`)
+      let options = categories.find(v => v.id == val).children
+      if (options.length) {
+        options.map(v => {
+          $level2.append(`<option value="${v.id}">${v.label}</option>`)
         })
       }
     })
+    // brand
+    let $brand = $('#brand')
+    $brand.html('<option value>请选择品牌...</option>')
+    brands.map(brand => {
+      $brand.append(`
+        <option value="${brand.id}">${brand.label}</option>
+      `)
+    })
+  }
+
+  function validate() {
+    let $form = $('.step.step-2 form')
+    $form.addClass('validate')
+    let $invalid = $form.find('.form-control:invalid')
+    if ($invalid.length > 0) {
+      $invalid
+        .closest('.form-group')
+        .get(0)
+        .scrollIntoView({ block: 'start', behavior: 'smooth' })
+      return false
+    } else {
+      return true
+    }
+  }
+
+  function verifyMd5(obj, done) {
+    $.post('fileData/checkFileMD5', obj, done)
+  }
+
+  function verifyForm(obj, done) {
+    let form = $('.step.step-2 form').get(0)
+    let formData = {
+      fileName: form['docTitle'].value,
+      classOne: form['catLevel1'].value,
+      classTwo: form['catLevel2'].value,
+      brand: form['brand'].value,
+      model: form['model'].value,
+      modelAbbreviation: form['modelAbbr'].value,
+      standard: form['specs'].value,
+      ratedV: form['volSt'].value,
+      ratedI: form['curSt'].value,
+      ratedP: form['powSt'].value,
+      pattern: form['mode'].value,
+      equipment: form['collector'].value,
+      equipmentBrand: form['brandColl'].value,
+      equipmentModel: form['modelColl'].value,
+      samplingRate: form['rateColl'].value,
+      variableRatio: form['ratioColl'].value,
+      unitV: form['volUnit'].value,
+      unitI: form['curUnit'].value,
+      remark: form['note'].value
+    }
+    $.post(
+      'fileData/checkFileUpload',
+      Object.assign({}, formData, obj),
+      function(res) {
+        handleResult(res, done)
+      }
+    )
   }
 
   function prev() {
