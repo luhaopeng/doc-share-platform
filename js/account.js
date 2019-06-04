@@ -259,7 +259,7 @@
     let $limit = $nav.find('.limit select')
     $limit.on('change', function limit(e) {
       params.pageNum = 1
-      params.pageSize = parseInt(e.target.value)
+      params.pageSize = parseInt(e.target.value, 10)
       buildRow(selector, params, $tbody)
     })
 
@@ -270,7 +270,8 @@
         $pagination
           .find('.page-item:not(.prev):not(.next)')
           .last()
-          .text()
+          .text(),
+        10
       )
       let $this = $(this)
       let old = params.pageNum
@@ -281,7 +282,7 @@
       } else if ($this.hasClass('else')) {
         // do nothing
       } else {
-        params.pageNum = parseInt($this.text()) || 1
+        params.pageNum = parseInt($this.text(), 10) || 1
       }
       if (old !== params.pageNum) {
         buildRow(selector, params, $tbody)
@@ -599,7 +600,7 @@
           desc: v.remark,
           creator: v.creator,
           time: v.createtime,
-          disabled: !!parseInt(v.occupied)
+          disabled: !!parseInt(v.occupied, 10)
         }))
         typeof buildFunc === 'function' && buildFunc(objs)
         typeof pageFunc === 'function' && pageFunc(pageObj)
@@ -617,7 +618,7 @@
           account: v.account,
           company: v.entName,
           type: v.typeStr,
-          operand: parseInt(v.inOutType) === 1 ? '+' : '-',
+          operand: parseInt(v.inOutType, 10) === 1 ? '+' : '-',
           bonus: v.integral,
           total: v.currentIntegral
         }))

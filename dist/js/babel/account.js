@@ -269,13 +269,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var $limit = $nav.find('.limit select');
     $limit.on('change', function limit(e) {
       params.pageNum = 1;
-      params.pageSize = parseInt(e.target.value);
+      params.pageSize = parseInt(e.target.value, 10);
       buildRow(selector, params, $tbody);
     }); // page change
 
     var $pagination = $nav.find('ul.pagination');
     $pagination.on('click', '.page-item', function () {
-      var max = parseInt($pagination.find('.page-item:not(.prev):not(.next)').last().text());
+      var max = parseInt($pagination.find('.page-item:not(.prev):not(.next)').last().text(), 10);
       var $this = $(this);
       var old = params.pageNum;
 
@@ -285,7 +285,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         params.pageNum = (params.pageNum + 1) % (max + 1) || max;
       } else if ($this.hasClass('else')) {// do nothing
       } else {
-        params.pageNum = parseInt($this.text()) || 1;
+        params.pageNum = parseInt($this.text(), 10) || 1;
       }
 
       if (old !== params.pageNum) {
@@ -518,7 +518,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             desc: v.remark,
             creator: v.creator,
             time: v.createtime,
-            disabled: !!parseInt(v.occupied)
+            disabled: !!parseInt(v.occupied, 10)
           };
         });
         typeof buildFunc === 'function' && buildFunc(objs);
@@ -547,7 +547,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             account: v.account,
             company: v.entName,
             type: v.typeStr,
-            operand: parseInt(v.inOutType) === 1 ? '+' : '-',
+            operand: parseInt(v.inOutType, 10) === 1 ? '+' : '-',
             bonus: v.integral,
             total: v.currentIntegral
           };

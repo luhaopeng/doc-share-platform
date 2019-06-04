@@ -58,7 +58,7 @@
         let type = $tr.attr('data-type')
         let $downloadModal = $('#downloadModal')
         downloadCheck({ fileDataId: id, fileDataType: type }, function(data) {
-          if (parseInt(data.requiredIntegral)) {
+          if (parseInt(data.requiredIntegral, 10)) {
             // confirm modal
             $downloadModal.find('.modal-body').html(`
               使用<b class="cost"> ${data.requiredIntegral} 积分</b>下载此文件？
@@ -169,7 +169,7 @@
     let $limit = $nav.find('.limit select')
     $limit.on('change', function limit(e) {
       params.pageNum = 1
-      params.pageSize = parseInt(e.target.value)
+      params.pageSize = parseInt(e.target.value, 10)
       buildRow(selector, params, $tbody)
     })
 
@@ -180,7 +180,8 @@
         $pagination
           .find('.page-item:not(.prev):not(.next)')
           .last()
-          .text()
+          .text(),
+        10
       )
       let $this = $(this)
       let old = params.pageNum
@@ -191,7 +192,7 @@
       } else if ($this.hasClass('else')) {
         // do nothing
       } else {
-        params.pageNum = parseInt($this.text()) || 1
+        params.pageNum = parseInt($this.text(), 10) || 1
       }
       if (old !== params.pageNum) {
         buildRow(selector, params, $tbody)
@@ -450,7 +451,7 @@
           type: v.integralTypeDesc,
           remark: v.description,
           bonus: v.integral,
-          operand: parseInt(v.inOutType) === 1 ? '+' : '-'
+          operand: parseInt(v.inOutType, 10) === 1 ? '+' : '-'
         }))
         typeof buildFunc === 'function' && buildFunc(objs)
         typeof pageFunc === 'function' && pageFunc(pageObj)

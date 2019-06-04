@@ -79,7 +79,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           fileDataId: id,
           fileDataType: type
         }, function (data) {
-          if (parseInt(data.requiredIntegral)) {
+          if (parseInt(data.requiredIntegral, 10)) {
             // confirm modal
             $downloadModal.find('.modal-body').html("\n              \u4F7F\u7528<b class=\"cost\"> ".concat(data.requiredIntegral, " \u79EF\u5206</b>\u4E0B\u8F7D\u6B64\u6587\u4EF6\uFF1F\n              \u5F53\u524D\u79EF\u5206\u4F59\u989D\uFF1A<b class=\"remain\">").concat(data.currentIntegral, " \u79EF\u5206</b>\u3002\n            "));
             $downloadModal.modal();
@@ -166,13 +166,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var $limit = $nav.find('.limit select');
     $limit.on('change', function limit(e) {
       params.pageNum = 1;
-      params.pageSize = parseInt(e.target.value);
+      params.pageSize = parseInt(e.target.value, 10);
       buildRow(selector, params, $tbody);
     }); // page change
 
     var $pagination = $nav.find('ul.pagination');
     $pagination.on('click', '.page-item', function () {
-      var max = parseInt($pagination.find('.page-item:not(.prev):not(.next)').last().text());
+      var max = parseInt($pagination.find('.page-item:not(.prev):not(.next)').last().text(), 10);
       var $this = $(this);
       var old = params.pageNum;
 
@@ -182,7 +182,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         params.pageNum = (params.pageNum + 1) % (max + 1) || max;
       } else if ($this.hasClass('else')) {// do nothing
       } else {
-        params.pageNum = parseInt($this.text()) || 1;
+        params.pageNum = parseInt($this.text(), 10) || 1;
       }
 
       if (old !== params.pageNum) {
@@ -395,7 +395,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             type: v.integralTypeDesc,
             remark: v.description,
             bonus: v.integral,
-            operand: parseInt(v.inOutType) === 1 ? '+' : '-'
+            operand: parseInt(v.inOutType, 10) === 1 ? '+' : '-'
           };
         });
         typeof buildFunc === 'function' && buildFunc(objs);

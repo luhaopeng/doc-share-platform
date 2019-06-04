@@ -74,7 +74,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         fileDataId: fileId,
         fileDataType: fileType
       }, function (data) {
-        if (parseInt(data.requiredIntegral)) {
+        if (parseInt(data.requiredIntegral, 10)) {
           // confirm modal
           $downloadModal.find('.modal-body').html("\n              \u4F7F\u7528<b class=\"cost\"> ".concat(data.requiredIntegral, " \u79EF\u5206</b>\u4E0B\u8F7D\u6B64\u6587\u4EF6\uFF1F\n              \u5F53\u524D\u79EF\u5206\u4F59\u989D\uFF1A<b class=\"remain\">").concat(data.currentIntegral, " \u79EF\u5206</b>\u3002\n            "));
           $downloadModal.modal();
@@ -140,7 +140,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           $body.find('.intro').text(remark); // author
 
           var bonus = "<li>\u9700 ".concat(requiredIntegral, " \u79EF\u5206</li>");
-          $body.find('.author').html("\n              <li>".concat(account, "</li>\n              <li>").concat(enterprise, "</li>\n              <li>").concat(dataTimeDesc, "</li>\n              <li>").concat(fileDataTypeDesc, "</li>\n              <li>").concat(downloadCount, " \u6B21\u4E0B\u8F7D</li>\n              ").concat(parseInt(requiredIntegral) > 0 ? bonus : '', "\n              <li title=\"\u4E0B\u8F7D\" class=\"download\">\n                <i class=\"material-icons\">get_app</i>\n                ").concat(fileSize, " MB\n              </li>\n            ")); // stat
+          $body.find('.author').html("\n              <li>".concat(account, "</li>\n              <li>").concat(enterprise, "</li>\n              <li>").concat(dataTimeDesc, "</li>\n              <li>").concat(fileDataTypeDesc, "</li>\n              <li>").concat(downloadCount, " \u6B21\u4E0B\u8F7D</li>\n              ").concat(parseInt(requiredIntegral, 10) > 0 ? bonus : '', "\n              <li title=\"\u4E0B\u8F7D\" class=\"download\">\n                <i class=\"material-icons\">get_app</i>\n                ").concat(fileSize, " MB\n              </li>\n            ")); // stat
           // part 1
 
           var $part = $body.find('.stat .part');
@@ -194,7 +194,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     var $pagination = $commentDiv.find('ul.pagination');
     $pagination.on('click', '.page-item', function () {
-      var max = parseInt($pagination.find('.page-item:not(.prev):not(.next)').last().text());
+      var max = parseInt($pagination.find('.page-item:not(.prev):not(.next)').last().text(), 10);
       var $this = $(this);
       var old = params.pageNum;
 
@@ -204,7 +204,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         params.pageNum = (params.pageNum + 1) % (max + 1) || max;
       } else if ($this.hasClass('else')) {// do nothing
       } else {
-        params.pageNum = parseInt($this.text()) || 1;
+        params.pageNum = parseInt($this.text(), 10) || 1;
       }
 
       if (old !== params.pageNum) {

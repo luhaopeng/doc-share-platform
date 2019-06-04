@@ -73,7 +73,7 @@
       downloadCheck(
         { fileDataId: fileId, fileDataType: fileType },
         function(data) {
-          if (parseInt(data.requiredIntegral)) {
+          if (parseInt(data.requiredIntegral, 10)) {
             // confirm modal
             $downloadModal.find('.modal-body').html(`
               使用<b class="cost"> ${data.requiredIntegral} 积分</b>下载此文件？
@@ -153,7 +153,7 @@
               <li>${dataTimeDesc}</li>
               <li>${fileDataTypeDesc}</li>
               <li>${downloadCount} 次下载</li>
-              ${parseInt(requiredIntegral) > 0 ? bonus : ''}
+              ${parseInt(requiredIntegral, 10) > 0 ? bonus : ''}
               <li title="下载" class="download">
                 <i class="material-icons">get_app</i>
                 ${fileSize} MB
@@ -221,7 +221,8 @@
         $pagination
           .find('.page-item:not(.prev):not(.next)')
           .last()
-          .text()
+          .text(),
+        10
       )
       let $this = $(this)
       let old = params.pageNum
@@ -232,7 +233,7 @@
       } else if ($this.hasClass('else')) {
         // do nothing
       } else {
-        params.pageNum = parseInt($this.text()) || 1
+        params.pageNum = parseInt($this.text(), 10) || 1
       }
       if (old !== params.pageNum) {
         // reload data

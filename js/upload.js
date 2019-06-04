@@ -51,15 +51,16 @@
     uploader = new WebUploader.Uploader({
       server: url,
       chunked: true,
-      fileSizeLimit: 3 * 1024 * 1024 * 1024,
-      fileSingleSizeLimit: 3 * 1024 * 1024 * 1024,
+      chunkSize: parseInt(chunkSize, 10),
+      fileSizeLimit: parseInt(maxFileSize, 10),
+      fileSingleSizeLimit: parseInt(maxFileSize, 10),
       pick: {
         id: '#pickBtn',
         multiple: false
       },
       formData: {
         md5: '',
-        chunkSize: 5 * 1024 * 1024
+        chunkSize: parseInt(chunkSize, 10)
       },
       accept: {
         mimeTypes: 'text/plain,application/matlab-mat'
@@ -78,10 +79,15 @@
       .on('fileQueued', function(file) {
         // md5
         uploader
-          .md5File(file, function(percentage) {
-            let width = (percentage * 100).toFixed() + '%'
-            $progress.width(width).text(width)
-          })
+          .md5File(
+            file,
+            function(percentage) {
+              let width = (percentage * 100).toFixed() + '%'
+              $progress.width(width).text(width)
+            },
+            0,
+            parseInt(md5End, 10)
+          )
           .then(function(val) {
             md5 = val
             verifyMd5({ md5 }, function(res) {

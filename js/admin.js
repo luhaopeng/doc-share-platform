@@ -123,7 +123,7 @@
           let { valueList, dataTimeList } = data
           chartLine.update({
             labels: dataTimeList.map(v => v.substr(8)),
-            series: [valueList.map(v => parseInt(v))]
+            series: [valueList.map(v => parseInt(v, 10))]
           })
         })
       })
@@ -135,7 +135,7 @@
     let total = 0
     let series = list.map(obj => {
       labels.push(obj.name)
-      total += parseInt(obj.typeNum)
+      total += parseInt(obj.typeNum, 10)
       return {
         meta: obj.name,
         value: obj.typeNum
@@ -161,7 +161,7 @@
       desc += `
         ${obj.name}
         <span>
-          ${((parseInt(obj.typeNum) / total) * 100).toFixed()}%
+          ${((parseInt(obj.typeNum, 10) / total) * 100).toFixed()}%
         </span>
       `
     })
@@ -173,7 +173,7 @@
     let total = 0
     let series = list.map(obj => {
       labels.push(obj.name)
-      total += parseInt(obj.typeNum)
+      total += parseInt(obj.typeNum, 10)
       return {
         meta: obj.name,
         value: obj.typeNum
@@ -201,7 +201,7 @@
         desc += `
           ${obj.name}
           <span>
-            ${((parseInt(obj.typeNum) / total) * 100).toFixed()}%
+            ${((parseInt(obj.typeNum, 10) / total) * 100).toFixed()}%
           </span>
         `
       } else {
@@ -221,7 +221,7 @@
         >
           ${otherName}
           <span>
-            ${((parseInt(otherNum) / total) * 100).toFixed()}%
+            ${((parseInt(otherNum, 10) / total) * 100).toFixed()}%
           </span>
         </a>
       `
@@ -230,7 +230,7 @@
       other.map(obj => {
         detail += `
           ${obj.name}
-          ${((parseInt(obj.typeNum) / total) * 100).toFixed()}%
+          ${((parseInt(obj.typeNum, 10) / total) * 100).toFixed()}%
           <br />
         `
       })
@@ -334,8 +334,8 @@
     })
 
     $modal.on('click', '.submit', function() {
-      params.eid = parseInt($modal.find('#ent1').val())
-      params.compareEid = parseInt($modal.find('#ent2').val())
+      params.eid = parseInt($modal.find('#ent1').val(), 10)
+      params.compareEid = parseInt($modal.find('#ent2').val(), 10)
       getBarData(params)
       $modal.modal('hide')
     })
@@ -423,7 +423,7 @@
           .addClass('rank-' + to)
       }
       // rank data
-      params.rankingType = parseInt($cur_a.attr('data-type'))
+      params.rankingType = parseInt($cur_a.attr('data-type'), 10)
       params.sortType = $cur_a.attr('data-rank')
       // get data
       getRankData(params)
@@ -438,7 +438,7 @@
       }
       $nav.find('.nav-link').removeClass('active')
       $this.addClass('active')
-      params.rankingTimeType = parseInt($this.attr('data-type'))
+      params.rankingTimeType = parseInt($this.attr('data-type'), 10)
       getRankData(params)
     })
 

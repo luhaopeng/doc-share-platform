@@ -104,10 +104,10 @@
         $row.hide()
         switch (cat) {
           case 'brand':
-            params.brands = [parseInt($target.attr('data-id'))]
+            params.brands = [parseInt($target.attr('data-id'), 10)]
             break
           case 'type':
-            let typeId = parseInt($target.attr('data-id'))
+            let typeId = parseInt($target.attr('data-id'), 10)
             params.classOne = typeId
             // find type
             let type = categories.find(v => v.id === typeId)
@@ -124,7 +124,7 @@
             }
             break
           case 'subtype':
-            params.classTwo = parseInt($target.attr('data-id'))
+            params.classTwo = parseInt($target.attr('data-id'), 10)
             break
           default:
             return
@@ -153,7 +153,7 @@
         $active.text(function combine(idx, val) {
           comb += (idx ? ',' : '') + val
           let $a = $(this).find('a')
-          multi.push(parseInt($a.attr('data-id')))
+          multi.push(parseInt($a.attr('data-id'), 10))
         })
         if (comb) {
           $(buildFactor(cat, comb)).insertBefore('.filter .combine .reset')
@@ -206,7 +206,7 @@
     let $limit = $nav.find('.limit select')
     $limit.on('change', function limit(e) {
       params.pageNum = 1
-      params.pageSize = parseInt(e.target.value)
+      params.pageSize = parseInt(e.target.value, 10)
       // reload data
       getRankData(params)
     })
@@ -218,7 +218,8 @@
         $pagination
           .find('.page-item:not(.prev):not(.next)')
           .last()
-          .text()
+          .text(),
+        10
       )
       let $this = $(this)
       let old = params.pageNum
@@ -229,7 +230,7 @@
       } else if ($this.hasClass('else')) {
         // do nothing
       } else {
-        params.pageNum = parseInt($this.text()) || 1
+        params.pageNum = parseInt($this.text(), 10) || 1
       }
       if (old !== params.pageNum) {
         // reload data
@@ -507,7 +508,7 @@
               company: file.enterprise,
               state: file.fileDataStatusDesc,
               download: file.downloadCount,
-              fav: parseInt(file.favoriteStatus) === 1
+              fav: parseInt(file.favoriteStatus, 10) === 1
             })
           )
         })

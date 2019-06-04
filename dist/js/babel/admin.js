@@ -109,7 +109,7 @@
               return v.substr(8);
             }),
             series: [valueList.map(function (v) {
-              return parseInt(v);
+              return parseInt(v, 10);
             })]
           });
         });
@@ -122,7 +122,7 @@
     var total = 0;
     var series = list.map(function (obj) {
       labels.push(obj.name);
-      total += parseInt(obj.typeNum);
+      total += parseInt(obj.typeNum, 10);
       return {
         meta: obj.name,
         value: obj.typeNum
@@ -145,7 +145,7 @@
     });
     var desc = '';
     list.map(function (obj) {
-      desc += "\n        ".concat(obj.name, "\n        <span>\n          ").concat((parseInt(obj.typeNum) / total * 100).toFixed(), "%\n        </span>\n      ");
+      desc += "\n        ".concat(obj.name, "\n        <span>\n          ").concat((parseInt(obj.typeNum, 10) / total * 100).toFixed(), "%\n        </span>\n      ");
     });
     $('.card p.chart-pie-1').html(desc);
   }
@@ -155,7 +155,7 @@
     var total = 0;
     var series = list.map(function (obj) {
       labels.push(obj.name);
-      total += parseInt(obj.typeNum);
+      total += parseInt(obj.typeNum, 10);
       return {
         meta: obj.name,
         value: obj.typeNum
@@ -180,7 +180,7 @@
     var otherName, otherNum;
     list.map(function (obj) {
       if (obj.name !== '其他') {
-        desc += "\n          ".concat(obj.name, "\n          <span>\n            ").concat((parseInt(obj.typeNum) / total * 100).toFixed(), "%\n          </span>\n        ");
+        desc += "\n          ".concat(obj.name, "\n          <span>\n            ").concat((parseInt(obj.typeNum, 10) / total * 100).toFixed(), "%\n          </span>\n        ");
       } else {
         otherName = obj.name;
         otherNum = obj.typeNum;
@@ -190,11 +190,11 @@
     $cardBody.html(desc);
 
     if (other.length) {
-      var otherLink = "\n        <a\n          class=\"other\"\n          tabindex=\"0\"\n          title=\"\u5176\u4ED6\"\n          data-trigger=\"hover\"\n        >\n          ".concat(otherName, "\n          <span>\n            ").concat((parseInt(otherNum) / total * 100).toFixed(), "%\n          </span>\n        </a>\n      ");
+      var otherLink = "\n        <a\n          class=\"other\"\n          tabindex=\"0\"\n          title=\"\u5176\u4ED6\"\n          data-trigger=\"hover\"\n        >\n          ".concat(otherName, "\n          <span>\n            ").concat((parseInt(otherNum, 10) / total * 100).toFixed(), "%\n          </span>\n        </a>\n      ");
       $cardBody.append(otherLink);
       var detail = '';
       other.map(function (obj) {
-        detail += "\n          ".concat(obj.name, "\n          ").concat((parseInt(obj.typeNum) / total * 100).toFixed(), "%\n          <br />\n        ");
+        detail += "\n          ".concat(obj.name, "\n          ").concat((parseInt(obj.typeNum, 10) / total * 100).toFixed(), "%\n          <br />\n        ");
       });
       $cardBody.find('.other').popover({
         html: true,
@@ -300,8 +300,8 @@
       $modal.modal();
     });
     $modal.on('click', '.submit', function () {
-      params.eid = parseInt($modal.find('#ent1').val());
-      params.compareEid = parseInt($modal.find('#ent2').val());
+      params.eid = parseInt($modal.find('#ent1').val(), 10);
+      params.compareEid = parseInt($modal.find('#ent2').val(), 10);
       getBarData(params);
       $modal.modal('hide');
     });
@@ -385,7 +385,7 @@
       } // rank data
 
 
-      params.rankingType = parseInt($cur_a.attr('data-type'));
+      params.rankingType = parseInt($cur_a.attr('data-type'), 10);
       params.sortType = $cur_a.attr('data-rank'); // get data
 
       getRankData(params);
@@ -401,7 +401,7 @@
 
       $nav.find('.nav-link').removeClass('active');
       $this.addClass('active');
-      params.rankingTimeType = parseInt($this.attr('data-type'));
+      params.rankingTimeType = parseInt($this.attr('data-type'), 10);
       getRankData(params);
     });
     getRankData(params);
