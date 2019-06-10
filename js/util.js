@@ -13,16 +13,26 @@ function handleResult(res, callback) {
   if (!res.ret) {
     typeof callback === 'function' && callback(res.data)
   } else {
-    $.toast().reset('all')
-    $.toast({
-      heading: '出错了',
-      text: res.msg,
-      icon: 'error',
-      position: 'bottom-left',
-      allowToastClose: true,
-      stack: false,
-      loader: false,
-      hideAfter: false
-    })
+    toastErr({ text: res.msg })
   }
+}
+
+function toastErr(options) {
+  let opts = Object.assign(
+    {
+      heading: '出错了',
+      text: '',
+      icon: 'error'
+    },
+    options
+  )
+  $.toast().reset('all')
+  $.toast({
+    position: 'bottom-left',
+    allowToastClose: true,
+    stack: false,
+    loader: false,
+    hideAfter: false,
+    ...opts
+  })
 }

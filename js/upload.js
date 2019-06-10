@@ -18,7 +18,7 @@
       'before-send-file': function(file) {
         let task = new $.Deferred()
         verifyForm({ md5 }, function(res) {
-          let { status, data } = res
+          let { status, missChunkList } = res
           if (status === 1000) {
             // form data check fail
             task.reject()
@@ -26,7 +26,7 @@
           } else {
             if (status === 102) {
               // partial
-              file.missChunks = data.missChunkList
+              file.missChunks = missChunkList
             }
             task.resolve()
           }
@@ -38,7 +38,7 @@
         let file = block.file
         let missChunks = file.missChunks
         let blockChunk = block.chunk
-        if (missChunks && !missChunks.find(v => blockChunk === v)) {
+        if (missChunks && !missChunks.find(v => blockChunk == v)) {
           task.reject()
         } else {
           task.resolve()
@@ -63,6 +63,8 @@
         chunkSize: parseInt(chunkSize, 10)
       },
       accept: {
+        title: '文件',
+        extensions: 'txt,mat',
         mimeTypes: 'text/plain,application/matlab-mat'
       }
     })
@@ -70,13 +72,13 @@
       .on('beforeFileQueued', function() {
         // single file once
         uploader.reset()
+      })
+      .on('fileQueued', function(file) {
         // initialize
         $progress.width('0').text('')
         $header.text('检测文档')
         $title.text('文档检测中...')
         $modal.modal()
-      })
-      .on('fileQueued', function(file) {
         // md5
         uploader
           .md5File(
@@ -112,6 +114,21 @@
               }, 2000)
             })
           })
+      })
+      .on('error', function(type) {
+        if (type === 'Q_EXCEED_SIZE_LIMIT') {
+          toastErr({
+            icon: 'warning',
+            heading: '文件被拒绝',
+            text: '文件大小超出限制'
+          })
+        } else if (type === 'Q_TYPE_DENIED') {
+          toastErr({
+            icon: 'warning',
+            heading: '文件被拒绝',
+            text: '文件类型错误'
+          })
+        }
       })
       .on('startUpload', function() {
         // initialize

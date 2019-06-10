@@ -24,7 +24,7 @@
           md5: md5
         }, function (res) {
           var status = res.status,
-              data = res.data;
+              missChunkList = res.missChunkList;
 
           if (status === 1000) {
             // form data check fail
@@ -33,7 +33,7 @@
           } else {
             if (status === 102) {
               // partial
-              file.missChunks = data.missChunkList;
+              file.missChunks = missChunkList;
             }
 
             task.resolve();
@@ -48,7 +48,7 @@
         var blockChunk = block.chunk;
 
         if (missChunks && !missChunks.find(function (v) {
-          return blockChunk === v;
+          return blockChunk == v;
         })) {
           task.reject();
         } else {
@@ -74,19 +74,21 @@
         chunkSize: parseInt(chunkSize, 10)
       },
       accept: {
+        title: '文件',
+        extensions: 'txt,mat',
         mimeTypes: 'text/plain,application/matlab-mat'
       }
     });
     uploader.on('beforeFileQueued', function () {
       // single file once
-      uploader.reset(); // initialize
-
+      uploader.reset();
+    }).on('fileQueued', function (file) {
+      // initialize
       $progress.width('0').text('');
       $header.text('检测文档');
       $title.text('文档检测中...');
-      $modal.modal();
-    }).on('fileQueued', function (file) {
-      // md5
+      $modal.modal(); // md5
+
       uploader.md5File(file, function (percentage) {
         var width = (percentage * 100).toFixed() + '%';
         $progress.width(width).text(width);
@@ -113,6 +115,20 @@
           }, 2000);
         });
       });
+    }).on('error', function (type) {
+      if (type === 'Q_EXCEED_SIZE_LIMIT') {
+        toastErr({
+          icon: 'warning',
+          heading: '文件被拒绝',
+          text: '文件大小超出限制'
+        });
+      } else if (type === 'Q_TYPE_DENIED') {
+        toastErr({
+          icon: 'warning',
+          heading: '文件被拒绝',
+          text: '文件类型错误'
+        });
+      }
     }).on('startUpload', function () {
       // initialize
       $progress.width('0').text('');
