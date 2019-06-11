@@ -44,10 +44,39 @@
           brandList,
           otherList
         } = data
-        $('#docCount').html(`${totalFile} <small>份</small>`)
-        $('#saveCount').html(`${totalDownload} <small>次</small>`)
-        $('#entCount').html(`${totalEnterprise} <small>家</small>`)
-        $('#userCount').html(`${totalCustomer} <small>人</small>`)
+        let comma = $.animateNumber.numberStepFactories.separator(',')
+        let option = {
+          easing: 'swing',
+          duration: 1000
+        }
+        $('#docCount span').animateNumber(
+          {
+            number: totalFile,
+            numberStep: comma
+          },
+          option
+        )
+        $('#saveCount span').animateNumber(
+          {
+            number: totalDownload,
+            numberStep: comma
+          },
+          option
+        )
+        $('#entCount span').animateNumber(
+          {
+            number: totalEnterprise,
+            numberStep: comma
+          },
+          option
+        )
+        $('#userCount span').animateNumber(
+          {
+            number: totalCustomer,
+            numberStep: comma
+          },
+          option
+        )
 
         initPie1(typeList)
         initPie2(brandList, otherList)

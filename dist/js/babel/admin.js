@@ -37,10 +37,27 @@
             typeList = data.typeList,
             brandList = data.brandList,
             otherList = data.otherList;
-        $('#docCount').html("".concat(totalFile, " <small>\u4EFD</small>"));
-        $('#saveCount').html("".concat(totalDownload, " <small>\u6B21</small>"));
-        $('#entCount').html("".concat(totalEnterprise, " <small>\u5BB6</small>"));
-        $('#userCount').html("".concat(totalCustomer, " <small>\u4EBA</small>"));
+        var comma = $.animateNumber.numberStepFactories.separator(',');
+        var option = {
+          easing: 'swing',
+          duration: 1000
+        };
+        $('#docCount span').animateNumber({
+          number: totalFile,
+          numberStep: comma
+        }, option);
+        $('#saveCount span').animateNumber({
+          number: totalDownload,
+          numberStep: comma
+        }, option);
+        $('#entCount span').animateNumber({
+          number: totalEnterprise,
+          numberStep: comma
+        }, option);
+        $('#userCount span').animateNumber({
+          number: totalCustomer,
+          numberStep: comma
+        }, option);
         initPie1(typeList);
         initPie2(brandList, otherList);
       });
