@@ -504,23 +504,29 @@
       handleResult(res, function(data) {
         // build table
         $tbody.html('')
-        data.list.map(file => {
-          $tbody.append(
-            buildRankRow({
-              id: file.fileDataId,
-              title: file.fileName,
-              date: file.dataTimeDesc,
-              size: file.fileSize + ' MB',
-              type: file.fileDataTypeDesc,
-              cate: file.classTwoDesc,
-              brand: file.brandDesc,
-              company: file.enterprise,
-              bonus: parseInt(file.requiredIntegral, 10),
-              download: file.downloadCount,
-              fav: parseInt(file.favoriteStatus, 10) === 1
-            })
+        if (data.list.length === 0) {
+          $('<div class="empty">暂无数据</div>').insertAfter(
+            $tbody.closest('table')
           )
-        })
+        } else {
+          data.list.map(file => {
+            $tbody.append(
+              buildRankRow({
+                id: file.fileDataId,
+                title: file.fileName,
+                date: file.dataTimeDesc,
+                size: file.fileSize + ' MB',
+                type: file.fileDataTypeDesc,
+                cate: file.classTwoDesc,
+                brand: file.brandDesc,
+                company: file.enterprise,
+                bonus: parseInt(file.requiredIntegral, 10),
+                download: file.downloadCount,
+                fav: parseInt(file.favoriteStatus, 10) === 1
+              })
+            )
+          })
+        }
         // build pagination
         let { pageNum, total, pages } = data
         buildPage({ pageNum, total, pages })

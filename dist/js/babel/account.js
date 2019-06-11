@@ -348,30 +348,34 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     if (/user/i.test(selector)) {
       $tbody.html('');
       getUsers(data, function (res) {
-        return res.map(function (v) {
-          return $tbody.append(buildUser(v));
-        });
+        return build(res, buildUser);
       }, function (page) {
         return buildPage(selector, page);
       });
     } else if (/role/i.test(selector)) {
       $tbody.html('');
       getRoles(data, function (res) {
-        return res.map(function (v) {
-          return $tbody.append(buildRole(v));
-        });
+        return build(res, buildRole);
       }, function (page) {
         return buildPage(selector, page);
       });
     } else if (/bonus/i.test(selector)) {
       $tbody.html('');
       getBonus(data, function (res) {
-        return res.map(function (v) {
-          return $tbody.append(buildBonus(v));
-        });
+        return build(res, buildBonus);
       }, function (page) {
         return buildPage(selector, page);
       });
+    }
+
+    function build(res, func) {
+      if (res.length === 0) {
+        $('<div class="empty">暂无数据</div>').insertAfter($tbody.closest('table'));
+      } else {
+        res.map(function (v) {
+          return $tbody.append(func(v));
+        });
+      }
     }
   }
 

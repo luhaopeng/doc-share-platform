@@ -249,23 +249,33 @@
       $tbody.html('')
       getUploads(
         data,
-        res => res.map(v => $tbody.append(buildUpload(v))),
+        res => build(res, buildUpload),
         page => buildPage(selector, page)
       )
     } else if (/star/i.test(selector)) {
       $tbody.html('')
       getStars(
         data,
-        res => res.map(v => $tbody.append(buildStar(v))),
+        res => build(res, buildStar),
         page => buildPage(selector, page)
       )
     } else if (/bonus/i.test(selector)) {
       $tbody.html('')
       getBonus(
         data,
-        res => res.map(v => $tbody.append(buildBonus(v))),
+        res => build(res, buildBonus),
         page => buildPage(selector, page)
       )
+    }
+
+    function build(res, func) {
+      if (res.length === 0) {
+        $('<div class="empty">暂无数据</div>').insertAfter(
+          $tbody.closest('table')
+        )
+      } else {
+        res.map(v => $tbody.append(func(v)))
+      }
     }
   }
 

@@ -348,23 +348,33 @@
       $tbody.html('')
       getUsers(
         data,
-        res => res.map(v => $tbody.append(buildUser(v))),
+        res => build(res, buildUser),
         page => buildPage(selector, page)
       )
     } else if (/role/i.test(selector)) {
       $tbody.html('')
       getRoles(
         data,
-        res => res.map(v => $tbody.append(buildRole(v))),
+        res => build(res, buildRole),
         page => buildPage(selector, page)
       )
     } else if (/bonus/i.test(selector)) {
       $tbody.html('')
       getBonus(
         data,
-        res => res.map(v => $tbody.append(buildBonus(v))),
+        res => build(res, buildBonus),
         page => buildPage(selector, page)
       )
+    }
+
+    function build(res, func) {
+      if (res.length === 0) {
+        $('<div class="empty">暂无数据</div>').insertAfter(
+          $tbody.closest('table')
+        )
+      } else {
+        res.map(v => $tbody.append(func(v)))
+      }
     }
   }
 
