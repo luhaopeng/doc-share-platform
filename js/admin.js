@@ -35,6 +35,40 @@
       state: true,
       size: 'small'
     })
+    let $stats = $('.card.card-stats .card-header .card-title span')
+    let comma = $.animateNumber.numberStepFactories.separator(',')
+    let option = {
+      easing: 'swing',
+      duration: 1000
+    }
+    $stats.eq(0).animateNumber(
+      {
+        number: 15000,
+        numberStep: comma
+      },
+      option
+    )
+    $stats.eq(1).animateNumber(
+      {
+        number: 300000,
+        numberStep: comma
+      },
+      option
+    )
+    $stats.eq(2).animateNumber(
+      {
+        number: 25,
+        numberStep: comma
+      },
+      option
+    )
+    $stats.eq(3).animateNumber(
+      {
+        number: 210,
+        numberStep: comma
+      },
+      option
+    )
 
     initLine()
     initPie1()
