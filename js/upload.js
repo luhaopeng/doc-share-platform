@@ -65,7 +65,7 @@
       accept: {
         title: '文件',
         extensions: 'txt,mat',
-        mimeTypes: 'text/plain,application/matlab-mat'
+        mimeTypes: '.txt,.mat'
       }
     })
     uploader
