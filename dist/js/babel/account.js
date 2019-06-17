@@ -345,22 +345,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function buildRow(selector, data, $tbody) {
+    $tbody.html('');
+    var $table = $tbody.closest('table');
+    $table.siblings('.empty').remove();
+
     if (/user/i.test(selector)) {
-      $tbody.html('');
       getUsers(data, function (res) {
         return build(res, buildUser);
       }, function (page) {
         return buildPage(selector, page);
       });
     } else if (/role/i.test(selector)) {
-      $tbody.html('');
       getRoles(data, function (res) {
         return build(res, buildRole);
       }, function (page) {
         return buildPage(selector, page);
       });
     } else if (/bonus/i.test(selector)) {
-      $tbody.html('');
       getBonus(data, function (res) {
         return build(res, buildBonus);
       }, function (page) {
@@ -370,7 +371,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     function build(res, func) {
       if (res.length === 0) {
-        $('<div class="empty">暂无数据</div>').insertAfter($tbody.closest('table'));
+        $('<div class="empty">暂无数据</div>').insertAfter($table);
       } else {
         res.map(function (v) {
           return $tbody.append(func(v));

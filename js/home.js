@@ -245,22 +245,22 @@
   }
 
   function buildRow(selector, data, $tbody) {
+    $tbody.html('')
+    let $table = $tbody.closest('table')
+    $table.siblings('.empty').remove()
     if (/upload/i.test(selector)) {
-      $tbody.html('')
       getUploads(
         data,
         res => build(res, buildUpload),
         page => buildPage(selector, page)
       )
     } else if (/star/i.test(selector)) {
-      $tbody.html('')
       getStars(
         data,
         res => build(res, buildStar),
         page => buildPage(selector, page)
       )
     } else if (/bonus/i.test(selector)) {
-      $tbody.html('')
       getBonus(
         data,
         res => build(res, buildBonus),
@@ -270,9 +270,7 @@
 
     function build(res, func) {
       if (res.length === 0) {
-        $('<div class="empty">暂无数据</div>').insertAfter(
-          $tbody.closest('table')
-        )
+        $('<div class="empty">暂无数据</div>').insertAfter($table)
       } else {
         res.map(v => $tbody.append(func(v)))
       }

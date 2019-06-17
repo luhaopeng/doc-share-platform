@@ -504,10 +504,10 @@
       handleResult(res, function(data) {
         // build table
         $tbody.html('')
+        let $table = $tbody.closest('table')
+        $table.siblings('.empty').remove()
         if (data.list.length === 0) {
-          $('<div class="empty">暂无数据</div>').insertAfter(
-            $tbody.closest('table')
-          )
+          $('<div class="empty">暂无数据</div>').insertAfter($table)
         } else {
           data.list.map(file => {
             $tbody.append(

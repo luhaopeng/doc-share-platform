@@ -415,9 +415,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       handleResult(res, function (data) {
         // build table
         $tbody.html('');
+        var $table = $tbody.closest('table');
+        $table.siblings('.empty').remove();
 
         if (data.list.length === 0) {
-          $('<div class="empty">暂无数据</div>').insertAfter($tbody.closest('table'));
+          $('<div class="empty">暂无数据</div>').insertAfter($table);
         } else {
           data.list.map(function (file) {
             $tbody.append(buildRankRow({

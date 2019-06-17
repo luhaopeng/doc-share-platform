@@ -344,22 +344,22 @@
   }
 
   function buildRow(selector, data, $tbody) {
+    $tbody.html('')
+    let $table = $tbody.closest('table')
+    $table.siblings('.empty').remove()
     if (/user/i.test(selector)) {
-      $tbody.html('')
       getUsers(
         data,
         res => build(res, buildUser),
         page => buildPage(selector, page)
       )
     } else if (/role/i.test(selector)) {
-      $tbody.html('')
       getRoles(
         data,
         res => build(res, buildRole),
         page => buildPage(selector, page)
       )
     } else if (/bonus/i.test(selector)) {
-      $tbody.html('')
       getBonus(
         data,
         res => build(res, buildBonus),
@@ -369,9 +369,7 @@
 
     function build(res, func) {
       if (res.length === 0) {
-        $('<div class="empty">暂无数据</div>').insertAfter(
-          $tbody.closest('table')
-        )
+        $('<div class="empty">暂无数据</div>').insertAfter($table)
       } else {
         res.map(v => $tbody.append(func(v)))
       }
