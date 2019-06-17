@@ -17,12 +17,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     textAlign: 'center'
   };
   $(function () {
-    initModalBtn();
     initUserModal();
     initRoleModal();
     initSearchComplete();
     initTable('#table_user', {
-      ban: function ban() {
+      ban: function ban(params) {
         var $target = $(this);
         var $tr = $target.closest('tr');
         var account = $tr.attr('data-account');
@@ -109,106 +108,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
     initTable('#table_bonus');
   });
-
-  function initModalBtn() {
-    // user
-    var $userModal = $('#changeRoleModal');
-    $userModal.on('click', '.submit', function change() {
-      // prettier-ignore
-      var account = $userModal.find('#user').val().trim();
-      var roleId = $userModal.find('#role').val();
-
-      if ($userModal.data('action') === 'add') {
-        addUser({
-          account: account,
-          roleId: roleId
-        }, $userModal.find('.modal-body'), function () {
-          buildRow('#table_user', params, $('#table_user tbody'));
-          $userModal.modal('hide');
-        });
-      } else if ($userModal.data('action') === 'edit') {
-        editUser({
-          account: account,
-          roleId: roleId
-        }, function () {
-          buildRow('#table_user', params, $('#table_user tbody'));
-          $userModal.modal('hide');
-        });
-      }
-    }); // role
-
-    var $roleModal = $('#editRoleModal');
-    $roleModal.on('click', '.submit', function edit() {
-      // prettier-ignore
-      var name = $roleModal.find('#name').val().trim(); // prettier-ignore
-
-      var desc = $roleModal.find('#desc').val().trim();
-      var auth = Array.from($roleModal.find('.authority .form-check-input:checked')).map(function (v) {
-        return $(v).attr('data-id');
-      });
-
-      if ($roleModal.data('action') === 'add') {
-        addRole({
-          disc: name,
-          remark: desc,
-          list: auth
-        }, $roleModal.find('.modal-body'), function () {
-          buildRow('#table_role', params, $('#table_role tbody'));
-          $roleModal.modal('hide');
-        });
-      } else if ($roleModal.data('action') === 'edit') {
-        var id = $roleModal.data('id');
-        editRole({
-          roleId: id,
-          disc: name,
-          remark: desc,
-          list: auth
-        }, function () {
-          buildRow('#table_role', params, $('#table_role tbody'));
-          $roleModal.modal('hide');
-        });
-      }
-    }); // delete
-
-    var $delModal = $('#deleteRoleModal');
-    $delModal.on('click', '.submit', function del() {
-      var id = $delModal.data('id');
-      delRole({
-        roleId: id
-      }, function () {
-        buildRow('#table_role', params, $('#table_role tbody'));
-        $delModal.modal('hide');
-      });
-    }); // add
-
-    $('#users .search .add').on('click', function add() {
-      var $modal = $('#changeRoleModal');
-      $modal.data('action', 'add'); // basic inputs
-
-      $modal.find('.modal-title').text('新增用户'); // prettier-ignore
-
-      $modal.find('input#user').prop('disabled', false).val('');
-      $modal.find('select#role').get(0).selectedIndex = 0; // show
-
-      $modal.modal();
-    });
-    $('#roles .search .add').on('click', function add() {
-      var $modal = $('#editRoleModal');
-      $modal.data('action', 'add'); // basic inputs
-
-      $modal.find('.modal-title').text('新增角色');
-      $modal.find('input#name').val('');
-      $modal.find('input#desc').val(''); // auth checkboxes
-
-      $modal.find('.form-check-input').prop('checked', false); // show
-
-      $modal.modal();
-    });
-  }
   /**
    * 初始化角色select列表
    */
-
 
   function initUserModal() {
     $.post('sys/queryRoleList', function (res) {
@@ -258,9 +160,107 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       pageSize: 5,
       keyword: '',
       entName: '',
-      account: '' // initial data
+      account: '' // init modal btns
 
     };
+
+    if (/user/i.test(selector)) {
+      var $userModal = $('#changeRoleModal'); // bring up modal
+
+      $('#users .search .add').on('click', function add() {
+        $userModal.data('action', 'add'); // basic inputs
+
+        $userModal.find('.modal-title').text('新增用户'); // prettier-ignore
+
+        $userModal.find('input#user').prop('disabled', false).val('');
+        $userModal.find('select#role').get(0).selectedIndex = 0; // show
+
+        $userModal.modal();
+      }); // modal submit
+
+      $userModal.on('click', '.submit', function change() {
+        // prettier-ignore
+        var account = $userModal.find('#user').val().trim();
+        var roleId = $userModal.find('#role').val();
+
+        if ($userModal.data('action') === 'add') {
+          addUser({
+            account: account,
+            roleId: roleId
+          }, $userModal.find('.modal-body'), function () {
+            buildRow('#table_user', params, $('#table_user tbody'));
+            $userModal.modal('hide');
+          });
+        } else if ($userModal.data('action') === 'edit') {
+          editUser({
+            account: account,
+            roleId: roleId
+          }, function () {
+            buildRow('#table_user', params, $('#table_user tbody'));
+            $userModal.modal('hide');
+          });
+        }
+      });
+    } else if (/role/i.test(selector)) {
+      var $roleModal = $('#editRoleModal'); // bring up modal
+
+      $('#roles .search .add').on('click', function add() {
+        $roleModal.data('action', 'add'); // basic inputs
+
+        $roleModal.find('.modal-title').text('新增角色');
+        $roleModal.find('input#name').val('');
+        $roleModal.find('input#desc').val(''); // auth checkboxes
+
+        $roleModal.find('.form-check-input').prop('checked', false); // show
+
+        $roleModal.modal();
+      }); // modal submit
+
+      $roleModal.on('click', '.submit', function edit() {
+        // prettier-ignore
+        var name = $roleModal.find('#name').val().trim(); // prettier-ignore
+
+        var desc = $roleModal.find('#desc').val().trim();
+        var auth = Array.from($roleModal.find('.authority .form-check-input:checked')).map(function (v) {
+          return $(v).attr('data-id');
+        });
+
+        if ($roleModal.data('action') === 'add') {
+          addRole({
+            disc: name,
+            remark: desc,
+            list: auth
+          }, $roleModal.find('.modal-body'), function () {
+            buildRow('#table_role', params, $('#table_role tbody'));
+            $roleModal.modal('hide');
+          });
+        } else if ($roleModal.data('action') === 'edit') {
+          var id = $roleModal.data('id');
+          editRole({
+            roleId: id,
+            disc: name,
+            remark: desc,
+            list: auth
+          }, function () {
+            buildRow('#table_role', params, $('#table_role tbody'));
+            $roleModal.modal('hide');
+          });
+        }
+      }); // delete
+
+      var $delModal = $('#deleteRoleModal');
+      $delModal.on('click', '.submit', function del() {
+        var id = $delModal.data('id');
+        delRole({
+          roleId: id
+        }, function () {
+          buildRow('#table_role', params, $('#table_role tbody'));
+          $delModal.modal('hide');
+        });
+      });
+    } // initial data
+
+
     var $table = $(selector);
     var $tbody = $table.find('tbody');
     buildRow(selector, params, $tbody); // limit
@@ -337,10 +337,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
     }); // td-actions
 
-    for (var key in actionCB) {
+    var _loop = function _loop(key) {
       if (typeof actionCB[key] === 'function') {
-        $tbody.on('click', "button[data-action=".concat(key, "]"), actionCB[key]);
+        $tbody.on('click', "button[data-action=".concat(key, "]"), function () {
+          actionCB[key].call(this, params);
+        });
       }
+    };
+
+    for (var key in actionCB) {
+      _loop(key);
     }
   }
 

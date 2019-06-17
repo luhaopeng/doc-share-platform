@@ -10,12 +10,11 @@
   }
 
   $(function() {
-    initModalBtn()
     initUserModal()
     initRoleModal()
     initSearchComplete()
     initTable('#table_user', {
-      ban: function ban() {
+      ban: function ban(params) {
         let $target = $(this)
         let $tr = $target.closest('tr')
         let account = $tr.attr('data-account')
@@ -103,97 +102,6 @@
     initTable('#table_bonus')
   })
 
-  function initModalBtn() {
-    // user
-    let $userModal = $('#changeRoleModal')
-    $userModal.on('click', '.submit', function change() {
-      // prettier-ignore
-      let account = $userModal.find('#user').val().trim()
-      let roleId = $userModal.find('#role').val()
-      if ($userModal.data('action') === 'add') {
-        addUser(
-          { account, roleId },
-          $userModal.find('.modal-body'),
-          function() {
-            buildRow('#table_user', params, $('#table_user tbody'))
-            $userModal.modal('hide')
-          }
-        )
-      } else if ($userModal.data('action') === 'edit') {
-        editUser({ account, roleId }, function() {
-          buildRow('#table_user', params, $('#table_user tbody'))
-          $userModal.modal('hide')
-        })
-      }
-    })
-
-    // role
-    let $roleModal = $('#editRoleModal')
-    $roleModal.on('click', '.submit', function edit() {
-      // prettier-ignore
-      let name = $roleModal.find('#name').val().trim()
-      // prettier-ignore
-      let desc = $roleModal.find('#desc').val().trim()
-      let auth = Array.from(
-        $roleModal.find('.authority .form-check-input:checked')
-      ).map(v => $(v).attr('data-id'))
-      if ($roleModal.data('action') === 'add') {
-        addRole(
-          { disc: name, remark: desc, list: auth },
-          $roleModal.find('.modal-body'),
-          function() {
-            buildRow('#table_role', params, $('#table_role tbody'))
-            $roleModal.modal('hide')
-          }
-        )
-      } else if ($roleModal.data('action') === 'edit') {
-        let id = $roleModal.data('id')
-        editRole(
-          { roleId: id, disc: name, remark: desc, list: auth },
-          function() {
-            buildRow('#table_role', params, $('#table_role tbody'))
-            $roleModal.modal('hide')
-          }
-        )
-      }
-    })
-
-    // delete
-    let $delModal = $('#deleteRoleModal')
-    $delModal.on('click', '.submit', function del() {
-      let id = $delModal.data('id')
-      delRole({ roleId: id }, function() {
-        buildRow('#table_role', params, $('#table_role tbody'))
-        $delModal.modal('hide')
-      })
-    })
-
-    // add
-    $('#users .search .add').on('click', function add() {
-      let $modal = $('#changeRoleModal')
-      $modal.data('action', 'add')
-      // basic inputs
-      $modal.find('.modal-title').text('新增用户')
-      // prettier-ignore
-      $modal.find('input#user').prop('disabled', false).val('')
-      $modal.find('select#role').get(0).selectedIndex = 0
-      // show
-      $modal.modal()
-    })
-    $('#roles .search .add').on('click', function add() {
-      let $modal = $('#editRoleModal')
-      $modal.data('action', 'add')
-      // basic inputs
-      $modal.find('.modal-title').text('新增角色')
-      $modal.find('input#name').val('')
-      $modal.find('input#desc').val('')
-      // auth checkboxes
-      $modal.find('.form-check-input').prop('checked', false)
-      // show
-      $modal.modal()
-    })
-  }
-
   /**
    * 初始化角色select列表
    */
@@ -247,6 +155,95 @@
       keyword: '',
       entName: '',
       account: ''
+    }
+
+    // init modal btns
+    if (/user/i.test(selector)) {
+      let $userModal = $('#changeRoleModal')
+      // bring up modal
+      $('#users .search .add').on('click', function add() {
+        $userModal.data('action', 'add')
+        // basic inputs
+        $userModal.find('.modal-title').text('新增用户')
+        // prettier-ignore
+        $userModal.find('input#user').prop('disabled', false).val('')
+        $userModal.find('select#role').get(0).selectedIndex = 0
+        // show
+        $userModal.modal()
+      })
+      // modal submit
+      $userModal.on('click', '.submit', function change() {
+        // prettier-ignore
+        let account = $userModal.find('#user').val().trim()
+        let roleId = $userModal.find('#role').val()
+        if ($userModal.data('action') === 'add') {
+          addUser(
+            { account, roleId },
+            $userModal.find('.modal-body'),
+            function() {
+              buildRow('#table_user', params, $('#table_user tbody'))
+              $userModal.modal('hide')
+            }
+          )
+        } else if ($userModal.data('action') === 'edit') {
+          editUser({ account, roleId }, function() {
+            buildRow('#table_user', params, $('#table_user tbody'))
+            $userModal.modal('hide')
+          })
+        }
+      })
+    } else if (/role/i.test(selector)) {
+      let $roleModal = $('#editRoleModal')
+      // bring up modal
+      $('#roles .search .add').on('click', function add() {
+        $roleModal.data('action', 'add')
+        // basic inputs
+        $roleModal.find('.modal-title').text('新增角色')
+        $roleModal.find('input#name').val('')
+        $roleModal.find('input#desc').val('')
+        // auth checkboxes
+        $roleModal.find('.form-check-input').prop('checked', false)
+        // show
+        $roleModal.modal()
+      })
+      // modal submit
+      $roleModal.on('click', '.submit', function edit() {
+        // prettier-ignore
+        let name = $roleModal.find('#name').val().trim()
+        // prettier-ignore
+        let desc = $roleModal.find('#desc').val().trim()
+        let auth = Array.from(
+          $roleModal.find('.authority .form-check-input:checked')
+        ).map(v => $(v).attr('data-id'))
+        if ($roleModal.data('action') === 'add') {
+          addRole(
+            { disc: name, remark: desc, list: auth },
+            $roleModal.find('.modal-body'),
+            function() {
+              buildRow('#table_role', params, $('#table_role tbody'))
+              $roleModal.modal('hide')
+            }
+          )
+        } else if ($roleModal.data('action') === 'edit') {
+          let id = $roleModal.data('id')
+          editRole(
+            { roleId: id, disc: name, remark: desc, list: auth },
+            function() {
+              buildRow('#table_role', params, $('#table_role tbody'))
+              $roleModal.modal('hide')
+            }
+          )
+        }
+      })
+      // delete
+      let $delModal = $('#deleteRoleModal')
+      $delModal.on('click', '.submit', function del() {
+        let id = $delModal.data('id')
+        delRole({ roleId: id }, function() {
+          buildRow('#table_role', params, $('#table_role tbody'))
+          $delModal.modal('hide')
+        })
+      })
     }
 
     // initial data
@@ -338,7 +335,9 @@
     // td-actions
     for (let key in actionCB) {
       if (typeof actionCB[key] === 'function') {
-        $tbody.on('click', `button[data-action=${key}]`, actionCB[key])
+        $tbody.on('click', `button[data-action=${key}]`, function() {
+          actionCB[key].call(this, params)
+        })
       }
     }
   }
