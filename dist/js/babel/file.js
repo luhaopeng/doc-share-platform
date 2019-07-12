@@ -70,30 +70,29 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       // prettier-ignore
       var $downloadModal = $('#downloadModal'); // prettier-ignore
 
-      downloadCheck({
+      var targetFile = {
         fileDataId: fileId,
         fileDataType: fileType
-      }, function (data) {
+      };
+      downloadCheck(targetFile, function (data) {
         if (parseInt(data.requiredIntegral, 10)) {
           // confirm modal
           $downloadModal.find('.modal-body').html("\n              \u4F7F\u7528<b class=\"cost\"> ".concat(data.requiredIntegral, " \u79EF\u5206</b>\u4E0B\u8F7D\u6B64\u6587\u4EF6\uFF1F\n              \u5F53\u524D\u79EF\u5206\u4F59\u989D\uFF1A<b class=\"remain\">").concat(data.currentIntegral, " \u79EF\u5206</b>\u3002\n            "));
           $downloadModal.modal();
-          $downloadModal.on('click', '#downloadBtn', function () {
+          $downloadModal.one('click', '#downloadBtn', function () {
             // download
-            download({
-              fileDataId: fileId,
-              fileDataType: fileType
-            });
+            download(targetFile);
             $downloadModal.modal('hide');
           });
         } else {
           // download
-          download({
-            fileDataId: fileId,
-            fileDataType: fileType
-          });
+          download(targetFile);
         }
       });
+    }).on('click', '.preview', function newTab() {
+      var prefix = $('base').attr('href');
+      var url = "".concat(prefix, "fileData/queryChartImg?fileDataId=").concat(fileId);
+      window.open(url);
     });
     getDetailData();
 
@@ -140,7 +139,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           $body.find('.intro').text(remark); // author
 
           var bonus = "<li>\u9700 ".concat(requiredIntegral, " \u79EF\u5206</li>");
-          $body.find('.author').html("\n              <li>".concat(account, "</li>\n              <li>").concat(enterprise, "</li>\n              <li>").concat(dataTimeDesc, "</li>\n              <li>").concat(fileDataTypeDesc, "</li>\n              <li>").concat(downloadCount, " \u6B21\u4E0B\u8F7D</li>\n              ").concat(parseInt(requiredIntegral, 10) > 0 ? bonus : '', "\n              <li title=\"\u4E0B\u8F7D\" class=\"download\">\n                <i class=\"material-icons\">get_app</i>\n                ").concat(fileSize, " MB\n              </li>\n            ")); // stat
+          var preview = "\n              <li title=\"\u9884\u89C8\" class=\"preview\">\n                <i class=\"material-icons\">image</i>\n                \u9884\u89C8\n              </li>\n            ";
+          $body.find('.author').html("\n              <li>".concat(account, "</li>\n              <li>").concat(enterprise, "</li>\n              <li>").concat(dataTimeDesc, "</li>\n              <li>").concat(fileDataTypeDesc, "</li>\n              <li>").concat(downloadCount, " \u6B21\u4E0B\u8F7D</li>\n              ").concat(parseInt(requiredIntegral, 10) > 0 ? bonus : '', "\n              ").concat(fileType === 2 ? preview : '', "\n              <li title=\"\u4E0B\u8F7D\" class=\"download\">\n                <i class=\"material-icons\">get_app</i>\n                ").concat(fileSize, " MB\n              </li>\n            ")); // stat
           // part 1
 
           var $part = $body.find('.stat .part');

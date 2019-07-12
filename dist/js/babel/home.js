@@ -59,47 +59,33 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           });
         }
       },
-      download: function (_download) {
-        function download() {
-          return _download.apply(this, arguments);
-        }
-
-        download.toString = function () {
-          return _download.toString();
-        };
-
-        return download;
-      }(function () {
+      download: function download() {
         // prettier-ignore
         var $tr = $(this).closest('tr');
         var id = $tr.attr('data-id');
         var type = $tr.attr('data-type');
         var $downloadModal = $('#downloadModal');
-        downloadCheck({
+        var targetFile = {
           fileDataId: id,
           fileDataType: type
-        }, function (data) {
+        };
+        downloadCheck(targetFile, function (data) {
           if (parseInt(data.requiredIntegral, 10)) {
             // confirm modal
             $downloadModal.find('.modal-body').html("\n              \u4F7F\u7528<b class=\"cost\"> ".concat(data.requiredIntegral, " \u79EF\u5206</b>\u4E0B\u8F7D\u6B64\u6587\u4EF6\uFF1F\n              \u5F53\u524D\u79EF\u5206\u4F59\u989D\uFF1A<b class=\"remain\">").concat(data.currentIntegral, " \u79EF\u5206</b>\u3002\n            "));
             $downloadModal.modal();
-            $downloadModal.on('click', '#downloadBtn', function () {
+            $downloadModal.one('click', '#downloadBtn', function () {
               // download
-              download({
-                fileDataId: id,
-                fileDataType: type
-              });
+              _download(targetFile);
+
               $downloadModal.modal('hide');
             });
           } else {
             // download
-            download({
-              fileDataId: id,
-              fileDataType: type
-            });
+            _download(targetFile);
           }
         });
-      })
+      }
     });
     initTable('#table_bonus');
     initDropdown();
@@ -412,6 +398,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   function downloadCheck(obj, done) {
     $.post('fileData/checkFileDownload', obj, function (res) {
       handleResult(res, done);
+    });
+  }
+
+  function _download(obj) {
+    var url = $('base').attr('href') + 'fileData/doFileDownload';
+    $.fileDownload(url, {
+      httpMethod: 'POST',
+      data: obj
     });
   }
 

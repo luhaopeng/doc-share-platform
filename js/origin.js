@@ -329,8 +329,24 @@
       .on('click', 'button[data-action=download]', function() {
         // prettier-ignore
         let id = $(this).closest('tr').attr('data-id')
-        downloadCheck({ fileDataId: id, fileDataType: 1 }, function() {
-          download({ fileDataId: id, fileDataType: 1 })
+        let $downloadModal = $('#downloadModal')
+        let targetFile = { fileDataId: id, fileDataType: 1 }
+        downloadCheck(targetFile, function(data) {
+          if (parseInt(data.requiredIntegral, 10)) {
+            // confirm modal
+            $downloadModal.find('.modal-body').html(`
+              使用<b class="cost"> ${data.requiredIntegral} 积分</b>下载此文件？
+              当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
+            `)
+            $downloadModal.modal()
+            $downloadModal.one('click', '#downloadBtn', function() {
+              download(targetFile)
+              $downloadModal.modal('hide')
+            })
+          } else {
+            // download
+            download(targetFile)
+          }
         })
       })
   }

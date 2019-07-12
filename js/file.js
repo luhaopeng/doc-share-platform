@@ -66,13 +66,13 @@
       }
     })
 
-    $('.card ul.author').on('click', '.download', function showModal() {
-      // prettier-ignore
-      let $downloadModal = $('#downloadModal')
-      // prettier-ignore
-      downloadCheck(
-        { fileDataId: fileId, fileDataType: fileType },
-        function(data) {
+    $('.card ul.author')
+      .on('click', '.download', function showModal() {
+        // prettier-ignore
+        let $downloadModal = $('#downloadModal')
+        // prettier-ignore
+        let targetFile = { fileDataId: fileId, fileDataType: fileType }
+        downloadCheck(targetFile, function(data) {
           if (parseInt(data.requiredIntegral, 10)) {
             // confirm modal
             $downloadModal.find('.modal-body').html(`
@@ -80,18 +80,22 @@
               当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
             `)
             $downloadModal.modal()
-            $downloadModal.on('click', '#downloadBtn', function() {
+            $downloadModal.one('click', '#downloadBtn', function() {
               // download
-              download({ fileDataId: fileId, fileDataType: fileType })
+              download(targetFile)
               $downloadModal.modal('hide')
             })
           } else {
             // download
-            download({ fileDataId: fileId, fileDataType: fileType })
+            download(targetFile)
           }
-        }
-      )
-    })
+        })
+      })
+      .on('click', '.preview', function newTab() {
+        let prefix = $('base').attr('href')
+        let url = `${prefix}fileData/queryChartImg?fileDataId=${fileId}`
+        window.open(url)
+      })
 
     getDetailData()
 
@@ -147,6 +151,12 @@
             $body.find('.intro').text(remark)
             // author
             let bonus = `<li>需 ${requiredIntegral} 积分</li>`
+            let preview = `
+              <li title="预览" class="preview">
+                <i class="material-icons">image</i>
+                预览
+              </li>
+            `
             $body.find('.author').html(`
               <li>${account}</li>
               <li>${enterprise}</li>
@@ -154,6 +164,7 @@
               <li>${fileDataTypeDesc}</li>
               <li>${downloadCount} 次下载</li>
               ${parseInt(requiredIntegral, 10) > 0 ? bonus : ''}
+              ${fileType === 2 ? preview : ''}
               <li title="下载" class="download">
                 <i class="material-icons">get_app</i>
                 ${fileSize} MB

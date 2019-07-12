@@ -57,7 +57,8 @@
         let id = $tr.attr('data-id')
         let type = $tr.attr('data-type')
         let $downloadModal = $('#downloadModal')
-        downloadCheck({ fileDataId: id, fileDataType: type }, function(data) {
+        let targetFile = { fileDataId: id, fileDataType: type }
+        downloadCheck(targetFile, function(data) {
           if (parseInt(data.requiredIntegral, 10)) {
             // confirm modal
             $downloadModal.find('.modal-body').html(`
@@ -65,14 +66,14 @@
               当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
             `)
             $downloadModal.modal()
-            $downloadModal.on('click', '#downloadBtn', function() {
+            $downloadModal.one('click', '#downloadBtn', function() {
               // download
-              download({ fileDataId: id, fileDataType: type })
+              download(targetFile)
               $downloadModal.modal('hide')
             })
           } else {
             // download
-            download({ fileDataId: id, fileDataType: type })
+            download(targetFile)
           }
         })
       }
@@ -471,6 +472,11 @@
     $.post('fileData/checkFileDownload', obj, function(res) {
       handleResult(res, done)
     })
+  }
+
+  function download(obj) {
+    let url = $('base').attr('href') + 'fileData/doFileDownload'
+    $.fileDownload(url, { httpMethod: 'POST', data: obj })
   }
 
   function starFile(obj, done) {

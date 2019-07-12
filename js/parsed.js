@@ -330,16 +330,23 @@
         // prettier-ignore
         let id = $(this).closest('tr').attr('data-id')
         let $downloadModal = $('#downloadModal')
-        downloadCheck({ fileDataId: id, fileDataType: 2 }, function(data) {
-          $downloadModal.find('.modal-body').html(`
-            使用<b class="cost"> ${data.requiredIntegral} 积分</b>下载此文件？
-            当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
-          `)
-          $downloadModal.modal()
-          $downloadModal.on('click', '#downloadBtn', function() {
-            download({ fileDataId: id, fileDataType: 2 })
-            $downloadModal.modal('hide')
-          })
+        let targetFile = { fileDataId: id, fileDataType: 2 }
+        downloadCheck(targetFile, function(data) {
+          if (parseInt(data.requiredIntegral, 10)) {
+            // confirm modal
+            $downloadModal.find('.modal-body').html(`
+              使用<b class="cost"> ${data.requiredIntegral} 积分</b>下载此文件？
+              当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
+            `)
+            $downloadModal.modal()
+            $downloadModal.one('click', '#downloadBtn', function() {
+              download(targetFile)
+              $downloadModal.modal('hide')
+            })
+          } else {
+            // download
+            download(targetFile)
+          }
         })
       })
   }

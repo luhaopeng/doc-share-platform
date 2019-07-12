@@ -4,17 +4,16 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function qs(str) {
-  var mStr = str.replace(/^\?/, '');
-  var match = mStr.match(/(?<=^|&)([^&=]*=[^&]*)(?=&|$)/gi);
-  var obj = {};
-  match.map(function split(val) {
-    var split = val.split('=');
-    obj[decodeURIComponent(split[0])] = decodeURIComponent(split[1]);
-  });
-  return obj;
-}
-
+// function qs(str) {
+//   let mStr = str.replace(/^\?/, '')
+//   let match = mStr.match(/(?<=^|&)([^&=]*=[^&]*)(?=&|$)/gi)
+//   let obj = {}
+//   match.map(function split(val) {
+//     let split = val.split('=')
+//     obj[decodeURIComponent(split[0])] = decodeURIComponent(split[1])
+//   })
+//   return obj
+// }
 function handleResult(res, callback) {
   if (!res.ret) {
     typeof callback === 'function' && callback(res.data);
