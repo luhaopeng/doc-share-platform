@@ -106,7 +106,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               account = data.account,
               enterprise = data.enterprise,
               fileName = data.fileName,
-              fileSize = data.fileSize,
+              fileSizeDesc = data.fileSizeDesc,
               dataTimeDesc = data.dataTimeDesc,
               downloadCount = data.downloadCount,
               favoriteStatus = data.favoriteStatus,
@@ -140,7 +140,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
           var bonus = "<li>\u9700 ".concat(requiredIntegral, " \u79EF\u5206</li>");
           var preview = "\n              <li title=\"\u9884\u89C8\" class=\"preview\">\n                <i class=\"material-icons\">image</i>\n                \u9884\u89C8\n              </li>\n            ";
-          $body.find('.author').html("\n              <li>".concat(account, "</li>\n              <li>").concat(enterprise, "</li>\n              <li>").concat(dataTimeDesc, "</li>\n              <li>").concat(fileDataTypeDesc, "</li>\n              <li>").concat(downloadCount, " \u6B21\u4E0B\u8F7D</li>\n              ").concat(parseInt(requiredIntegral, 10) > 0 ? bonus : '', "\n              ").concat(fileType === 2 ? preview : '', "\n              <li title=\"\u4E0B\u8F7D\" class=\"download\">\n                <i class=\"material-icons\">get_app</i>\n                ").concat(fileSize, " MB\n              </li>\n            ")); // stat
+          $body.find('.author').html("\n              <li>".concat(account, "</li>\n              <li>").concat(enterprise, "</li>\n              <li>").concat(dataTimeDesc, "</li>\n              <li>").concat(fileDataTypeDesc, "</li>\n              <li>").concat(downloadCount, " \u6B21\u4E0B\u8F7D</li>\n              ").concat(parseInt(requiredIntegral, 10) > 0 ? bonus : '', "\n              ").concat(fileType === 2 ? preview : '', "\n              <li title=\"\u4E0B\u8F7D\" class=\"download\">\n                <i class=\"material-icons\">get_app</i>\n                ").concat(fileSizeDesc, "\n              </li>\n            ")); // stat
           // part 1
 
           var $part = $body.find('.stat .part');

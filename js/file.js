@@ -113,7 +113,7 @@
               account,
               enterprise,
               fileName,
-              fileSize,
+              fileSizeDesc,
               dataTimeDesc,
               downloadCount,
               favoriteStatus,
@@ -167,7 +167,7 @@
               ${fileType === 2 ? preview : ''}
               <li title="下载" class="download">
                 <i class="material-icons">get_app</i>
-                ${fileSize} MB
+                ${fileSizeDesc}
               </li>
             `)
             // stat

@@ -522,7 +522,7 @@
                 id: file.fileDataId,
                 title: file.fileName,
                 date: file.dataTimeDesc,
-                size: file.fileSize + ' MB',
+                size: file.fileSizeDesc,
                 type: file.fileDataTypeDesc,
                 cate: file.classTwoDesc,
                 brand: file.brandDesc,
