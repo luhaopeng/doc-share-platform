@@ -164,8 +164,8 @@
       }
     });
     $('#startUpload').on('click', function () {
-      if (!uploader.isInProgress()) {
-        validate() && uploader.upload();
+      if (!uploader.isInProgress() && validate()) {
+        uploader.upload();
       }
     });
   }

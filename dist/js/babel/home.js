@@ -25,14 +25,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var $target = $(this);
         var $tr = $target.closest('tr');
         var id = $tr.attr('data-id');
-        var type = $tr.attr('data-type');
         var action = $target.attr('data-toggle');
         $.toast().reset('all');
 
         if (action === 'star') {
           starFile({
             fileDataId: id,
-            fileDataType: type,
             opsFavoritesType: 1
           }, function () {
             $target.attr({
@@ -46,7 +44,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         } else if (action === 'unstar') {
           starFile({
             fileDataId: id,
-            fileDataType: type,
             opsFavoritesType: 2
           }, function () {
             $target.attr({
@@ -63,11 +60,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // prettier-ignore
         var $tr = $(this).closest('tr');
         var id = $tr.attr('data-id');
-        var type = $tr.attr('data-type');
         var $downloadModal = $('#downloadModal');
         var targetFile = {
           fileDataId: id,
-          fileDataType: type
+          fileDataType: 1
         };
         downloadCheck(targetFile, function (data) {
           if (parseInt(data.requiredIntegral, 10)) {
@@ -184,8 +180,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           // prettier-ignore
           var $tr = $(this).closest('tr');
           var id = $tr.attr('data-id');
-          var type = $tr.attr('data-type');
-          var $form = $("\n            <form\n              action=\"fileData/fileDataDetail\"\n              method=\"post\"\n              target=\"_blank\"\n              rel=\"noopener noreferrer\"\n              style=\"display:none;\"\n            >\n              <input name=\"fileDataId\" value=\"".concat(id, "\" />\n              <input name=\"fileDataType\" value=\"").concat(type, "\" />\n            </form>\n          "));
+          var $form = $("\n            <form\n              action=\"fileData/fileDataDetail\"\n              method=\"post\"\n              target=\"_blank\"\n              rel=\"noopener noreferrer\"\n              style=\"display:none;\"\n            >\n              <input name=\"fileDataId\" value=\"".concat(id, "\" />\n            </form>\n          "));
           $(document.body).append($form);
           $form.submit().remove();
         }
@@ -247,11 +242,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function buildUpload(obj) {
-    return "\n      <tr data-id=\"".concat(obj.id, "\" data-type=\"").concat(obj.type, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"text-ellipsis\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.typeStr, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td>").concat(obj.state, "</td>\n        <td class=\"text-right\">").concat(obj.download, "</td>\n      </tr>\n    ");
+    return "\n      <tr data-id=\"".concat(obj.id, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"text-ellipsis\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td>").concat(obj.state, "</td>\n        <td class=\"text-right\">").concat(obj.download, "</td>\n      </tr>\n    ");
   }
 
   function buildStar(obj) {
-    return "\n      <tr data-id=\"".concat(obj.id, "\" data-type=\"").concat(obj.type, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"text-ellipsis\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.typeStr, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td>").concat(obj.state, "</td>\n        <td>").concat(obj.bonus, "</td>\n        <td class=\"text-right\">").concat(obj.download, "</td>\n        <td class=\"td-actions text-right\">\n          <button\n            data-action=\"star\"\n            data-toggle=\"").concat(obj.fav ? 'unstar' : 'star', "\"\n            type=\"button\"\n            class=\"btn btn-warning\"\n            title=\"").concat(obj.fav ? '取消' : '', "\u6536\u85CF\"\n          >\n            <i class=\"material-icons\">star").concat(obj.fav ? '' : '_border', "</i>\n          </button>\n          <button\n            data-action=\"download\"\n            type=\"button\"\n            class=\"btn btn-success\"\n            title=\"\u4E0B\u8F7D\"\n          >\n            <i class=\"material-icons\">get_app</i>\n          </button>\n        </td>\n      </tr>\n    ");
+    return "\n      <tr data-id=\"".concat(obj.id, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"text-ellipsis\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td>").concat(obj.state, "</td>\n        <td>").concat(obj.bonus, "</td>\n        <td class=\"text-right\">").concat(obj.download, "</td>\n        <td class=\"td-actions text-right\">\n          <button\n            data-action=\"star\"\n            data-toggle=\"").concat(obj.fav ? 'unstar' : 'star', "\"\n            type=\"button\"\n            class=\"btn btn-warning\"\n            title=\"").concat(obj.fav ? '取消' : '', "\u6536\u85CF\"\n          >\n            <i class=\"material-icons\">star").concat(obj.fav ? '' : '_border', "</i>\n          </button>\n          <button\n            data-action=\"download\"\n            type=\"button\"\n            class=\"btn btn-success\"\n            title=\"\u4E0B\u8F7D\"\n          >\n            <i class=\"material-icons\">get_app</i>\n          </button>\n        </td>\n      </tr>\n    ");
   }
 
   function buildBonus(obj) {
@@ -320,8 +315,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             title: v.fileName,
             date: v.uploadTimeDesc,
             size: v.fileSizeDesc,
-            type: v.fileDataType,
-            typeStr: v.fileDataTypeDesc,
             cate: v.classTwoDesc,
             brand: v.brandDesc,
             state: v.fileDataStatusDesc,
@@ -352,8 +345,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             title: v.fileName,
             date: v.dataTimeDesc,
             size: v.fileSizeDesc,
-            type: v.fileDataType,
-            typeStr: v.fileDataTypeDesc,
             cate: v.classTwoDesc,
             brand: v.brandDesc,
             state: v.fileDataStatusDesc,

@@ -3,12 +3,15 @@
   let params = {
     pageNum: 1,
     pageSize: 5,
-    fileDataType: 1,
     sortType: 1,
     keyWord: '',
     classOne: 0,
     classTwo: 0,
+    status: 0,
     brands: []
+  }
+  if (!sessionStorage.readFileList) {
+    sessionStorage.readFileList = JSON.stringify([])
   }
 
   $(function() {
@@ -34,6 +37,11 @@
         children
       }
     })
+    let filterStatus = JSON.parse(filterStatusStr)
+    let statuses = filterStatus.map(obj => ({
+      id: obj.value,
+      label: obj.name
+    }))
     // build conditions
     let $combine = $('.filter .combine')
     let $condition = $('.filter .condition')
@@ -53,6 +61,14 @@
           cat: 'type',
           catStr: '设备类型',
           options: categories,
+          multi: false
+        })
+      )
+      .append(
+        buildCondition({
+          cat: 'status',
+          catStr: '文件状态',
+          options: statuses,
           multi: false
         })
       )
@@ -76,6 +92,9 @@
           case 'subtype':
             params.classTwo = 0
             break
+          case 'status':
+            params.status = 0
+            break
           default:
             return
         }
@@ -91,6 +110,7 @@
         params.brands = []
         params.classOne = 0
         params.classTwo = 0
+        params.status = 0
         getRankData(params)
       })
     $condition
@@ -125,6 +145,9 @@
             break
           case 'subtype':
             params.classTwo = parseInt($target.attr('data-id'), 10)
+            break
+          case 'status':
+            params.status = parseInt($target.attr('data-id'), 10)
             break
           default:
             return
@@ -261,9 +284,10 @@
     // click
     $tbody.on('click', 'tr', function detail(e) {
       let tag = e.target.tagName
-      if (/tr|td/i.test(tag)) {
+      if (/tr|td|div/i.test(tag)) {
         // prettier-ignore
-        let id = $(this).closest('tr').attr('data-id')
+        let $tr = $(this).closest('tr')
+        let id = $tr.attr('data-id')
         let $form = $(`
           <form
             action="fileData/fileDataDetail"
@@ -273,9 +297,10 @@
             style="display:none;"
           >
             <input name="fileDataId" value="${id}" />
-            <input name="fileDataType" value="1" />
           </form>
         `)
+        $tr.find('.unread').removeClass('unread')
+        readFile(parseInt(id, 10))
         $(document.body).append($form)
         $form.submit().remove()
       }
@@ -298,7 +323,7 @@
         $.toast().reset('all')
         if (action === 'star') {
           starFile(
-            { fileDataId: id, fileDataType: 1, opsFavoritesType: 1 },
+            { fileDataId: id, opsFavoritesType: 1 },
             function() {
               $target
                 .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
@@ -312,7 +337,7 @@
           )
         } else if (action === 'unstar') {
           starFile(
-            { fileDataId: id, fileDataType: 1, opsFavoritesType: 2 },
+            { fileDataId: id, opsFavoritesType: 2 },
             function() {
               $target
                 .attr({ 'data-toggle': 'star', title: '收藏' })
@@ -348,6 +373,12 @@
             download(targetFile)
           }
         })
+      })
+      .on('click', 'button[data-action=preview]', function() {
+        let id = $(this).closest('tr').attr('data-id')
+        let prefix = $('base').attr('href')
+        let url = `${prefix}fileData/queryChartImg?fileDataId=${id}`
+        window.open(url)
       })
   }
 
@@ -391,6 +422,9 @@
       case 'subtype':
         translate = '设备次级类型'
         break
+      case 'status':
+        translate = '文件状态'
+        break
       default:
         translate = ''
         break
@@ -413,21 +447,40 @@
   }
 
   function buildRankRow(obj) {
+    let $stateTd
+    if (obj.state) {
+      $stateTd = `
+        <button
+          data-action="preview"
+          type="button"
+          class="btn btn-info"
+          title="预览"
+        >
+          <i class="material-icons">image</i>
+        </button>
+      `
+    } else {
+      $stateTd = obj.stateStr
+    }
+    let className = 'text-ellipsis'
+    if (obj.unread && !hasReadFile(parseInt(obj.id, 10))){
+      className += ' unread'
+    }
     return `
       <tr data-id="${obj.id}">
         <td
           class="text-left"
           title="${obj.title}"
         >
-          <div class="text-ellipsis">${obj.title}</div>
+          <div class="${className}">${obj.title}</div>
         </td>
         <td>${obj.date}</td>
         <td>${obj.size}</td>
-        <td>${obj.type}</td>
         <td>${obj.cate}</td>
         <td>${obj.brand}</td>
         <td title="${obj.company}">${obj.company.substr(0, 4)}</td>
-        <td>${obj.state}</td>
+        <td>${obj.bonus}</td>
+        <td class="td-actions">${$stateTd}</td>
         <td class="text-right">${obj.download}</td>
         <td class="td-actions text-right">
           <button
@@ -505,6 +558,28 @@
     }
   }
 
+  function loadReadSet() {
+    // load
+    let readArr = JSON.parse(sessionStorage.readFileList)
+    return new Set(readArr)
+  }
+
+  function storeReadSet(readSet) {
+    // store
+    sessionStorage.readFileList = JSON.stringify([...readSet])
+  }
+
+  function readFile(id) {
+    let readSet = loadReadSet()
+    readSet.add(id)
+    storeReadSet(readSet)
+  }
+
+  function hasReadFile(id) {
+    let readSet = loadReadSet()
+    return readSet.has(id)
+  }
+
   function getRankData(obj) {
     let $tbody = $('#table_origin tbody')
     $.post('fileData/queryFileData', obj, function(res) {
@@ -523,13 +598,15 @@
                 title: file.fileName,
                 date: file.dataTimeDesc,
                 size: file.fileSizeDesc,
-                type: file.fileDataTypeDesc,
                 cate: file.classTwoDesc,
                 brand: file.brandDesc,
                 company: file.enterprise,
-                state: file.fileDataStatusDesc,
+                bonus: file.requiredIntegral,
+                state: parseInt(file.fileDataStatus, 10) === 2,
+                stateStr: file.fileDataStatusDesc,
                 download: file.downloadCount,
-                fav: parseInt(file.favoriteStatus, 10) === 1
+                fav: parseInt(file.favoriteStatus, 10) === 1,
+                unread: !!parseInt(file.flag, 10)
               })
             )
           })

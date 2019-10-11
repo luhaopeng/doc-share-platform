@@ -18,12 +18,11 @@
         let $target = $(this)
         let $tr = $target.closest('tr')
         let id = $tr.attr('data-id')
-        let type = $tr.attr('data-type')
         let action = $target.attr('data-toggle')
         $.toast().reset('all')
         if (action === 'star') {
           starFile(
-            { fileDataId: id, fileDataType: type, opsFavoritesType: 1 },
+            { fileDataId: id, opsFavoritesType: 1 },
             function() {
               $target
                 .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
@@ -37,7 +36,7 @@
           )
         } else if (action === 'unstar') {
           starFile(
-            { fileDataId: id, fileDataType: type, opsFavoritesType: 2 },
+            { fileDataId: id, opsFavoritesType: 2 },
             function() {
               $target
                 .attr({ 'data-toggle': 'star', title: '收藏' })
@@ -55,9 +54,8 @@
         // prettier-ignore
         let $tr = $(this).closest('tr')
         let id = $tr.attr('data-id')
-        let type = $tr.attr('data-type')
         let $downloadModal = $('#downloadModal')
-        let targetFile = { fileDataId: id, fileDataType: type }
+        let targetFile = { fileDataId: id, fileDataType: 1 }
         downloadCheck(targetFile, function(data) {
           if (parseInt(data.requiredIntegral, 10)) {
             // confirm modal
@@ -208,7 +206,6 @@
           // prettier-ignore
           let $tr = $(this).closest('tr')
           let id = $tr.attr('data-id')
-          let type = $tr.attr('data-type')
           let $form = $(`
             <form
               action="fileData/fileDataDetail"
@@ -218,7 +215,6 @@
               style="display:none;"
             >
               <input name="fileDataId" value="${id}" />
-              <input name="fileDataType" value="${type}" />
             </form>
           `)
           $(document.body).append($form)
@@ -280,7 +276,7 @@
 
   function buildUpload(obj) {
     return `
-      <tr data-id="${obj.id}" data-type="${obj.type}">
+      <tr data-id="${obj.id}">
         <td
           class="text-left"
           title="${obj.title}"
@@ -289,7 +285,6 @@
         </td>
         <td>${obj.date}</td>
         <td>${obj.size}</td>
-        <td>${obj.typeStr}</td>
         <td>${obj.cate}</td>
         <td>${obj.brand}</td>
         <td>${obj.state}</td>
@@ -300,7 +295,7 @@
 
   function buildStar(obj) {
     return `
-      <tr data-id="${obj.id}" data-type="${obj.type}">
+      <tr data-id="${obj.id}">
         <td
           class="text-left"
           title="${obj.title}"
@@ -309,7 +304,6 @@
         </td>
         <td>${obj.date}</td>
         <td>${obj.size}</td>
-        <td>${obj.typeStr}</td>
         <td>${obj.cate}</td>
         <td>${obj.brand}</td>
         <td>${obj.state}</td>
@@ -412,8 +406,6 @@
           title: v.fileName,
           date: v.uploadTimeDesc,
           size: v.fileSizeDesc,
-          type: v.fileDataType,
-          typeStr: v.fileDataTypeDesc,
           cate: v.classTwoDesc,
           brand: v.brandDesc,
           state: v.fileDataStatusDesc,
@@ -435,8 +427,6 @@
           title: v.fileName,
           date: v.dataTimeDesc,
           size: v.fileSizeDesc,
-          type: v.fileDataType,
-          typeStr: v.fileDataTypeDesc,
           cate: v.classTwoDesc,
           brand: v.brandDesc,
           state: v.fileDataStatusDesc,

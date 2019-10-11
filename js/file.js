@@ -1,25 +1,8 @@
 ;(function() {
   $(function() {
-    initType()
     initDetail()
     initComment()
   })
-
-  function initType() {
-    // navbar
-    let navLink = fileType === 1 ? 'base' : 'analysis'
-    $(`nav.navbar .navbar-nav .nav-link[href*="${navLink}"]`)
-      .parent()
-      .addClass('active')
-      .siblings()
-      .removeClass('active')
-    // breadcrumb
-    $('nav ol.breadcrumb li.breadcrumb-item').eq(0).html(`
-      <a href="fileData/${fileType === 2 ? 'analysis' : 'base'}FileData">
-        ${fileType === 2 ? '解析' : '原始'}文件库
-      </a>
-    `)
-  }
 
   function initDetail() {
     $('.card .star').on('click', function star() {
@@ -36,62 +19,64 @@
       }
       $.toast().reset('all')
       if (action === 'star') {
-        starFile(
-          { fileDataId: fileId, fileDataType: fileType, opsFavoritesType: 1 },
-          function() {
-            $target
-              .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
-              .children('.material-icons')
-              .text('star')
-            $.toast({
-              heading: '收藏成功',
-              ...TOAST_OPTION
-            })
-          }
-        )
+        starFile({ fileDataId: fileId, opsFavoritesType: 1 }, function() {
+          $target
+            .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
+            .children('.material-icons')
+            .text('star')
+          $.toast({
+            heading: '收藏成功',
+            ...TOAST_OPTION
+          })
+        })
       } else if (action === 'unstar') {
-        starFile(
-          { fileDataId: fileId, fileDataType: fileType, opsFavoritesType: 2 },
-          function() {
-            $target
-              .attr({ 'data-toggle': 'star', title: '收藏' })
-              .children('.material-icons')
-              .text('star_border')
-            $.toast({
-              heading: '已取消收藏',
-              ...TOAST_OPTION
-            })
-          }
-        )
+        starFile({ fileDataId: fileId, opsFavoritesType: 2 }, function() {
+          $target
+            .attr({ 'data-toggle': 'star', title: '收藏' })
+            .children('.material-icons')
+            .text('star_border')
+          $.toast({
+            heading: '已取消收藏',
+            ...TOAST_OPTION
+          })
+        })
       }
     })
 
-    $('.card ul.author')
-      .on('click', '.download', function showModal() {
-        // prettier-ignore
-        let $downloadModal = $('#downloadModal')
-        // prettier-ignore
-        let targetFile = { fileDataId: fileId, fileDataType: fileType }
-        downloadCheck(targetFile, function(data) {
-          if (parseInt(data.requiredIntegral, 10)) {
-            // confirm modal
-            $downloadModal.find('.modal-body').html(`
+    $('.card')
+      .on(
+        'click',
+        'ul.author .download, h3.feature .download',
+        function showModal(e) {
+          let $downloadModal = $('#downloadModal')
+          let targetFile = { fileDataId: fileId }
+          let type = $(e.target).attr('data-type')
+          if (type === 'feature') {
+            targetFile.fileDataType = 3
+          } else {
+            targetFile.fileDataType = 1
+          }
+          downloadCheck(targetFile, function(data) {
+            if (parseInt(data.requiredIntegral, 10)) {
+              // confirm modal
+              $downloadModal.find('.modal-body').html(`
               使用<b class="cost"> ${data.requiredIntegral} 积分</b>下载此文件？
               当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
             `)
-            $downloadModal.modal()
-            $downloadModal.one('click', '#downloadBtn', function() {
+              $downloadModal.modal()
+              $downloadModal.one('click', '#downloadBtn', function() {
+                // download
+                download(targetFile)
+                $downloadModal.modal('hide')
+              })
+            } else {
               // download
               download(targetFile)
-              $downloadModal.modal('hide')
-            })
-          } else {
-            // download
-            download(targetFile)
-          }
-        })
-      })
-      .on('click', '.preview', function newTab() {
+            }
+          })
+        }
+      )
+      .on('click', 'ul.author .preview', function newTab() {
         let prefix = $('base').attr('href')
         let url = `${prefix}fileData/queryChartImg?fileDataId=${fileId}`
         window.open(url)
@@ -103,19 +88,19 @@
       $.post(
         'fileData/queryFileDataDetail',
         {
-          fileDataId: fileId,
-          fileDataType: fileType
+          fileDataId: fileId
         },
         function(res) {
           handleResult(res, function(data) {
             let {
-              fileDataTypeDesc,
               account,
               enterprise,
               fileName,
               fileSizeDesc,
               dataTimeDesc,
               downloadCount,
+              fileDataStatus,
+              fileDataStatusDesc,
               favoriteStatus,
               requiredIntegral,
               remark,
@@ -151,20 +136,26 @@
             $body.find('.intro').text(remark)
             // author
             let bonus = `<li>需 ${requiredIntegral} 积分</li>`
-            let preview = `
-              <li title="预览" class="preview">
-                <i class="material-icons">image</i>
-                预览
-              </li>
-            `
+            let preview
+            if (parseInt(fileDataStatus, 10) === 2) {
+              preview = `
+                <li title="预览" class="preview">
+                  <i class="material-icons">image</i>
+                  预览
+                </li>
+              `
+              // feature
+              $body.append(buildFeature(data))
+            } else {
+              preview = `<li>${fileDataStatusDesc}</li>`
+            }
             $body.find('.author').html(`
               <li>${account}</li>
               <li>${enterprise}</li>
               <li>${dataTimeDesc}</li>
-              <li>${fileDataTypeDesc}</li>
               <li>${downloadCount} 次下载</li>
               ${parseInt(requiredIntegral, 10) > 0 ? bonus : ''}
-              ${fileType === 2 ? preview : ''}
+              ${preview}
               <li title="下载" class="download">
                 <i class="material-icons">get_app</i>
                 ${fileSizeDesc}
@@ -195,11 +186,258 @@
     }
   }
 
+  function buildFeature(obj) {
+    let {
+      openmaxpStr,
+      openmaxqStr,
+      openminpStr,
+      openminqStr,
+      closemaxpStr,
+      closemaxqStr,
+      closeminpStr,
+      closeminqStr,
+      basecurrentStr,
+      xb1realStr,
+      xb1imaginaryStr,
+      xb2realStr,
+      xb2imaginaryStr,
+      xb3realStr,
+      xb3imaginaryStr,
+      xb4realStr,
+      xb4imaginaryStr,
+      xb5realStr,
+      xb5imaginaryStr,
+      xb6realStr,
+      xb6imaginaryStr,
+      xb7realStr,
+      xb7imaginaryStr,
+      xb8realStr,
+      xb8imaginaryStr,
+      xb9realStr,
+      xb9imaginaryStr,
+      xb10realStr,
+      xb10imaginaryStr,
+      xb11realStr,
+      xb11imaginaryStr
+    } = obj
+    return `
+      <h3 class="feature">
+        特征量参数
+        <button
+          data-type="feature"
+          type="button"
+          style="padding-left: 0.5rem;padding-right: 0.5rem;"
+          class="btn btn-sm btn-success download"
+          title="下载"
+        >
+          <i class="material-icons">get_app</i>
+        </button>
+      </h3>
+      <div class="container-fluid stat">
+        <div class="part">
+          <h4>暂态</h4>
+          <div class="row">
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">暂态开启最大有功功率</div>
+                <div class="col-sm-5">${openmaxpStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">暂态开启最大无功功率</div>
+                <div class="col-sm-5">${openmaxqStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">暂态开启最小有功功率</div>
+                <div class="col-sm-5">${openminpStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">暂态开启最小无功功率</div>
+                <div class="col-sm-5">${openminqStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">暂态关闭最大有功功率</div>
+                <div class="col-sm-5">${closemaxpStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">暂态关闭最大无功功率</div>
+                <div class="col-sm-5">${closemaxqStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">暂态关闭最小有功功率</div>
+                <div class="col-sm-5">${closeminpStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">暂态关闭最小无功功率</div>
+                <div class="col-sm-5">${closeminqStr}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="part">
+          <h4>稳态</h4>
+          <div class="row">
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">一次谐波实部</div>
+                <div class="col-sm-5">${xb1realStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">一次谐波虚部</div>
+                <div class="col-sm-5">${xb1imaginaryStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">二次谐波实部</div>
+                <div class="col-sm-5">${xb2realStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">二次谐波虚部</div>
+                <div class="col-sm-5">${xb2imaginaryStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">三次谐波实部</div>
+                <div class="col-sm-5">${xb3realStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">三次谐波虚部</div>
+                <div class="col-sm-5">${xb3imaginaryStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">四次谐波实部</div>
+                <div class="col-sm-5">${xb4realStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">四次谐波虚部</div>
+                <div class="col-sm-5">${xb4imaginaryStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">五次谐波实部</div>
+                <div class="col-sm-5">${xb5realStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">五次谐波虚部</div>
+                <div class="col-sm-5">${xb5imaginaryStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">六次谐波实部</div>
+                <div class="col-sm-5">${xb6realStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">六次谐波虚部</div>
+                <div class="col-sm-5">${xb6imaginaryStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">七次谐波实部</div>
+                <div class="col-sm-5">${xb7realStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">七次谐波虚部</div>
+                <div class="col-sm-5">${xb7imaginaryStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">八次谐波实部</div>
+                <div class="col-sm-5">${xb8realStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">八次谐波虚部</div>
+                <div class="col-sm-5">${xb8imaginaryStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">九次谐波实部</div>
+                <div class="col-sm-5">${xb9realStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">九次谐波虚部</div>
+                <div class="col-sm-5">${xb9imaginaryStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">十次谐波实部</div>
+                <div class="col-sm-5">${xb10realStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">十次谐波虚部</div>
+                <div class="col-sm-5">${xb10imaginaryStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">十一次谐波实部</div>
+                <div class="col-sm-5">${xb11realStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">十一次谐波虚部</div>
+                <div class="col-sm-5">${xb11imaginaryStr}</div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-7">基波电流</div>
+                <div class="col-sm-5">${basecurrentStr}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  }
+
   function initComment() {
     // initial params
     let params = {
       fileDataId: fileId,
-      fileDataType: fileType,
       pageNum: 1,
       pageSize: 10
     }
@@ -214,7 +452,6 @@
       comment(
         {
           fileDataId: fileId,
-          fileDataType: fileType,
           content: $textarea.val().trim()
         },
         function() {
@@ -223,6 +460,11 @@
           getCommentData(params)
         }
       )
+    })
+    // delete comment
+    $comment.on('click', '.del', function(e) {
+      let id = $(e.target).closest('li').attr('data-id')
+      delComment({ commentId: id })
     })
 
     // page change
@@ -264,9 +506,11 @@
           list.map(v => {
             $comment.append(
               buildComment({
+                id: v.id,
                 user: v.account,
                 time: v.commentTimeDes,
-                content: v.content
+                content: v.content,
+                removeable: !!parseInt(v.flag, 10)
               })
             )
           })
@@ -276,15 +520,29 @@
       })
     }
 
+    function delComment(obj) {
+      $.post('account/doDelComment', obj, function(res) {
+        handleResult(res, function() {
+          getCommentData(params)
+        })
+      })
+    }
+
     function buildComment(obj) {
+      let delSpan = ''
+      if (obj.removeable) {
+        delSpan = '<span class="del">删除</span>'
+      }
       return `
-        <li class="row">
+        <li class="row" data-id="${obj.id}">
           <div class="icon">
             <i class="material-icons">face</i>
           </div>
           <div class="col">
             <h4>${obj.user}</h4>
-            <span>${obj.time}</span>
+            <div>
+              <span>${obj.time}</span>${delSpan}
+            </div>
             <p>${obj.content}</p>
           </div>
         </li>

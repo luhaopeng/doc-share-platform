@@ -8,18 +8,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 (function () {
   $(function () {
-    initType();
     initDetail();
     initComment();
   });
-
-  function initType() {
-    // navbar
-    var navLink = fileType === 1 ? 'base' : 'analysis';
-    $("nav.navbar .navbar-nav .nav-link[href*=\"".concat(navLink, "\"]")).parent().addClass('active').siblings().removeClass('active'); // breadcrumb
-
-    $('nav ol.breadcrumb li.breadcrumb-item').eq(0).html("\n      <a href=\"fileData/".concat(fileType === 2 ? 'analysis' : 'base', "FileData\">\n        ").concat(fileType === 2 ? '解析' : '原始', "\u6587\u4EF6\u5E93\n      </a>\n    "));
-  }
 
   function initDetail() {
     $('.card .star').on('click', function star() {
@@ -39,7 +30,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       if (action === 'star') {
         starFile({
           fileDataId: fileId,
-          fileDataType: fileType,
           opsFavoritesType: 1
         }, function () {
           $target.attr({
@@ -53,7 +43,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       } else if (action === 'unstar') {
         starFile({
           fileDataId: fileId,
-          fileDataType: fileType,
           opsFavoritesType: 2
         }, function () {
           $target.attr({
@@ -66,14 +55,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         });
       }
     });
-    $('.card ul.author').on('click', '.download', function showModal() {
-      // prettier-ignore
-      var $downloadModal = $('#downloadModal'); // prettier-ignore
-
+    $('.card').on('click', 'ul.author .download, h3.feature .download', function showModal(e) {
+      var $downloadModal = $('#downloadModal');
       var targetFile = {
-        fileDataId: fileId,
-        fileDataType: fileType
+        fileDataId: fileId
       };
+      var type = $(e.target).attr('data-type');
+
+      if (type === 'feature') {
+        targetFile.fileDataType = 3;
+      } else {
+        targetFile.fileDataType = 1;
+      }
+
       downloadCheck(targetFile, function (data) {
         if (parseInt(data.requiredIntegral, 10)) {
           // confirm modal
@@ -89,7 +83,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           download(targetFile);
         }
       });
-    }).on('click', '.preview', function newTab() {
+    }).on('click', 'ul.author .preview', function newTab() {
       var prefix = $('base').attr('href');
       var url = "".concat(prefix, "fileData/queryChartImg?fileDataId=").concat(fileId);
       window.open(url);
@@ -98,17 +92,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     function getDetailData() {
       $.post('fileData/queryFileDataDetail', {
-        fileDataId: fileId,
-        fileDataType: fileType
+        fileDataId: fileId
       }, function (res) {
         handleResult(res, function (data) {
-          var fileDataTypeDesc = data.fileDataTypeDesc,
-              account = data.account,
+          var account = data.account,
               enterprise = data.enterprise,
               fileName = data.fileName,
               fileSizeDesc = data.fileSizeDesc,
               dataTimeDesc = data.dataTimeDesc,
               downloadCount = data.downloadCount,
+              fileDataStatus = data.fileDataStatus,
+              fileDataStatusDesc = data.fileDataStatusDesc,
               favoriteStatus = data.favoriteStatus,
               requiredIntegral = data.requiredIntegral,
               remark = data.remark,
@@ -139,8 +133,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           $body.find('.intro').text(remark); // author
 
           var bonus = "<li>\u9700 ".concat(requiredIntegral, " \u79EF\u5206</li>");
-          var preview = "\n              <li title=\"\u9884\u89C8\" class=\"preview\">\n                <i class=\"material-icons\">image</i>\n                \u9884\u89C8\n              </li>\n            ";
-          $body.find('.author').html("\n              <li>".concat(account, "</li>\n              <li>").concat(enterprise, "</li>\n              <li>").concat(dataTimeDesc, "</li>\n              <li>").concat(fileDataTypeDesc, "</li>\n              <li>").concat(downloadCount, " \u6B21\u4E0B\u8F7D</li>\n              ").concat(parseInt(requiredIntegral, 10) > 0 ? bonus : '', "\n              ").concat(fileType === 2 ? preview : '', "\n              <li title=\"\u4E0B\u8F7D\" class=\"download\">\n                <i class=\"material-icons\">get_app</i>\n                ").concat(fileSizeDesc, "\n              </li>\n            ")); // stat
+          var preview;
+
+          if (parseInt(fileDataStatus, 10) === 2) {
+            preview = "\n                <li title=\"\u9884\u89C8\" class=\"preview\">\n                  <i class=\"material-icons\">image</i>\n                  \u9884\u89C8\n                </li>\n              "; // feature
+
+            $body.append(buildFeature(data));
+          } else {
+            preview = "<li>".concat(fileDataStatusDesc, "</li>");
+          }
+
+          $body.find('.author').html("\n              <li>".concat(account, "</li>\n              <li>").concat(enterprise, "</li>\n              <li>").concat(dataTimeDesc, "</li>\n              <li>").concat(downloadCount, " \u6B21\u4E0B\u8F7D</li>\n              ").concat(parseInt(requiredIntegral, 10) > 0 ? bonus : '', "\n              ").concat(preview, "\n              <li title=\"\u4E0B\u8F7D\" class=\"download\">\n                <i class=\"material-icons\">get_app</i>\n                ").concat(fileSizeDesc, "\n              </li>\n            ")); // stat
           // part 1
 
           var $part = $body.find('.stat .part');
@@ -165,11 +168,45 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   }
 
+  function buildFeature(obj) {
+    var openmaxpStr = obj.openmaxpStr,
+        openmaxqStr = obj.openmaxqStr,
+        openminpStr = obj.openminpStr,
+        openminqStr = obj.openminqStr,
+        closemaxpStr = obj.closemaxpStr,
+        closemaxqStr = obj.closemaxqStr,
+        closeminpStr = obj.closeminpStr,
+        closeminqStr = obj.closeminqStr,
+        basecurrentStr = obj.basecurrentStr,
+        xb1realStr = obj.xb1realStr,
+        xb1imaginaryStr = obj.xb1imaginaryStr,
+        xb2realStr = obj.xb2realStr,
+        xb2imaginaryStr = obj.xb2imaginaryStr,
+        xb3realStr = obj.xb3realStr,
+        xb3imaginaryStr = obj.xb3imaginaryStr,
+        xb4realStr = obj.xb4realStr,
+        xb4imaginaryStr = obj.xb4imaginaryStr,
+        xb5realStr = obj.xb5realStr,
+        xb5imaginaryStr = obj.xb5imaginaryStr,
+        xb6realStr = obj.xb6realStr,
+        xb6imaginaryStr = obj.xb6imaginaryStr,
+        xb7realStr = obj.xb7realStr,
+        xb7imaginaryStr = obj.xb7imaginaryStr,
+        xb8realStr = obj.xb8realStr,
+        xb8imaginaryStr = obj.xb8imaginaryStr,
+        xb9realStr = obj.xb9realStr,
+        xb9imaginaryStr = obj.xb9imaginaryStr,
+        xb10realStr = obj.xb10realStr,
+        xb10imaginaryStr = obj.xb10imaginaryStr,
+        xb11realStr = obj.xb11realStr,
+        xb11imaginaryStr = obj.xb11imaginaryStr;
+    return "\n      <h3 class=\"feature\">\n        \u7279\u5F81\u91CF\u53C2\u6570\n        <button\n          data-type=\"feature\"\n          type=\"button\"\n          style=\"padding-left: 0.5rem;padding-right: 0.5rem;\"\n          class=\"btn btn-sm btn-success download\"\n          title=\"\u4E0B\u8F7D\"\n        >\n          <i class=\"material-icons\">get_app</i>\n        </button>\n      </h3>\n      <div class=\"container-fluid stat\">\n        <div class=\"part\">\n          <h4>\u6682\u6001</h4>\n          <div class=\"row\">\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u6682\u6001\u5F00\u542F\u6700\u5927\u6709\u529F\u529F\u7387</div>\n                <div class=\"col-sm-5\">".concat(openmaxpStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u6682\u6001\u5F00\u542F\u6700\u5927\u65E0\u529F\u529F\u7387</div>\n                <div class=\"col-sm-5\">").concat(openmaxqStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u6682\u6001\u5F00\u542F\u6700\u5C0F\u6709\u529F\u529F\u7387</div>\n                <div class=\"col-sm-5\">").concat(openminpStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u6682\u6001\u5F00\u542F\u6700\u5C0F\u65E0\u529F\u529F\u7387</div>\n                <div class=\"col-sm-5\">").concat(openminqStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u6682\u6001\u5173\u95ED\u6700\u5927\u6709\u529F\u529F\u7387</div>\n                <div class=\"col-sm-5\">").concat(closemaxpStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u6682\u6001\u5173\u95ED\u6700\u5927\u65E0\u529F\u529F\u7387</div>\n                <div class=\"col-sm-5\">").concat(closemaxqStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u6682\u6001\u5173\u95ED\u6700\u5C0F\u6709\u529F\u529F\u7387</div>\n                <div class=\"col-sm-5\">").concat(closeminpStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u6682\u6001\u5173\u95ED\u6700\u5C0F\u65E0\u529F\u529F\u7387</div>\n                <div class=\"col-sm-5\">").concat(closeminqStr, "</div>\n              </div>\n            </div>\n          </div>\n        </div>\n        <div class=\"part\">\n          <h4>\u7A33\u6001</h4>\n          <div class=\"row\">\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E00\u6B21\u8C10\u6CE2\u5B9E\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb1realStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E00\u6B21\u8C10\u6CE2\u865A\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb1imaginaryStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E8C\u6B21\u8C10\u6CE2\u5B9E\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb2realStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E8C\u6B21\u8C10\u6CE2\u865A\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb2imaginaryStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E09\u6B21\u8C10\u6CE2\u5B9E\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb3realStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E09\u6B21\u8C10\u6CE2\u865A\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb3imaginaryStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u56DB\u6B21\u8C10\u6CE2\u5B9E\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb4realStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u56DB\u6B21\u8C10\u6CE2\u865A\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb4imaginaryStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E94\u6B21\u8C10\u6CE2\u5B9E\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb5realStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E94\u6B21\u8C10\u6CE2\u865A\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb5imaginaryStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u516D\u6B21\u8C10\u6CE2\u5B9E\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb6realStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u516D\u6B21\u8C10\u6CE2\u865A\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb6imaginaryStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E03\u6B21\u8C10\u6CE2\u5B9E\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb7realStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E03\u6B21\u8C10\u6CE2\u865A\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb7imaginaryStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u516B\u6B21\u8C10\u6CE2\u5B9E\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb8realStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u516B\u6B21\u8C10\u6CE2\u865A\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb8imaginaryStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E5D\u6B21\u8C10\u6CE2\u5B9E\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb9realStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u4E5D\u6B21\u8C10\u6CE2\u865A\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb9imaginaryStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u5341\u6B21\u8C10\u6CE2\u5B9E\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb10realStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u5341\u6B21\u8C10\u6CE2\u865A\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb10imaginaryStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u5341\u4E00\u6B21\u8C10\u6CE2\u5B9E\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb11realStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u5341\u4E00\u6B21\u8C10\u6CE2\u865A\u90E8</div>\n                <div class=\"col-sm-5\">").concat(xb11imaginaryStr, "</div>\n              </div>\n            </div>\n            <div class=\"col-sm-3\">\n              <div class=\"row\">\n                <div class=\"col-sm-7\">\u57FA\u6CE2\u7535\u6D41</div>\n                <div class=\"col-sm-5\">").concat(basecurrentStr, "</div>\n              </div>\n            </div>\n          </div>\n        </div>\n      </div>\n    ");
+  }
+
   function initComment() {
     // initial params
     var params = {
       fileDataId: fileId,
-      fileDataType: fileType,
       pageNum: 1,
       pageSize: 10
     };
@@ -183,12 +220,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     $send.on('click', function send() {
       comment({
         fileDataId: fileId,
-        fileDataType: fileType,
         content: $textarea.val().trim()
       }, function () {
         $textarea.val('');
         params.pageNum = 1;
         getCommentData(params);
+      });
+    }); // delete comment
+
+    $comment.on('click', '.del', function (e) {
+      var id = $(e.target).closest('li').attr('data-id');
+      delComment({
+        commentId: id
       });
     }); // page change
 
@@ -226,9 +269,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           $comment.html('');
           list.map(function (v) {
             $comment.append(buildComment({
+              id: v.id,
               user: v.account,
               time: v.commentTimeDes,
-              content: v.content
+              content: v.content,
+              removeable: !!parseInt(v.flag, 10)
             }));
           }); // build pagination
 
@@ -241,8 +286,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
     }
 
+    function delComment(obj) {
+      $.post('account/doDelComment', obj, function (res) {
+        handleResult(res, function () {
+          getCommentData(params);
+        });
+      });
+    }
+
     function buildComment(obj) {
-      return "\n        <li class=\"row\">\n          <div class=\"icon\">\n            <i class=\"material-icons\">face</i>\n          </div>\n          <div class=\"col\">\n            <h4>".concat(obj.user, "</h4>\n            <span>").concat(obj.time, "</span>\n            <p>").concat(obj.content, "</p>\n          </div>\n        </li>\n      ");
+      var delSpan = '';
+
+      if (obj.removeable) {
+        delSpan = '<span class="del">删除</span>';
+      }
+
+      return "\n        <li class=\"row\" data-id=\"".concat(obj.id, "\">\n          <div class=\"icon\">\n            <i class=\"material-icons\">face</i>\n          </div>\n          <div class=\"col\">\n            <h4>").concat(obj.user, "</h4>\n            <div>\n              <span>").concat(obj.time, "</span>").concat(delSpan, "\n            </div>\n            <p>").concat(obj.content, "</p>\n          </div>\n        </li>\n      ");
     }
 
     function buildPage(options) {

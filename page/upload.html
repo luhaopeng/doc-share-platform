@@ -261,22 +261,24 @@
                       />
                     </div>
                     <div class="form-group col-md-4">
-                      <label for="volSt">额定电压</label>
+                      <label for="volSt">额定电压(V)</label>
                       <input
                         type="text"
                         class="form-control"
                         id="volSt"
                         name="volSt"
+                        pattern="[1-9]\d*.\d*|0.\d*[1-9]\d*"
                         required
                       />
                     </div>
                     <div class="form-group col-md-4">
-                      <label for="curSt">额定电流</label>
+                      <label for="curSt">额定电流(A)</label>
                       <input
                         type="text"
                         class="form-control"
                         id="curSt"
                         name="curSt"
+                        pattern="[1-9]\d*.\d*|0.\d*[1-9]\d*"
                         required
                       />
                     </div>
@@ -324,12 +326,13 @@
                       />
                     </div>
                     <div class="form-group col-md-4">
-                      <label for="rateColl">采样率(kHz)</label>
+                      <label for="rateColl">采样率(Hz)</label>
                       <input
                         type="text"
                         class="form-control"
                         id="rateColl"
                         name="rateColl"
+                        pattern="[1-9]\d*"
                         required
                       />
                     </div>

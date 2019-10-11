@@ -1,5 +1,13 @@
 "use strict";
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -11,13 +19,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   var params = {
     pageNum: 1,
     pageSize: 5,
-    fileDataType: 1,
     sortType: 1,
     keyWord: '',
     classOne: 0,
     classTwo: 0,
+    status: 0,
     brands: []
   };
+
+  if (!sessionStorage.readFileList) {
+    sessionStorage.readFileList = JSON.stringify([]);
+  }
+
   $(function () {
     initFilter();
     initRank();
@@ -44,6 +57,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         label: obj.name,
         children: children
       };
+    });
+    var filterStatus = JSON.parse(filterStatusStr);
+    var statuses = filterStatus.map(function (obj) {
+      return {
+        id: obj.value,
+        label: obj.name
+      };
     }); // build conditions
 
     var $combine = $('.filter .combine');
@@ -57,6 +77,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       cat: 'type',
       catStr: '设备类型',
       options: categories,
+      multi: false
+    })).append(buildCondition({
+      cat: 'status',
+      catStr: '文件状态',
+      options: statuses,
       multi: false
     }));
     $combine.on('click', '.factor', function cancel() {
@@ -81,6 +106,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           params.classTwo = 0;
           break;
 
+        case 'status':
+          params.status = 0;
+          break;
+
         default:
           return;
       }
@@ -92,6 +121,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       params.brands = [];
       params.classOne = 0;
       params.classTwo = 0;
+      params.status = 0;
       getRankData(params);
     });
     $condition.on('click', '.row:not(.multi) .value a', function filter() {
@@ -130,6 +160,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         case 'subtype':
           params.classTwo = parseInt($target.attr('data-id'), 10);
+          break;
+
+        case 'status':
+          params.status = parseInt($target.attr('data-id'), 10);
           break;
 
         default:
@@ -248,10 +282,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     $tbody.on('click', 'tr', function detail(e) {
       var tag = e.target.tagName;
 
-      if (/tr|td/i.test(tag)) {
+      if (/tr|td|div/i.test(tag)) {
         // prettier-ignore
-        var id = $(this).closest('tr').attr('data-id');
-        var $form = $("\n          <form\n            action=\"fileData/fileDataDetail\"\n            method=\"post\"\n            target=\"_blank\"\n            rel=\"noopener noreferrer\"\n            style=\"display:none;\"\n          >\n            <input name=\"fileDataId\" value=\"".concat(id, "\" />\n            <input name=\"fileDataType\" value=\"1\" />\n          </form>\n        "));
+        var $tr = $(this).closest('tr');
+        var id = $tr.attr('data-id');
+        var $form = $("\n          <form\n            action=\"fileData/fileDataDetail\"\n            method=\"post\"\n            target=\"_blank\"\n            rel=\"noopener noreferrer\"\n            style=\"display:none;\"\n          >\n            <input name=\"fileDataId\" value=\"".concat(id, "\" />\n          </form>\n        "));
+        $tr.find('.unread').removeClass('unread');
+        readFile(parseInt(id, 10));
         $(document.body).append($form);
         $form.submit().remove();
       }
@@ -275,7 +312,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       if (action === 'star') {
         starFile({
           fileDataId: id,
-          fileDataType: 1,
           opsFavoritesType: 1
         }, function () {
           $target.attr({
@@ -289,7 +325,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       } else if (action === 'unstar') {
         starFile({
           fileDataId: id,
-          fileDataType: 1,
           opsFavoritesType: 2
         }, function () {
           $target.attr({
@@ -323,6 +358,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           download(targetFile);
         }
       });
+    }).on('click', 'button[data-action=preview]', function () {
+      var id = $(this).closest('tr').attr('data-id');
+      var prefix = $('base').attr('href');
+      var url = "".concat(prefix, "fileData/queryChartImg?fileDataId=").concat(id);
+      window.open(url);
     });
   }
 
@@ -351,6 +391,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         translate = '设备次级类型';
         break;
 
+      case 'status':
+        translate = '文件状态';
+        break;
+
       default:
         translate = '';
         break;
@@ -366,7 +410,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function buildRankRow(obj) {
-    return "\n      <tr data-id=\"".concat(obj.id, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"text-ellipsis\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.type, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td title=\"").concat(obj.company, "\">").concat(obj.company.substr(0, 4), "</td>\n        <td>").concat(obj.state, "</td>\n        <td class=\"text-right\">").concat(obj.download, "</td>\n        <td class=\"td-actions text-right\">\n          <button\n            data-action=\"star\"\n            data-toggle=\"").concat(obj.fav ? 'unstar' : 'star', "\"\n            type=\"button\"\n            class=\"btn btn-warning\"\n            title=\"").concat(obj.fav ? '取消' : '', "\u6536\u85CF\"\n          >\n            <i class=\"material-icons\">star").concat(obj.fav ? '' : '_border', "</i>\n          </button>\n          <button\n            data-action=\"download\"\n            type=\"button\"\n            class=\"btn btn-success\"\n            title=\"\u4E0B\u8F7D\"\n          >\n            <i class=\"material-icons\">get_app</i>\n          </button>\n        </td>\n      </tr>\n    ");
+    var $stateTd;
+
+    if (obj.state) {
+      $stateTd = "\n        <button\n          data-action=\"preview\"\n          type=\"button\"\n          class=\"btn btn-info\"\n          title=\"\u9884\u89C8\"\n        >\n          <i class=\"material-icons\">image</i>\n        </button>\n      ";
+    } else {
+      $stateTd = obj.stateStr;
+    }
+
+    var className = 'text-ellipsis';
+
+    if (obj.unread && !hasReadFile(parseInt(obj.id, 10))) {
+      className += ' unread';
+    }
+
+    return "\n      <tr data-id=\"".concat(obj.id, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"").concat(className, "\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td title=\"").concat(obj.company, "\">").concat(obj.company.substr(0, 4), "</td>\n        <td>").concat(obj.bonus, "</td>\n        <td class=\"td-actions\">").concat($stateTd, "</td>\n        <td class=\"text-right\">").concat(obj.download, "</td>\n        <td class=\"td-actions text-right\">\n          <button\n            data-action=\"star\"\n            data-toggle=\"").concat(obj.fav ? 'unstar' : 'star', "\"\n            type=\"button\"\n            class=\"btn btn-warning\"\n            title=\"").concat(obj.fav ? '取消' : '', "\u6536\u85CF\"\n          >\n            <i class=\"material-icons\">star").concat(obj.fav ? '' : '_border', "</i>\n          </button>\n          <button\n            data-action=\"download\"\n            type=\"button\"\n            class=\"btn btn-success\"\n            title=\"\u4E0B\u8F7D\"\n          >\n            <i class=\"material-icons\">get_app</i>\n          </button>\n        </td>\n      </tr>\n    ");
   }
 
   function buildPage(options) {
@@ -413,6 +471,28 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   }
 
+  function loadReadSet() {
+    // load
+    var readArr = JSON.parse(sessionStorage.readFileList);
+    return new Set(readArr);
+  }
+
+  function storeReadSet(readSet) {
+    // store
+    sessionStorage.readFileList = JSON.stringify(_toConsumableArray(readSet));
+  }
+
+  function readFile(id) {
+    var readSet = loadReadSet();
+    readSet.add(id);
+    storeReadSet(readSet);
+  }
+
+  function hasReadFile(id) {
+    var readSet = loadReadSet();
+    return readSet.has(id);
+  }
+
   function getRankData(obj) {
     var $tbody = $('#table_origin tbody');
     $.post('fileData/queryFileData', obj, function (res) {
@@ -431,13 +511,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               title: file.fileName,
               date: file.dataTimeDesc,
               size: file.fileSizeDesc,
-              type: file.fileDataTypeDesc,
               cate: file.classTwoDesc,
               brand: file.brandDesc,
               company: file.enterprise,
-              state: file.fileDataStatusDesc,
+              bonus: file.requiredIntegral,
+              state: parseInt(file.fileDataStatus, 10) === 2,
+              stateStr: file.fileDataStatusDesc,
               download: file.downloadCount,
-              fav: parseInt(file.favoriteStatus, 10) === 1
+              fav: parseInt(file.favoriteStatus, 10) === 1,
+              unread: !!parseInt(file.flag, 10)
             }));
           });
         } // build pagination
