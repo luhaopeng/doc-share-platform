@@ -1,0 +1,47 @@
+// out: ../dist/css/help.min.css, compress: true, sourceMap: false
+
+@import "./style.less";
+
+.container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+@media (min-width: 992px) and (max-width: 1199px) {
+  .container {
+    max-width: 960px;
+  }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+  .container {
+    max-width: 720px;
+  }
+}
+@media (max-width: 576px) {
+  .container {
+    max-width: 540px;
+  }
+}
+
+.blog-content:extend(.container) {
+  margin: 32px auto 16px;
+  padding: 32px;
+  min-height: 290px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
+}
+
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  margin: 0 48px 144px;
+}
