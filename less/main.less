@@ -1,0 +1,68 @@
+// out: ../dist/css/main.min.css, compress: true, sourceMap: false
+
+@import "./style.less";
+@import "./component/chartist.less";
+@import "./component/form_control.less";
+@import "./component/result_table.less";
+
+.card.user .stats {
+  text-align: center;
+  margin: 15px 0;
+
+  .col-md-3:not(:last-of-type)::after {
+    content: "";
+    width: 1px;
+    background-color: rgba(0, 0, 0, 0.15);
+    position: absolute;
+    height: 100%;
+    right: 0;
+    top: 0;
+  }
+
+  b {
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  p {
+    color: @color-info;
+    font-size: 24px;
+    margin-top: 1em;
+  }
+}
+
+.ct-chart {
+  svg {
+    overflow: visible;
+  }
+
+  text.ct-label {
+    fill: hsla(0, 0%, 100%, 0.7);
+  }
+}
+
+#chart_pie_1,
+#chart_pie_2 {
+  .ct-chart-custom();
+}
+
+.chart-pie-1 span {
+  color: @color-success;
+}
+
+.chart-pie-2 {
+  span {
+    color: @color-warning;
+  }
+
+  .other {
+    cursor: help;
+    border-bottom: dotted 2px @color-warning;
+    padding-bottom: 2px;
+    color: inherit;
+  }
+}
+
+.card .card-header-pale .ct-legend li {
+  color: @color-text;
+}

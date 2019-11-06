@@ -384,9 +384,9 @@
     var params = {
       rankingType: 1,
       rankingTimeType: 1,
-      sortType: 'desc' // rank mark
+      sortType: 'desc'
+    }; // rank mark
 
-    };
     var $table = $('#table_rank');
     var $rank_a = $table.find('a[data-rank]');
     $rank_a.on('click', function () {
