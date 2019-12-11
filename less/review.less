@@ -1,0 +1,28 @@
+// out: ../dist/css/review.min.css, compress: true, sourceMap: false
+
+@import "./style.less";
+@import "./component/result_table.less";
+@import "./component/jquery_toast.less";
+@import "./component/search.less";
+@import "./component/filter.less";
+
+.modal .modal-body b {
+  color: @color-warning;
+}
+
+.unread::after {
+  content: "●";
+  font-size: 18px;
+  color: #ee3131;
+  position: absolute;
+  margin-left: 5px;
+}
+
+.jq-toast-wrap {
+  width: 250px;
+}
+
+.err-abbr {
+  text-decoration: underline dotted;
+  cursor: help;
+}

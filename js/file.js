@@ -43,12 +43,15 @@
       }
     })
 
+    let $downloadModal = $('#downloadModal')
+    $downloadModal.on('hidden.bs.modal', function() {
+      $downloadModal.off('click', '#downloadBtn')
+    })
     $('.card')
       .on(
         'click',
         'ul.author .download, h3.feature .download',
         function showModal(e) {
-          let $downloadModal = $('#downloadModal')
           let targetFile = { fileDataId: fileId }
           let type = $(e.target).attr('data-type')
           if (type === 'feature') {
@@ -64,7 +67,7 @@
               当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
             `)
               $downloadModal.modal()
-              $downloadModal.one('click', '#downloadBtn', function() {
+              $downloadModal.on('click', '#downloadBtn', function() {
                 // download
                 download(targetFile)
                 $downloadModal.modal('hide')

@@ -11,6 +11,10 @@
 
   $(function() {
     $('[data-toggle="popover"]').popover()
+    let $downloadModal = $('#downloadModal')
+    $downloadModal.on('hidden.bs.modal', function() {
+      $downloadModal.off('click', '#downloadBtn')
+    })
     initUserInfo()
     initTable('#table_upload')
     initTable('#table_star', {
@@ -54,7 +58,6 @@
         // prettier-ignore
         let $tr = $(this).closest('tr')
         let id = $tr.attr('data-id')
-        let $downloadModal = $('#downloadModal')
         let targetFile = { fileDataId: id, fileDataType: 1 }
         downloadCheck(targetFile, function(data) {
           if (parseInt(data.requiredIntegral, 10)) {
@@ -64,7 +67,7 @@
               当前积分余额：<b class="remain">${data.currentIntegral} 积分</b>。
             `)
             $downloadModal.modal()
-            $downloadModal.one('click', '#downloadBtn', function() {
+            $downloadModal.on('click', '#downloadBtn', function() {
               // download
               download(targetFile)
               $downloadModal.modal('hide')

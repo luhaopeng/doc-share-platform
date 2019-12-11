@@ -57,8 +57,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         });
       }
     });
+    var $downloadModal = $('#downloadModal');
+    $downloadModal.on('hidden.bs.modal', function () {
+      $downloadModal.off('click', '#downloadBtn');
+    });
     $('.card').on('click', 'ul.author .download, h3.feature .download', function showModal(e) {
-      var $downloadModal = $('#downloadModal');
       var targetFile = {
         fileDataId: fileId
       };
@@ -75,7 +78,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           // confirm modal
           $downloadModal.find('.modal-body').html("\n              \u4F7F\u7528<b class=\"cost\"> ".concat(data.requiredIntegral, " \u79EF\u5206</b>\u4E0B\u8F7D\u6B64\u6587\u4EF6\uFF1F\n              \u5F53\u524D\u79EF\u5206\u4F59\u989D\uFF1A<b class=\"remain\">").concat(data.currentIntegral, " \u79EF\u5206</b>\u3002\n            "));
           $downloadModal.modal();
-          $downloadModal.one('click', '#downloadBtn', function () {
+          $downloadModal.on('click', '#downloadBtn', function () {
             // download
             download(targetFile);
             $downloadModal.modal('hide');

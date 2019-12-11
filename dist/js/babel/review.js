@@ -8,18 +8,12 @@ function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 ;
 
 (function () {
   // initial params
   var params = {
-    pageType: 0,
+    pageType: 1,
     pageNum: 1,
     pageSize: 5,
     sortType: 1,
@@ -27,6 +21,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     classOne: 0,
     classTwo: 0,
     status: 0,
+    releaseStatus: -1,
+    checkStatus: -1,
     brands: []
   };
 
@@ -67,6 +63,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         id: obj.value,
         label: obj.name
       };
+    });
+    var filterInspect = JSON.parse(filterInspectStr);
+    var inspects = filterInspect.map(function (obj) {
+      return {
+        id: obj.value,
+        label: obj.name
+      };
+    });
+    var filterRelease = JSON.parse(filterReleaseStr);
+    var releases = filterRelease.map(function (obj) {
+      return {
+        id: obj.value,
+        label: obj.name
+      };
     }); // build conditions
 
     var $combine = $('.filter .combine');
@@ -85,6 +95,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       cat: 'status',
       catStr: '文件状态',
       options: statuses,
+      multi: false
+    })).append(buildCondition({
+      cat: 'inspect',
+      catStr: '检测状态',
+      options: inspects,
+      multi: false
+    })).append(buildCondition({
+      cat: 'release',
+      catStr: '发布状态',
+      options: releases,
       multi: false
     }));
     $combine.on('click', '.factor', function cancel() {
@@ -113,6 +133,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           params.status = 0;
           break;
 
+        case 'inspect':
+          params.checkStatus = -1;
+          break;
+
+        case 'release':
+          params.releaseStatus = -1;
+          break;
+
         default:
           return;
       }
@@ -125,6 +153,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       params.classOne = 0;
       params.classTwo = 0;
       params.status = 0;
+      params.checkStatus = -1;
+      params.releaseStatus = -1;
       getRankData(params);
     });
     $condition.on('click', '.row:not(.multi) .value a', function filter() {
@@ -167,6 +197,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         case 'status':
           params.status = parseInt($target.attr('data-id'), 10);
+          break;
+
+        case 'inspect':
+          params.checkStatus = parseInt($target.attr('data-id'), 10);
+          break;
+
+        case 'release':
+          params.releaseStatus = parseInt($target.attr('data-id'), 10);
           break;
 
         default:
@@ -217,7 +255,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function initRank() {
-    var $table = $('#table_origin');
+    var $table = $('#table_review');
     var $tbody = $table.find('tbody'); // initial data
 
     getRankData(params); // rank mark
@@ -300,50 +338,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     $downloadModal.on('hidden.bs.modal', function () {
       $downloadModal.off('click', '#downloadBtn');
     });
-    $tbody.on('click', 'button[data-action=star]', function star() {
-      var $target = $(this);
-      var $tr = $target.closest('tr');
-      var id = $tr.attr('data-id');
-      var action = $target.attr('data-toggle');
-      var TOAST_OPTION = {
-        icon: 'success',
-        position: 'bottom-right',
-        allowToastClose: false,
-        stack: false,
-        loader: false,
-        hideAfter: 2000,
-        textAlign: 'center'
-      };
-      $.toast().reset('all');
-
-      if (action === 'star') {
-        starFile({
-          fileDataId: id,
-          opsFavoritesType: 1
-        }, function () {
-          $target.attr({
-            'data-toggle': 'unstar',
-            title: '取消收藏'
-          }).children('.material-icons').text('star');
-          $.toast(_objectSpread({
-            heading: '收藏成功'
-          }, TOAST_OPTION));
-        });
-      } else if (action === 'unstar') {
-        starFile({
-          fileDataId: id,
-          opsFavoritesType: 2
-        }, function () {
-          $target.attr({
-            'data-toggle': 'star',
-            title: '收藏'
-          }).children('.material-icons').text('star_border');
-          $.toast(_objectSpread({
-            heading: '已取消收藏'
-          }, TOAST_OPTION));
-        });
-      }
-    }).on('click', 'button[data-action=download]', function () {
+    $tbody.on('click', 'button[data-action=download]', function () {
       // prettier-ignore
       var id = $(this).closest('tr').attr('data-id');
       var targetFile = {
@@ -369,6 +364,80 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var prefix = $('base').attr('href');
       var url = "".concat(prefix, "fileData/queryChartImg?fileDataId=").concat(id);
       window.open(url);
+    }); // checkbox
+
+    var $all = $table.find('thead .check-all');
+    $all.on('change', '.form-check-input', function checkAll() {
+      $tbody.find('.form-check-input').prop('checked', this.checked);
+    });
+    $tbody.on('change', '.form-check-input', function check() {
+      var $checks = $tbody.find('.form-check-input');
+      var allChecked = Array.from($checks).every(function (ch) {
+        return ch.checked;
+      });
+      $all.find('.form-check-input').prop('checked', allChecked);
+    }); // batch button
+
+    var $batchModal = $('#batchModal');
+    $batchModal.on('hidden.bs.modal', function () {
+      $batchModal.off('click', '#confirmBtn');
+    });
+    $('#btn_inspect').on('click', function inspect() {
+      var $checked = $tbody.find('.form-check-input:checked');
+      var checkedIds = Array.from($checked).map(function (ch) {
+        return parseInt($(ch).closest('tr').attr('data-id'), 10);
+      });
+
+      if (!checkedIds.length) {
+        toastErr({
+          heading: '未选择文件'
+        });
+        return;
+      }
+
+      $batchModal.find('.modal-body .count').text("".concat(checkedIds.length, " \u4E2A\u6587\u4EF6"));
+      $batchModal.find('.modal-body .operation').text('检测');
+      $batchModal.modal();
+      $batchModal.on('click', '#confirmBtn', function () {
+        $batchModal.modal('hide');
+        batchInspect({
+          fileDataIds: checkedIds
+        }, function () {
+          window.location.reload();
+        });
+      });
+    });
+    $('#btn_release').on('click', function release() {
+      var $checked = $tbody.find('.form-check-input:checked');
+      var checkedIds = Array.from($checked).map(function (ch) {
+        return parseInt($(ch).closest('tr').attr('data-id'), 10);
+      });
+
+      if (!checkedIds.length) {
+        toastErr({
+          heading: '未选择文件'
+        });
+        return;
+      }
+
+      $batchModal.find('.modal-body .count').text("".concat(checkedIds.length, " \u4E2A\u6587\u4EF6"));
+      $batchModal.find('.modal-body .operation').text('发布');
+      $batchModal.modal();
+      $batchModal.on('click', '#confirmBtn', function () {
+        $batchModal.modal('hide');
+        batchRelease({
+          fileDataIds: checkedIds
+        }, function () {
+          window.location.reload();
+        });
+      });
+    }); // error info modal
+
+    $tbody.on('click', '.err-abbr', function errInfo() {
+      var id = $(this).closest('tr').attr('data-id');
+      getErrorInfo({
+        fileDataId: id
+      });
     });
   }
 
@@ -401,6 +470,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         translate = '文件状态';
         break;
 
+      case 'inspect':
+        translate = '检测状态';
+        break;
+
+      case 'release':
+        translate = '发布状态';
+        break;
+
       default:
         translate = '';
         break;
@@ -428,13 +505,36 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     if (obj.unread && !hasReadFile(parseInt(obj.id, 10))) {
       className += ' unread';
+    } // inspect status classname
+
+
+    var inspectCls;
+    var $errInspect = '';
+
+    switch (obj.inspect) {
+      case 1:
+        inspectCls = 'text-warning';
+        break;
+
+      case 2:
+        inspectCls = 'text-danger';
+        $errInspect = "\n          <span class=\"err-abbr\" title=\"\u70B9\u51FB\u67E5\u770B\u8BE6\u60C5\">\n            ".concat(obj.inspectStr, "\n          </span>\n        ");
+        break;
+
+      case 3:
+        inspectCls = 'text-success';
+        break;
+
+      default:
+        inspectCls = '';
+        break;
     }
 
-    return "\n      <tr data-id=\"".concat(obj.id, "\">\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"").concat(className, "\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td title=\"").concat(obj.company, "\">").concat(obj.company.substr(0, 4), "</td>\n        <td>").concat(obj.bonus, "</td>\n        <td class=\"td-actions\">").concat($stateTd, "</td>\n        <td class=\"text-right\">").concat(obj.download, "</td>\n        <td class=\"td-actions text-right\">\n          <button\n            data-action=\"star\"\n            data-toggle=\"").concat(obj.fav ? 'unstar' : 'star', "\"\n            type=\"button\"\n            class=\"btn btn-warning\"\n            title=\"").concat(obj.fav ? '取消' : '', "\u6536\u85CF\"\n          >\n            <i class=\"material-icons\">star").concat(obj.fav ? '' : '_border', "</i>\n          </button>\n          <button\n            data-action=\"download\"\n            type=\"button\"\n            class=\"btn btn-success\"\n            title=\"\u4E0B\u8F7D\"\n          >\n            <i class=\"material-icons\">get_app</i>\n          </button>\n        </td>\n      </tr>\n    ");
+    return "\n      <tr data-id=\"".concat(obj.id, "\">\n        <td>\n          <div class=\"form-check\">\n            <label class=\"form-check-label\">\n              <input class=\"form-check-input\" type=\"checkbox\" value=\"\">\n              <span class=\"form-check-sign\">\n                <span class=\"check\"></span>\n              </span>\n            </label>\n          </div>\n        </td>\n        <td\n          class=\"text-left\"\n          title=\"").concat(obj.title, "\"\n        >\n          <div class=\"").concat(className, "\">").concat(obj.title, "</div>\n        </td>\n        <td>").concat(obj.date, "</td>\n        <td>").concat(obj.size, "</td>\n        <td>").concat(obj.cate, "</td>\n        <td>").concat(obj.brand, "</td>\n        <td title=\"").concat(obj.company, "\">").concat(obj.company.substr(0, 4), "</td>\n        <td>").concat(obj.bonus, "</td>\n        <td class=\"td-actions\">").concat($stateTd, "</td>\n        <td class=\"").concat(inspectCls, "\">").concat($errInspect || obj.inspectStr, "</td>\n        <td class=\"").concat(obj.release ? "text-success" : "", "\">\n          ").concat(obj.releaseStr, "\n        </td>\n        <td class=\"text-right\">").concat(obj.download, "</td>\n        <td class=\"td-actions text-right\">\n          <button\n            data-action=\"download\"\n            type=\"button\"\n            class=\"btn btn-success\"\n            title=\"\u4E0B\u8F7D\"\n          >\n            <i class=\"material-icons\">get_app</i>\n          </button>\n        </td>\n      </tr>\n    ");
   }
 
   function buildPage(options) {
-    var $pagination = $('#table_origin').siblings('nav').find('ul.pagination');
+    var $pagination = $('#table_review').siblings('nav').find('ul.pagination');
     $pagination.find('li.page-item:not(.prev):not(.next)').remove();
     var $next = $pagination.find('.page-item.next');
     var max = options.pages;
@@ -500,7 +600,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }
 
   function getRankData(obj) {
-    var $tbody = $('#table_origin tbody');
+    var $table = $('#table_review');
+    var $tbody = $table.find('tbody');
+    var $checkAll = $table.find('thead .check-all .form-check-input'); // clear checkbox
+
+    $checkAll.prop('checked', false); // request
+
     $.post('fileData/queryFileData', obj, function (res) {
       handleResult(res, function (data) {
         // build table
@@ -524,7 +629,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               state: parseInt(file.fileDataStatus, 10) === 2,
               stateStr: file.fileDataStatusDesc,
               download: file.downloadCount,
-              fav: parseInt(file.favoriteStatus, 10) === 1,
+              releaseStr: file.releaseStatusDesc,
+              release: file.releaseStatus,
+              inspectStr: file.checkStatusDesc,
+              inspect: file.checkStatus,
               unread: !!parseInt(file.flag, 10)
             }));
           });
@@ -557,9 +665,63 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
   }
 
-  function starFile(obj, done) {
-    $.post('account/doFavorites', obj, function (res) {
+  function batchInspect(obj, done) {
+    var $body = $(document.body);
+    $body.loading({
+      message: '提交中...'
+    });
+    $.post('fileData/doFileCheck', obj, function (res) {
+      $body.loading('stop');
       handleResult(res, done);
+    });
+  }
+
+  function batchRelease(obj, done) {
+    var $body = $(document.body);
+    $body.loading({
+      message: '提交中...'
+    });
+    $.post('fileData/doFileRelease', obj, function (res) {
+      $body.loading('stop');
+      handleResult(res, done);
+    });
+  }
+
+  function getErrorInfo(obj) {
+    $.post('fileData/queryFileCheckData', obj, function (res) {
+      handleResult(res, function (data) {
+        var $modal = $('#errorModal');
+        var $tbody = $modal.find('.modal-body tbody');
+        $tbody.html('');
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var _step$value = _step.value,
+                conflictFileName = _step$value.conflictFileName,
+                checkDesc = _step$value.checkDesc,
+                checkTime = _step$value.checkTime;
+            $tbody.append("\n            <tr>\n              <td>".concat(conflictFileName, "</td>\n              <td>").concat(checkDesc, "</td>\n              <td class=\"text-center\">").concat(checkTime, "</td>\n            </tr>\n          "));
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+              _iterator["return"]();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+
+        $modal.modal();
+      });
     });
   }
 })();

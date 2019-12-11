@@ -1,7 +1,7 @@
 ;(function() {
   // initial params
   let params = {
-    pageType: 0,
+    pageType: 1,
     pageNum: 1,
     pageSize: 5,
     sortType: 1,
@@ -9,6 +9,8 @@
     classOne: 0,
     classTwo: 0,
     status: 0,
+    releaseStatus: -1,
+    checkStatus: -1,
     brands: []
   }
   if (!sessionStorage.readFileList) {
@@ -43,6 +45,16 @@
       id: obj.value,
       label: obj.name
     }))
+    let filterInspect = JSON.parse(filterInspectStr)
+    let inspects = filterInspect.map(obj => ({
+      id: obj.value,
+      label: obj.name
+    }))
+    let filterRelease = JSON.parse(filterReleaseStr)
+    let releases = filterRelease.map(obj => ({
+      id: obj.value,
+      label: obj.name
+    }))
     // build conditions
     let $combine = $('.filter .combine')
     let $condition = $('.filter .condition')
@@ -73,6 +85,22 @@
           multi: false
         })
       )
+      .append(
+        buildCondition({
+          cat: 'inspect',
+          catStr: '检测状态',
+          options: inspects,
+          multi: false
+        })
+      )
+      .append(
+        buildCondition({
+          cat: 'release',
+          catStr: '发布状态',
+          options: releases,
+          multi: false
+        })
+      )
 
     $combine
       .on('click', '.factor', function cancel() {
@@ -96,6 +124,12 @@
           case 'status':
             params.status = 0
             break
+          case 'inspect':
+            params.checkStatus = -1
+            break
+          case 'release':
+            params.releaseStatus = -1
+            break
           default:
             return
         }
@@ -112,6 +146,8 @@
         params.classOne = 0
         params.classTwo = 0
         params.status = 0
+        params.checkStatus = -1
+        params.releaseStatus = -1
         getRankData(params)
       })
     $condition
@@ -149,6 +185,12 @@
             break
           case 'status':
             params.status = parseInt($target.attr('data-id'), 10)
+            break
+          case 'inspect':
+            params.checkStatus = parseInt($target.attr('data-id'), 10)
+            break
+          case 'release':
+            params.releaseStatus = parseInt($target.attr('data-id'), 10)
             break
           default:
             return
@@ -199,7 +241,7 @@
   }
 
   function initRank() {
-    let $table = $('#table_origin')
+    let $table = $('#table_review')
     let $tbody = $table.find('tbody')
     // initial data
     getRankData(params)
@@ -311,51 +353,6 @@
       $downloadModal.off('click', '#downloadBtn')
     })
     $tbody
-      .on('click', 'button[data-action=star]', function star() {
-        let $target = $(this)
-        let $tr = $target.closest('tr')
-        let id = $tr.attr('data-id')
-        let action = $target.attr('data-toggle')
-        const TOAST_OPTION = {
-          icon: 'success',
-          position: 'bottom-right',
-          allowToastClose: false,
-          stack: false,
-          loader: false,
-          hideAfter: 2000,
-          textAlign: 'center'
-        }
-        $.toast().reset('all')
-        if (action === 'star') {
-          starFile(
-            { fileDataId: id, opsFavoritesType: 1 },
-            function() {
-              $target
-                .attr({ 'data-toggle': 'unstar', title: '取消收藏' })
-                .children('.material-icons')
-                .text('star')
-              $.toast({
-                heading: '收藏成功',
-                ...TOAST_OPTION
-              })
-            }
-          )
-        } else if (action === 'unstar') {
-          starFile(
-            { fileDataId: id, opsFavoritesType: 2 },
-            function() {
-              $target
-                .attr({ 'data-toggle': 'star', title: '收藏' })
-                .children('.material-icons')
-                .text('star_border')
-              $.toast({
-                heading: '已取消收藏',
-                ...TOAST_OPTION
-              })
-            }
-          )
-        }
-      })
       .on('click', 'button[data-action=download]', function() {
         // prettier-ignore
         let id = $(this).closest('tr').attr('data-id')
@@ -384,6 +381,64 @@
         let url = `${prefix}fileData/queryChartImg?fileDataId=${id}`
         window.open(url)
       })
+    // checkbox
+    let $all = $table.find('thead .check-all')
+    $all.on('change', '.form-check-input', function checkAll() {
+      $tbody.find('.form-check-input').prop('checked', this.checked)
+    })
+    $tbody.on('change', '.form-check-input', function check() {
+      let $checks = $tbody.find('.form-check-input')
+      let allChecked = Array.from($checks).every(ch => ch.checked)
+      $all.find('.form-check-input').prop('checked', allChecked)
+    })
+    // batch button
+    let $batchModal = $('#batchModal')
+    $batchModal.on('hidden.bs.modal', function() {
+      $batchModal.off('click', '#confirmBtn')
+    })
+    $('#btn_inspect').on('click', function inspect() {
+      let $checked = $tbody.find('.form-check-input:checked')
+      let checkedIds = Array.from($checked).map(ch => {
+        return parseInt($(ch).closest('tr').attr('data-id'), 10)
+      })
+      if (!checkedIds.length) {
+        toastErr({ heading: '未选择文件' })
+        return
+      }
+      $batchModal.find('.modal-body .count').text(`${checkedIds.length} 个文件`)
+      $batchModal.find('.modal-body .operation').text('检测')
+      $batchModal.modal()
+      $batchModal.on('click', '#confirmBtn', function() {
+        $batchModal.modal('hide')
+        batchInspect({ fileDataIds: checkedIds }, function() {
+          window.location.reload()
+        })
+      })
+    })
+    $('#btn_release').on('click', function release() {
+      let $checked = $tbody.find('.form-check-input:checked')
+      let checkedIds = Array.from($checked).map(ch => {
+        return parseInt($(ch).closest('tr').attr('data-id'), 10)
+      })
+      if (!checkedIds.length) {
+        toastErr({ heading: '未选择文件' })
+        return
+      }
+      $batchModal.find('.modal-body .count').text(`${checkedIds.length} 个文件`)
+      $batchModal.find('.modal-body .operation').text('发布')
+      $batchModal.modal()
+      $batchModal.on('click', '#confirmBtn', function() {
+        $batchModal.modal('hide')
+        batchRelease({ fileDataIds: checkedIds }, function() {
+          window.location.reload()
+        })
+      })
+    })
+    // error info modal
+    $tbody.on('click', '.err-abbr', function errInfo() {
+      let id = $(this).closest('tr').attr('data-id')
+      getErrorInfo({ fileDataId: id })
+    })
   }
 
   function buildCondition(obj) {
@@ -429,6 +484,12 @@
       case 'status':
         translate = '文件状态'
         break
+      case 'inspect':
+        translate = '检测状态'
+        break
+      case 'release':
+        translate = '发布状态'
+        break
       default:
         translate = ''
         break
@@ -470,8 +531,40 @@
     if (obj.unread && !hasReadFile(parseInt(obj.id, 10))){
       className += ' unread'
     }
+    // inspect status classname
+    let inspectCls
+    let $errInspect = ''
+    switch (obj.inspect) {
+      case 1:
+        inspectCls = 'text-warning'
+        break
+      case 2:
+        inspectCls = 'text-danger'
+        $errInspect = `
+          <span class="err-abbr" title="点击查看详情">
+            ${obj.inspectStr}
+          </span>
+        `
+        break
+      case 3:
+        inspectCls = 'text-success'
+        break
+      default:
+        inspectCls = ''
+        break
+    }
     return `
       <tr data-id="${obj.id}">
+        <td>
+          <div class="form-check">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" value="">
+              <span class="form-check-sign">
+                <span class="check"></span>
+              </span>
+            </label>
+          </div>
+        </td>
         <td
           class="text-left"
           title="${obj.title}"
@@ -485,17 +578,12 @@
         <td title="${obj.company}">${obj.company.substr(0, 4)}</td>
         <td>${obj.bonus}</td>
         <td class="td-actions">${$stateTd}</td>
+        <td class="${inspectCls}">${$errInspect || obj.inspectStr}</td>
+        <td class="${obj.release ? "text-success" : ""}">
+          ${obj.releaseStr}
+        </td>
         <td class="text-right">${obj.download}</td>
         <td class="td-actions text-right">
-          <button
-            data-action="star"
-            data-toggle="${obj.fav ? 'unstar' : 'star'}"
-            type="button"
-            class="btn btn-warning"
-            title="${obj.fav ? '取消' : ''}收藏"
-          >
-            <i class="material-icons">star${obj.fav ? '' : '_border'}</i>
-          </button>
           <button
             data-action="download"
             type="button"
@@ -510,7 +598,7 @@
   }
 
   function buildPage(options) {
-    let $pagination = $('#table_origin')
+    let $pagination = $('#table_review')
       .siblings('nav')
       .find('ul.pagination')
     $pagination.find('li.page-item:not(.prev):not(.next)').remove()
@@ -585,7 +673,12 @@
   }
 
   function getRankData(obj) {
-    let $tbody = $('#table_origin tbody')
+    let $table = $('#table_review')
+    let $tbody = $table.find('tbody')
+    let $checkAll = $table.find('thead .check-all .form-check-input')
+    // clear checkbox
+    $checkAll.prop('checked', false)
+    // request
     $.post('fileData/queryFileData', obj, function(res) {
       handleResult(res, function(data) {
         // build table
@@ -609,7 +702,10 @@
                 state: parseInt(file.fileDataStatus, 10) === 2,
                 stateStr: file.fileDataStatusDesc,
                 download: file.downloadCount,
-                fav: parseInt(file.favoriteStatus, 10) === 1,
+                releaseStr: file.releaseStatusDesc,
+                release: file.releaseStatus,
+                inspectStr: file.checkStatusDesc,
+                inspect: file.checkStatus,
                 unread: !!parseInt(file.flag, 10)
               })
             )
@@ -633,9 +729,45 @@
     $.fileDownload(url, { httpMethod: 'POST', data: obj })
   }
 
-  function starFile(obj, done) {
-    $.post('account/doFavorites', obj, function(res) {
+  function batchInspect(obj, done) {
+    let $body = $(document.body)
+    $body.loading({
+      message: '提交中...'
+    })
+    $.post('fileData/doFileCheck', obj, function(res) {
+      $body.loading('stop')
       handleResult(res, done)
+    })
+  }
+
+  function batchRelease(obj, done) {
+    let $body = $(document.body)
+    $body.loading({
+      message: '提交中...'
+    })
+    $.post('fileData/doFileRelease', obj, function(res) {
+      $body.loading('stop')
+      handleResult(res, done)
+    })
+  }
+
+  function getErrorInfo(obj) {
+    $.post('fileData/queryFileCheckData', obj, function(res) {
+      handleResult(res, function(data) {
+        let $modal = $('#errorModal')
+        let $tbody = $modal.find('.modal-body tbody')
+        $tbody.html('')
+        for (let {conflictFileName, checkDesc, checkTime} of data) {
+          $tbody.append(`
+            <tr>
+              <td>${conflictFileName}</td>
+              <td>${checkDesc}</td>
+              <td class="text-center">${checkTime}</td>
+            </tr>
+          `)
+        }
+        $modal.modal()
+      })
     })
   }
 })()

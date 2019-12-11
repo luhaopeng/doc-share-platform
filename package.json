@@ -13,13 +13,15 @@
     "build-login": "uglifyjs dist/js/babel/login.js -o dist/js/login.min.js -c -m",
     "build-origin": "uglifyjs dist/js/babel/origin.js -o dist/js/origin.min.js -c -m",
     "build-parsed": "uglifyjs dist/js/babel/parsed.js -o dist/js/parsed.min.js -c -m",
+    "build-review": "uglifyjs dist/js/babel/review.js -o dist/js/review.min.js -c -m",
     "build-password": "uglifyjs dist/js/babel/password.js -o dist/js/password.min.js -c -m",
     "build-upload": "uglifyjs dist/js/babel/upload.js -o dist/js/upload.min.js -c -m",
     "build-util": "uglifyjs dist/js/babel/util.js -o dist/js/util.min.js -c -m",
     "build-1": "npm run build-404 && npm run build-account && npm run build-admin && npm run build-file",
     "build-2": "npm run build-home && npm run build-login && npm run build-origin && npm run build-parsed",
     "build-3": "npm run build-password && npm run build-upload && npm run build-util && npm run build-main",
-    "build": "npm run build-1 && npm run build-2 && npm run build-3"
+    "build-4": "npm run build-review",
+    "build": "npm run build-1 && npm run build-2 && npm run build-3 && npm run build-4"
   },
   "author": "luhaopeng",
   "license": "MIT",
