@@ -242,49 +242,49 @@
           <div class="row">
             <div class="col-sm-3">
               <div class="row">
-                <div class="col-sm-7">暂态开启最大有功功率</div>
+                <div class="col-sm-7">暂态开启最大有功功率(W)</div>
                 <div class="col-sm-5">${openmaxpStr}</div>
               </div>
             </div>
             <div class="col-sm-3">
               <div class="row">
-                <div class="col-sm-7">暂态开启最大无功功率</div>
+                <div class="col-sm-7">暂态开启最大无功功率(Var)</div>
                 <div class="col-sm-5">${openmaxqStr}</div>
               </div>
             </div>
             <div class="col-sm-3">
               <div class="row">
-                <div class="col-sm-7">暂态开启最小有功功率</div>
+                <div class="col-sm-7">暂态开启最小有功功率(W)</div>
                 <div class="col-sm-5">${openminpStr}</div>
               </div>
             </div>
             <div class="col-sm-3">
               <div class="row">
-                <div class="col-sm-7">暂态开启最小无功功率</div>
+                <div class="col-sm-7">暂态开启最小无功功率(Var)</div>
                 <div class="col-sm-5">${openminqStr}</div>
               </div>
             </div>
             <div class="col-sm-3">
               <div class="row">
-                <div class="col-sm-7">暂态关闭最大有功功率</div>
+                <div class="col-sm-7">暂态关闭最大有功功率(W)</div>
                 <div class="col-sm-5">${closemaxpStr}</div>
               </div>
             </div>
             <div class="col-sm-3">
               <div class="row">
-                <div class="col-sm-7">暂态关闭最大无功功率</div>
+                <div class="col-sm-7">暂态关闭最大无功功率(Var)</div>
                 <div class="col-sm-5">${closemaxqStr}</div>
               </div>
             </div>
             <div class="col-sm-3">
               <div class="row">
-                <div class="col-sm-7">暂态关闭最小有功功率</div>
+                <div class="col-sm-7">暂态关闭最小有功功率(W)</div>
                 <div class="col-sm-5">${closeminpStr}</div>
               </div>
             </div>
             <div class="col-sm-3">
               <div class="row">
-                <div class="col-sm-7">暂态关闭最小无功功率</div>
+                <div class="col-sm-7">暂态关闭最小无功功率(Var)</div>
                 <div class="col-sm-5">${closeminqStr}</div>
               </div>
             </div>

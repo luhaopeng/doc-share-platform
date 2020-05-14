@@ -482,7 +482,7 @@
         <td>${obj.size}</td>
         <td>${obj.cate}</td>
         <td>${obj.brand}</td>
-        <td title="${obj.company}">${obj.company.substr(0, 4)}</td>
+        <td title="${obj.company}">${obj.company.substr(0, 6)}</td>
         <td>${obj.bonus}</td>
         <td class="td-actions">${$stateTd}</td>
         <td class="text-right">${obj.download}</td>

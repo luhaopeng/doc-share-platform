@@ -426,7 +426,7 @@
         <td>${obj.type}</td>
         <td>${obj.cate}</td>
         <td>${obj.brand}</td>
-        <td title="${obj.company}">${obj.company.substr(0, 4)}</td>
+        <td title="${obj.company}">${obj.company.substr(0, 6)}</td>
         <td>${obj.bonus}</td>
         <td class="text-right">${obj.download}</td>
         <td class="td-actions text-right">
